@@ -1,0 +1,64 @@
+<!doctype html>
+<!-- Bundled Syne font license:
+__FONT_LICENSE__
+-->
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Flame viewer</title>
+  <link rel="icon" href="data:,">
+  <style>__STYLE__</style>
+</head>
+<body>
+  <main class="app">
+    <nav id="elements" class="elements panel" aria-label="Elementi disponibili"></nav>
+    <section class="stage panel" aria-label="Visualizzazione della fiamma">
+      <div id="stage-content" class="stage-content">
+      <img id="lab-background" class="lab-background" alt="">
+      <button id="jar-hotspot" class="jar-hotspot" type="button" aria-label="Mostra la formula del reagente">
+        <svg viewBox="0 0 180 450" aria-hidden="true">
+          <defs>
+            <path id="jar-body-shape" d="M52 83Q45 84 45 90v8q0 7 10 9l1 34q0 6 5 8l1 15c-23 7-40 20-50 37Q4 216 4 247v157q0 27 12 34 12 7 32 8h84q21-1 32-8 12-8 12-34V247q0-31-9-46-10-17-27-25-10-5-22-12l1-15q5-2 5-8l1-34q10-2 10-9v-8q0-6-7-7z"/>
+            <mask id="jar-silhouette">
+              <rect width="180" height="450" fill="black"/>
+              <circle cx="92" cy="44" r="39" fill="white"/>
+              <use href="#jar-body-shape" fill="white"/>
+            </mask>
+            <filter id="jar-soft-glow" x="-30" y="-30" width="240" height="510" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+              <feGaussianBlur stdDeviation="5"/>
+            </filter>
+          </defs>
+          <g class="jar-glow-layer">
+            <rect class="jar-glow-fill" width="180" height="450" mask="url(#jar-silhouette)"/>
+            <g filter="url(#jar-soft-glow)">
+              <circle class="jar-glow-blur" cx="92" cy="44" r="39"/>
+              <use class="jar-glow-blur" href="#jar-body-shape"/>
+            </g>
+          </g>
+        </svg>
+      </button>
+      <div class="sample-fixture">
+        <img class="rod-glow-image" alt="">
+        <img class="sample-image" src="data:image/png;base64,__SAMPLE_ROD_IMAGE__" alt="Bacchetta con filo di platino e sale" draggable="false">
+        <img class="rod-fill-image" alt="">
+        <span class="rod-drag-handle" aria-hidden="true"></span>
+        <span class="salt-marker"></span>
+      </div>
+      <canvas id="flame" role="img" aria-label="Fiamma animata del sodio"></canvas>
+      </div>
+    </section>
+    <section id="reagent-panel" class="reagent-panel panel" aria-live="polite">
+      <strong id="reagent-formula" class="reagent-formula"></strong>
+    </section>
+    <section class="spectrum panel" aria-label="Spettro di emissione">
+      <h2 class="spectrum-title">Spettro di emissione</h2>
+      <svg id="spectrum" viewBox="0 0 1000 148" role="img" aria-label="Righe di emissione atomica selezionate"></svg>
+    </section>
+  </main>
+  <noscript>JavaScript required.</noscript>
+  <script id="flame-data" type="application/json">__DATA__</script>
+  <script>__SCRIPT__</script>
+</body>
+</html>
