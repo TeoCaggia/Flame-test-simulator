@@ -1,0 +1,39 @@
+# Flame-test spectral data used by the viewer
+# element: Rubidio (Rb)
+# reagent: Cloruro di rubidio (RbCl)
+# range_nm: 380-770 air wavelengths
+# NIST criterion: line_out=3, Only with observed wavelengths or intensities
+# Atomic intensity: numeric part of NIST Rel. int.; source-dependent and qualitative.
+# Molecular intensity: within-species source ratio; cross-species scale is an explicit estimate.
+# Emissions without a positive numeric relative intensity are excluded.
+# fields: species|wavelength_nm|wavelength_kind|rel_intensity_raw|rel_intensity_numeric|normalized_within_species|component_scale|plotted_relative|transition_type|source_ref|notes
+Rb I|420.1792|observed|1000|1000|1|1|1|E1|L3287|NIST ASD Rel. int. descriptor preserved in raw field
+Rb I|421.5524|observed|500|500|0.5|1|0.5|E1|L3287|NIST ASD Rel. int. descriptor preserved in raw field
+Rb I|508.79874|observed|2|2|0.002|1|0.002|E1|L7459|NIST ASD Rel. int. descriptor preserved in raw field
+Rb I|513.24708|observed|2|2|0.002|1|0.002|E1|L7459|NIST ASD Rel. int. descriptor preserved in raw field
+Rb I|515.01339|observed|10|10|0.01|1|0.01|E1|L7459|NIST ASD Rel. int. descriptor preserved in raw field
+Rb I|516.50231|observed|1|1|0.001|1|0.001|M1+E2|L7459|NIST ASD Rel. int. descriptor preserved in raw field
+Rb I|516.51416|observed|2|2|0.002|1|0.002|E2|L7459|NIST ASD Rel. int. descriptor preserved in raw field
+Rb I|516.9651|observed|1|1|0.001|1|0.001|E1|L3522|NIST ASD Rel. int. descriptor preserved in raw field
+Rb I|519.52778|observed|15|15|0.015|1|0.015|E1|L7459|NIST ASD Rel. int. descriptor preserved in raw field
+Rb I|523.39679|observed|2|2|0.002|1|0.002|E1|L7459|NIST ASD Rel. int. descriptor preserved in raw field
+Rb I|526.00338|observed|20|20|0.02|1|0.02|E1|L7459|NIST ASD Rel. int. descriptor preserved in raw field
+Rb I|526.02285|observed|1|1|0.001|1|0.001|E1|L7459|NIST ASD Rel. int. descriptor preserved in raw field
+Rb I|532.238|observed|3|3|0.003|1|0.003|E1|L7459|NIST ASD Rel. int. descriptor preserved in raw field
+Rb I|536.26013|observed|40|40|0.04|1|0.04|E1|L7459|NIST ASD Rel. int. descriptor preserved in raw field
+Rb I|539.05679|observed|4|4|0.004|1|0.004|E1|L7459|NIST ASD Rel. int. descriptor preserved in raw field
+Rb I|543.15321|observed|75|75|0.075|1|0.075|E1|L7459|NIST ASD Rel. int. descriptor preserved in raw field
+Rb I|543.18305|observed|3|3|0.003|1|0.003|E1|L7459|NIST ASD Rel. int. descriptor preserved in raw field
+Rb I|557.8788|observed|6|6|0.006|1|0.006|E1|L7459|NIST ASD Rel. int. descriptor preserved in raw field
+Rb I|564.77735|observed|40|40|0.04|1|0.04|E1|L7459|NIST ASD Rel. int. descriptor preserved in raw field
+Rb I|565.375|observed|20|20|0.02|1|0.02|E1|L7459|NIST ASD Rel. int. descriptor preserved in raw field
+Rb I|572.41208|observed|60|60|0.06|1|0.06|E1|L7459|NIST ASD Rel. int. descriptor preserved in raw field
+Rb I|572.46143|observed|3|3|0.003|1|0.003|E1|L7459|NIST ASD Rel. int. descriptor preserved in raw field
+Rb I|607.07547|observed|75|75|0.075|1|0.075|E1|L7459|NIST ASD Rel. int. descriptor preserved in raw field
+Rb I|615.96264|observed|30c|30|0.03|1|0.03|E1|L7459|NIST ASD Rel. int. descriptor preserved in raw field
+Rb I|620.63092|observed|75c|75|0.075|1|0.075|E1|L7459|NIST ASD Rel. int. descriptor preserved in raw field
+Rb I|629.83252|observed|120c|120|0.12|1|0.12|E1|L7459|NIST ASD Rel. int. descriptor preserved in raw field
+Rb I|629.92245|observed|5|5|0.005|1|0.005|E1|L7459|NIST ASD Rel. int. descriptor preserved in raw field
+Rb I|727.99968|observed|100l|100|0.1|1|0.1|E1|L7459|NIST ASD Rel. int. descriptor preserved in raw field
+Rb I|740.81731|observed|150|150|0.15|1|0.15|E1|L7459|NIST ASD Rel. int. descriptor preserved in raw field
+Rb I|761.8933|observed|200l|200|0.2|1|0.2|E1|L7459|NIST ASD Rel. int. descriptor preserved in raw field

@@ -15,8 +15,14 @@ __FONT_LICENSE__
   <main class="app">
     <nav id="elements" class="elements panel" aria-label="Elementi disponibili"></nav>
     <section class="stage panel" aria-label="Visualizzazione della fiamma">
+      <label class="quick-mode-toggle">
+        <input id="quick-mode" type="checkbox">
+        <span class="quick-mode-switch" aria-hidden="true"></span>
+        <span>Modalità rapida</span>
+      </label>
       <div id="stage-content" class="stage-content">
       <img id="lab-background" class="lab-background" alt="">
+      <img id="lab-background-next" class="lab-background lab-background-next" alt="">
       <button id="jar-hotspot" class="jar-hotspot" type="button" aria-label="Mostra la formula del reagente">
         <svg viewBox="0 0 180 450" aria-hidden="true">
           <defs>
@@ -52,9 +58,17 @@ __FONT_LICENSE__
     <section id="reagent-panel" class="reagent-panel panel" aria-live="polite">
       <strong id="reagent-formula" class="reagent-formula"></strong>
     </section>
-    <section class="spectrum panel" aria-label="Spettro di emissione">
-      <h2 class="spectrum-title">Spettro di emissione</h2>
-      <svg id="spectrum" viewBox="0 0 1000 148" role="img" aria-label="Righe di emissione atomica selezionate"></svg>
+    <section class="spectrum" aria-label="Spettro di emissione">
+      <div class="spectrum-plot panel">
+        <div class="spectrum-heading">
+          <h2 class="spectrum-title">Spettro di emissione</h2>
+        </div>
+        <svg id="spectrum" viewBox="0 0 1000 148" role="img" aria-label="Righe atomiche e bande molecolari dello spettro di emissione"></svg>
+      </div>
+      <aside class="spectrum-note panel" aria-labelledby="spectrum-note-title">
+        <h2 id="spectrum-note-title" class="spectrum-note-title">Descrizione</h2>
+        <p id="spectrum-description" class="spectrum-description" aria-live="polite">Seleziona un elemento per leggere la descrizione del suo spettro.</p>
+      </aside>
     </section>
   </main>
   <noscript>JavaScript required.</noscript>

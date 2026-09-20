@@ -2,28 +2,50 @@
   'use strict';
   const data = JSON.parse(document.getElementById('flame-data').textContent);
   const byId = id => document.getElementById(id);
+  const app = document.querySelector('.app');
   const elements = new Map(data.elements.map(element => [element.symbol, element]));
   byId('elements').style.setProperty('--element-count', data.elements.length);
   const query = new URLSearchParams(location.search);
   const requestedElement=elements.get(query.get('element'));
   const fallbackElement=elements.get(data.defaultElement)||data.elements[0];
   let current=requestedElement||null;
-  const bounds = [350, 800];
+  const bounds = [380, 770];
+  let spectrumView=[...bounds];
+  let spectrumDrag=null;
+  const spectrumTicks = [380,400,450,500,550,600,650,700,750,770];
   let time = 0;
   let rodHasMoved = false;
   let rodOutsideSince = null;
   let selectionBusy=false;
+  let quickMode=false;
   const COLOR_FADE_DURATION=.5;
   let colorFadeStartedAt=null,colorFadeOutStartedAt=null,colorFadeOutFrom=0,colorFadeOutDuration=COLOR_FADE_DURATION;
   let spectrumReveal=0;
   let spectrumTarget=0;
   let spectrumTransition=null;
-  const SPECTRUM_TRANSITION_DURATION=4/9;
+  let spectrumMorph=null;
+  const SPECTRUM_REVEAL_DURATION=2/9;
+  const SPECTRUM_HIDE_DURATION=2/9;
+  const SPECTRUM_SAMPLES_PER_PIXEL=2;
+  const ROD_SWITCH_DELAY=500;
+  const ROD_SWITCH_SPEED=1.43;
+  const BACKGROUND_TRANSITION_DURATION=360;
+  let flameColorTransition=null;
+  const BACKGROUND_POSITION_Y=.24;
+  const JAR_PULSE_RESTART_DELAY=1000;
+  let jarPulseRestartTimer=null;
   const svgNS = 'http://www.w3.org/2000/svg';
+  const spectrumCache = new WeakMap();
+  const combinedSpectrumCache = new WeakMap();
   function setSpectrumTarget(target){
     if(target===spectrumTarget)return;
     spectrumTarget=target;
-    spectrumTransition={from:spectrumReveal,to:target,startedAt:time};
+    spectrumTransition={
+      from:spectrumReveal,
+      to:target,
+      startedAt:time,
+      duration:target>spectrumReveal?SPECTRUM_REVEAL_DURATION:SPECTRUM_HIDE_DURATION
+    };
   }
   function svgNode(tag, attrs = {}, text) {
     const node = document.createElementNS(svgNS, tag);
@@ -32,14 +54,98 @@
     return node;
   }
   function spectralColor(nm) {
-    const stops = [[380,[137,74,223]],[440,[83,77,255]],[490,[42,197,246]],
-      [515,[53,217,135]],[555,[174,231,70]],[590,[255,206,54]],
-      [630,[255,90,49]],[700,[218,45,56]],[780,[121,38,49]],[800,[92,28,38]]];
-    let i = 1;
-    while (i < stops.length - 1 && nm > stops[i][0]) i++;
-    const [a, ca] = stops[i-1], [b, cb] = stops[i];
-    const t = Math.max(0, Math.min(1, (nm-a)/(b-a)));
-    return `rgb(${ca.map((v,j) => Math.round(v + (cb[j]-v)*t)).join(',')})`;
+    const index=Math.max(0,Math.min(390,Math.round(nm)-380));
+    return `rgb(${data.spectralPalette[index][1].join(',')})`;
+  }
+
+  const speciesLabel=id=>id.replace(/\s+(?:gas|condensed)$/i,'');
+
+  // Positions and widths are in nanometres, independent of window size.
+  // Include each true centre so even unresolved/subpixel lines are not lost.
+  function componentSamples(component,pixelWidth,view=bounds){
+    let cache=spectrumCache.get(component);
+    if(!cache){cache=new Map();spectrumCache.set(component,cache);}
+    const cacheKey=`${pixelWidth}:${view[0]}:${view[1]}`;
+    if(cache.has(cacheKey))return cache.get(cacheKey);
+    const positions=new Set([view[0],view[1]]);
+    const count=Math.ceil(pixelWidth*SPECTRUM_SAMPLES_PER_PIXEL);
+    for(let i=0;i<=count;i++)positions.add(view[0]+(view[1]-view[0])*i/count);
+    for(const peak of component.peaks){
+      for(const offset of [-2,-1,0,1,2]){
+        const nm=peak.nm+offset*peak.sigma_nm;
+        if(nm>=view[0]&&nm<=view[1])positions.add(nm);
+      }
+    }
+    const points=[...positions].sort((a,b)=>a-b).map(nm=>[nm,0]);
+    const lowerBound=nm=>{
+      let a=0,b=points.length;
+      while(a<b){const m=(a+b)>>>1;if(points[m][0]<nm)a=m+1;else b=m;}
+      return a;
+    };
+    for(const peak of component.peaks){
+      const radius=6*peak.sigma_nm;
+      for(let i=lowerBound(peak.nm-radius);i<points.length&&points[i][0]<=peak.nm+radius;i++){
+        points[i][1]+=(component.scale??1)*peak.strength*Math.exp(-.5*((points[i][0]-peak.nm)/peak.sigma_nm)**2);
+      }
+    }
+    cache.set(cacheKey,points);
+    return points;
+  }
+
+  function combinedSamples(element,key,components,pixelWidth,view=bounds){
+    let cache=combinedSpectrumCache.get(element);
+    if(!cache){cache=new Map();combinedSpectrumCache.set(element,cache);}
+    let profile=cache.get(key);
+    if(!profile){
+      profile={scale:1,peaks:components.flatMap(component=>component.peaks.map(peak=>({
+        ...peak,strength:peak.strength*(component.scale??1)
+      })))};
+      cache.set(key,profile);
+    }
+    return componentSamples(profile,pixelWidth,view);
+  }
+
+  function componentValueAt(component,nm){
+    let value=0;
+    for(const peak of component.peaks){
+      const distance=Math.abs(nm-peak.nm);
+      if(distance<=6*peak.sigma_nm){
+        value+=(component.scale??1)*peak.strength*Math.exp(-.5*(distance/peak.sigma_nm)**2);
+      }
+    }
+    return value;
+  }
+
+  function valueAtPoints(points,nm){
+    if(!points.length)return 0;
+    let low=0,high=points.length-1;
+    while(low<high){const middle=(low+high)>>>1;if(points[middle][0]<nm)low=middle+1;else high=middle;}
+    if(points[low][0]===nm||low===0)return points[low][1];
+    const before=points[low-1],after=points[low];
+    const ratio=(nm-before[0])/(after[0]-before[0]);
+    return before[1]+(after[1]-before[1])*ratio;
+  }
+
+  function spectrumMorphSamples(morph,pixelWidth,view,progress){
+    const key=`${pixelWidth}:${view[0]}:${view[1]}`;
+    let base=morph.cache.get(key);
+    if(!base){
+      const samplesFor=element=>element
+        ?combinedSamples(element,'all',element.spectral_components,pixelWidth,view)
+        :[[view[0],0],[view[1],0]];
+      const from=samplesFor(morph.fromElement),to=samplesFor(morph.toElement);
+      const fromMax=from.reduce((maximum,point)=>Math.max(maximum,point[1]),0)||1;
+      const toMax=to.reduce((maximum,point)=>Math.max(maximum,point[1]),0)||1;
+      const positions=[...new Set([...from.map(point=>point[0]),...to.map(point=>point[0])])].sort((a,b)=>a-b);
+      base=positions.map(nm=>[nm,valueAtPoints(from,nm)/fromMax,valueAtPoints(to,nm)/toMax]);
+      morph.cache.set(key,base);
+    }
+    return base.map(([nm,from,to])=>[nm,from+(to-from)*progress]);
+  }
+
+  function startSpectrumMorph(fromElement,toElement){
+    spectrumMorph={fromElement,toElement,startedAt:time,duration:BACKGROUND_TRANSITION_DURATION/1000,cache:new Map()};
+    drawSpectrum();
   }
 
   function drawSpectrum() {
@@ -47,115 +153,140 @@
     svg.replaceChildren();
     const width = Math.max(280, svg.getBoundingClientRect().width);
     svg.setAttribute('viewBox', `0 0 ${width} 148`);
-    const left = 20, right = width - 20, top = 38, baseline = 116;
-    const x = nm => left + (nm - bounds[0]) / (bounds[1] - bounds[0]) * (right-left);
-    svg.append(svgNode('rect', {x:left,y:top,width:right-left,height:baseline-top,fill:'#03040b'}));
+    const left = 20, right = width - 20, top = 20, baseline = 133;
+    const viewStart=spectrumView[0],viewEnd=spectrumView[1],viewRange=viewEnd-viewStart;
+    const x = nm => left + (nm - viewStart) / viewRange * (right-left);
+    svg.append(svgNode('rect', {x:left,y:top,width:right-left,height:baseline-top,fill:'#02020e',stroke:'#2a2a44','stroke-width':1}));
     const defs=svgNode('defs');
     const spectrumGradient=svgNode('linearGradient',{id:'visible-spectrum',gradientUnits:'userSpaceOnUse',x1:left,x2:right,y1:0,y2:0});
-    for(const nm of [350,380,410,440,470,490,515,555,590,630,680,730,780,800]){
-      spectrumGradient.append(svgNode('stop',{offset:`${(nm-bounds[0])/(bounds[1]-bounds[0])*100}%`,'stop-color':spectralColor(nm)}));
+    for(let nm=Math.floor(viewStart);nm<=Math.ceil(viewEnd);nm++){
+      const wavelength=Math.max(viewStart,Math.min(viewEnd,nm));
+      spectrumGradient.append(svgNode('stop',{offset:`${(wavelength-viewStart)/viewRange*100}%`,'stop-color':spectralColor(wavelength)}));
     }
     defs.append(spectrumGradient);svg.append(defs);
-    for (let nm=bounds[0]; nm<=bounds[1]; nm+=50) {
-      svg.append(svgNode('line', {x1:x(nm),x2:x(nm),y1:top,y2:baseline,stroke:'#141824','stroke-width':1}));
-      svg.append(svgNode('text', {x:x(nm),y:136,fill:'#8fb8df','font-size':8,'font-family':'system-ui','text-anchor':nm===bounds[0]?'start':nm===bounds[1]?'end':'middle'}, String(nm)));
+    for (const nm of spectrumTicks) {
+      if(nm<viewStart||nm>viewEnd)continue;
+      svg.append(svgNode('line', {x1:x(nm),x2:x(nm),y1:top,y2:baseline,stroke:'#2a2a44','stroke-opacity':.72,'stroke-width':1}));
+      if(nm!==bounds[0]&&nm!==bounds[1]){
+        svg.append(svgNode('text', {x:x(nm),y:146,class:'spectrum-axis-label','text-anchor':'middle'}, String(nm)));
+      }
     }
-    const background = nm => {
-      const visible=(nm-bounds[0])/(bounds[1]-bounds[0]);
-      return 1.8+4.5*Math.pow(visible,1.55)+1.1*Math.exp(-.5*Math.pow((nm-431)/48,2));
-    };
+    // No fabricated wavelength-dependent continuum underneath the emissions.
+    const background = () => 0;
     if(!current){
       const baselinePoints=[];
-      const samples=Math.ceil((right-left)*4);
+      const samples=Math.ceil((right-left)*SPECTRUM_SAMPLES_PER_PIXEL);
       for(let step=0;step<=samples;step++){
         const px=left+(right-left)*step/samples;
         const nm=bounds[0]+(px-left)/(right-left)*(bounds[1]-bounds[0]);
         baselinePoints.push(`${px},${baseline-background(nm)}`);
       }
-      svg.append(svgNode('path',{d:`M ${baselinePoints.join(' L ')}`,fill:'none',stroke:'url(#visible-spectrum)','stroke-width':1.65,'stroke-linejoin':'round','stroke-linecap':'round'}));
+      svg.append(svgNode('path',{d:`M ${baselinePoints.join(' L ')}`,fill:'none',stroke:'url(#visible-spectrum)','stroke-width':1.2375,'stroke-linejoin':'round','stroke-linecap':'round'}));
       svg.onpointermove=null;
       svg.onpointerleave=null;
+      svg.onpointerdown=null;
+      svg.onpointerup=null;
+      svg.onpointercancel=null;
+      svg.ondblclick=null;
       svg.setAttribute('aria-label','Spettro vuoto; nessun elemento selezionato.');
       return;
     }
-    const peaks=current.lines_nm.map((nm,index)=>({nm,x:x(nm),strength:current.line_strengths?.[index]??1,amplitude:13+(current.line_strengths?.[index]??1)*49}));
-    const clusters=[];
-    for(const peak of peaks){
-      const cluster=clusters.at(-1);
-      if(!cluster||peak.x-cluster.at(-1).x>14)clusters.push([peak]);else cluster.push(peak);
+    const components=current.spectral_components;
+    const morphProgress=spectrumMorph?Math.max(0,Math.min(1,(time-spectrumMorph.startedAt)/spectrumMorph.duration)):null;
+    const easedMorph=morphProgress===null?null:morphProgress*morphProgress*(3-2*morphProgress);
+    const points=spectrumMorph
+      ?spectrumMorphSamples(spectrumMorph,right-left,spectrumView,easedMorph)
+      :combinedSamples(current,'all',components,right-left,spectrumView);
+    const signalMaximum=points.reduce((maximum,point)=>Math.max(maximum,point[1]),0);
+    const signalHeight=baseline-top-7;
+    const signalScale=signalMaximum>0?(spectrumMorph?signalHeight:signalHeight/signalMaximum):0;
+    if(signalMaximum>0){
+      const tracePoints=points.map(([nm,value])=>`${x(nm)},${baseline-signalScale*value*spectrumReveal}`);
+      const trace=svgNode('path',{d:`M ${tracePoints.join(' L ')}`,fill:'none',stroke:'url(#visible-spectrum)','stroke-width':1.2375,'stroke-linejoin':'round','stroke-linecap':'round','data-spectrum':'combined'});
+      trace.append(svgNode('title',{},[...new Set(components.map(component=>speciesLabel(component.id)))].join(', ')));
+      svg.append(trace);
     }
-    const profiles=[];
-    for(const cluster of clusters){
-      const weight=cluster.reduce((sum,peak)=>sum+peak.strength,0);
-      const trueCenter=cluster.reduce((sum,peak)=>sum+peak.x*peak.strength,0)/weight;
-      const displayX=[cluster[0].x];
-      for(let i=1;i<cluster.length;i++)displayX.push(displayX[i-1]+Math.max(3.2,cluster[i].x-cluster[i-1].x));
-      const displayCenter=displayX.reduce((sum,position,index)=>sum+position*cluster[index].strength,0)/weight;
-      const shiftedX=displayX.map(position=>position+trueCenter-displayCenter);
-      const separations=shiftedX.slice(1).map((position,index)=>position-shiftedX[index]);
-      const sigma=separations.length?Math.min(1.4,Math.min(...separations)*.25):1.4;
-      profiles.push({cluster,weight,shiftedX,sigma});
-    }
-    for(let index=0;index<(current.background_lines_nm?.length??0);index++){
-      const nm=current.background_lines_nm[index],strength=current.background_line_strengths[index];
-      profiles.push({cluster:[{nm,x:x(nm),strength,amplitude:strength*12}],weight:strength,shiftedX:[x(nm)],sigma:.62});
-    }
-    for(const band of current.molecular_bands??[]){
-      const center=x(band.center_nm);
-      const sigma=Math.max(.8,x(band.center_nm+band.sigma_nm)-center);
-      profiles.push({
-        cluster:[{nm:band.center_nm,x:center,strength:band.strength,amplitude:band.strength*54}],
-        weight:band.strength,
-        shiftedX:[center],
-        sigma
-      });
-    }
-    const samples=Math.ceil((right-left)*4);
-    const rawSignalAt=px=>profiles.reduce((total,profile)=>total+profile.cluster.reduce((sum,peak,index)=>sum+peak.amplitude*Math.exp(-.5*Math.pow((px-profile.shiftedX[index])/profile.sigma,2)),0),0);
-    let signalMaximum=0;
-    for(let step=0;step<=samples;step++){
-      const px=left+(right-left)*step/samples;
-      signalMaximum=Math.max(signalMaximum,rawSignalAt(px));
-    }
-    const signalScale=Math.min(1,72/Math.max(1,signalMaximum));
-    const signalAt=px=>rawSignalAt(px)*signalScale*spectrumReveal;
-    const tracePoints=[];
-    for(let step=0;step<=samples;step++){
-      const px=left+(right-left)*step/samples;
-      const nm=bounds[0]+(px-left)/(right-left)*(bounds[1]-bounds[0]);
-      tracePoints.push(`${px},${baseline-background(nm)-signalAt(px)}`);
-    }
-    const fillPath=`M ${left},${baseline} L ${tracePoints.join(' ')} L ${right},${baseline} Z`;
-    const tracePath=`M ${tracePoints.join(' L ')}`;
-    svg.append(svgNode('path',{d:fillPath,fill:'url(#visible-spectrum)','fill-opacity':'.1',stroke:'none'}));
-    const trace=svgNode('path',{d:tracePath,fill:'none',stroke:'url(#visible-spectrum)','stroke-width':1.65,'stroke-linejoin':'round','stroke-linecap':'round'});
-    const bandCount=current.molecular_bands?.length??0;
-    const summary=bandCount
-      ? `${bandCount} bande molecolari, ${current.lines_nm.length} righe atomiche principali e ${current.background_lines_nm?.length??0} righe atomiche secondarie NIST`
-      : `${current.lines_nm.length} righe diagnostiche e ${current.background_lines_nm?.length??0} righe secondarie NIST`;
-    svg.append(trace);
+    const summary=components.map(c=>`${speciesLabel(c.id)}: ${c.peaks.length} segnali con intensità`).join('; ');
+    const selectionShade=svgNode('rect',{x:left,y:top,width:0,height:baseline-top,fill:'#a8ceff','fill-opacity':.10,'visibility':'hidden','pointer-events':'none','data-zoom-selection':'true'});
     const cursor=svgNode('g',{'visibility':'hidden','pointer-events':'none','aria-hidden':'true'});
-    const cursorLine=svgNode('line',{y1:top,y2:baseline,stroke:'#fff','stroke-opacity':'.5','stroke-width':1});
-    const cursorLabel=svgNode('text',{y:22,fill:'#fff','font-size':12,'font-family':'system-ui','text-anchor':'middle'});
+    const selectionStartLine=svgNode('line',{y1:top,y2:baseline,stroke:'#a8ceff','stroke-opacity':'.62','stroke-width':1,'visibility':'hidden','pointer-events':'none'});
+    const cursorLine=svgNode('line',{y1:top,y2:baseline,stroke:'#a8ceff','stroke-opacity':'.62','stroke-width':1});
+    const cursorLabel=svgNode('text',{y:13,class:'spectrum-cursor-label','text-anchor':'middle'});
     cursor.append(cursorLine,cursorLabel);
-    svg.append(cursor);
-    svg.onpointermove=spectrumReveal>.01?event=>{
+    svg.append(selectionShade,selectionStartLine,cursor);
+    const eventPoint=event=>{
       const matrix=svg.getScreenCTM();
-      if(!matrix)return;
+      if(!matrix)return null;
       const point=new DOMPoint(event.clientX,event.clientY).matrixTransform(matrix.inverse());
+      return point;
+    };
+    const wavelengthAt=point=>viewStart+(Math.max(left,Math.min(right,point.x))-left)/(right-left)*viewRange;
+    svg.onpointermove=spectrumReveal>.01?event=>{
+      const point=eventPoint(event);
+      if(!point)return;
       if(point.x<left||point.x>right||point.y<0||point.y>baseline){
-        cursor.setAttribute('visibility','hidden');
+        if(!spectrumDrag)cursor.setAttribute('visibility','hidden');
         return;
       }
-      const nm=bounds[0]+(point.x-left)/(right-left)*(bounds[1]-bounds[0]);
+      const nm=wavelengthAt(point);
+      if(spectrumDrag){
+        selectionShade.setAttribute('x',Math.min(spectrumDrag.x,point.x));
+        selectionShade.setAttribute('width',Math.abs(point.x-spectrumDrag.x));
+        selectionShade.setAttribute('visibility','visible');
+      }
       cursorLine.setAttribute('x1',point.x);
       cursorLine.setAttribute('x2',point.x);
       cursorLabel.setAttribute('x',Math.max(left+30,Math.min(right-30,point.x)));
-      cursorLabel.textContent=`${nm.toLocaleString('it-IT',{minimumFractionDigits:1,maximumFractionDigits:1})} nm`;
+      const contributions=components.map(component=>({
+        label:component.id,
+        value:componentValueAt(component,nm)
+      })).filter(item=>item.value>1e-8).sort((a,b)=>b.value-a.value);
+      const total=contributions.reduce((sum,item)=>sum+item.value,0);
+      const origins=[...new Set(contributions.filter((item,index)=>index<2&&item.value>=contributions[0].value*.05)
+        .map(item=>speciesLabel(item.label)))].join(' · ');
+      cursorLabel.textContent=spectrumDrag
+        ?`${Math.min(spectrumDrag.nm,nm).toLocaleString('it-IT',{maximumFractionDigits:1})}–${Math.max(spectrumDrag.nm,nm).toLocaleString('it-IT',{maximumFractionDigits:1})} nm`
+        :`${nm.toLocaleString('it-IT',{minimumFractionDigits:1,maximumFractionDigits:1})} nm${total>signalMaximum*.01&&origins?' · '+origins:''}`;
       cursor.setAttribute('visibility','visible');
     }:null;
-    svg.onpointerleave=()=>cursor.setAttribute('visibility','hidden');
-    svg.setAttribute('aria-label', `Spettro qualitativo di ${current.name}: ${summary}.`);
+    svg.onpointerdown=event=>{
+      if(event.button!==0||spectrumReveal<=.01)return;
+      const point=eventPoint(event);
+      if(!point||point.x<left||point.x>right||point.y<top||point.y>baseline)return;
+      event.preventDefault();
+      spectrumDrag={pointerId:event.pointerId,nm:wavelengthAt(point),x:point.x};
+      selectionStartLine.setAttribute('x1',point.x);selectionStartLine.setAttribute('x2',point.x);
+      selectionStartLine.setAttribute('visibility','visible');
+      selectionShade.setAttribute('x',point.x);selectionShade.setAttribute('width',0);
+      selectionShade.setAttribute('visibility','visible');
+      cursorLine.setAttribute('x1',point.x);cursorLine.setAttribute('x2',point.x);
+      cursor.setAttribute('visibility','visible');
+      svg.setPointerCapture?.(event.pointerId);
+    };
+    svg.onpointerup=event=>{
+      if(!spectrumDrag||event.pointerId!==spectrumDrag.pointerId)return;
+      const point=eventPoint(event);
+      const endNm=point?wavelengthAt(point):spectrumDrag.nm;
+      const enough=Math.abs(endNm-spectrumDrag.nm)>=viewRange*5/(right-left);
+      if(svg.hasPointerCapture?.(event.pointerId))svg.releasePointerCapture(event.pointerId);
+      const startNm=spectrumDrag.nm;
+      spectrumDrag=null;
+      if(enough){spectrumView=[Math.min(startNm,endNm),Math.max(startNm,endNm)];drawSpectrum();}
+      else{selectionStartLine.setAttribute('visibility','hidden');selectionShade.setAttribute('visibility','hidden');}
+    };
+    svg.onpointercancel=event=>{
+      if(!spectrumDrag||event.pointerId!==spectrumDrag.pointerId)return;
+      spectrumDrag=null;selectionShade.setAttribute('visibility','hidden');selectionStartLine.setAttribute('visibility','hidden');cursor.setAttribute('visibility','hidden');
+    };
+    svg.onpointerleave=()=>{if(!spectrumDrag)cursor.setAttribute('visibility','hidden');};
+    svg.ondblclick=event=>{event.preventDefault();spectrumDrag=null;spectrumView=[...bounds];drawSpectrum();};
+    svg.setAttribute('aria-label', `Spettro qualitativo di ${current.name}, intervallo ${viewStart.toFixed(1)}-${viewEnd.toFixed(1)} nm: ${summary}. Trascina per ingrandire; doppio clic per ripristinare. ${data.spectralMethod}`);
+  }
+
+  function adjacentElementSymbol(direction){
+    if(!current)return direction>0?data.elements[0]?.symbol:data.elements.at(-1)?.symbol;
+    const index=data.elements.findIndex(element=>element.symbol===current.symbol);
+    return data.elements[(index+direction+data.elements.length)%data.elements.length]?.symbol??null;
   }
 
   for (const element of data.elements) {
@@ -163,15 +294,29 @@
     button.type = 'button'; button.className = 'element';
     button.dataset.symbol = element.symbol;
     button.style.setProperty('--element-color', element.color);
+    button.style.setProperty('--element-index', byId('elements').children.length);
     button.setAttribute('aria-label', `${element.name}, ${element.symbol}, numero atomico ${element.number}`);
     const tile = document.createElement('span'); tile.className='tile';
-    const symbol = document.createElement('strong'); symbol.textContent=element.symbol;
+    const symbol = document.createElement('strong'); symbol.className='element-symbol'; symbol.textContent=element.symbol;
     tile.append(symbol);
     const name=document.createElement('span'); name.className='element-name'; name.textContent=element.name;
     button.append(tile,name);
     button.addEventListener('click', () => selectElement(element.symbol));
     byId('elements').append(button);
   }
+
+  document.addEventListener('keydown',event=>{
+    if(event.repeat||event.altKey||event.ctrlKey||event.metaKey||event.shiftKey)return;
+    const direction=event.key==='ArrowUp'?-1:event.key==='ArrowDown'?1:0;
+    if(!direction||selectionBusy)return;
+    const symbol=adjacentElementSymbol(direction);
+    if(!symbol)return;
+    event.preventDefault();
+    [...byId('elements').children]
+      .find(button=>button.dataset.symbol===symbol)
+      ?.focus({preventScroll:true});
+    selectElement(symbol);
+  });
 
   function setFormulaText(target,formula){
     target.replaceChildren();
@@ -199,40 +344,61 @@
     hotspot.setAttribute('aria-label',`${current.reagentName}: ${current.reagentFormula}`);
   }
 
-  function applyElement(element) {
+  function startFlameColorTransition(fromColor,toColor){
+    flameColorTransition={from:colorVector(fromColor),to:colorVector(toColor),startedAt:time,duration:BACKGROUND_TRANSITION_DURATION/1000};
+  }
+
+  function applyElement(element,updateBackground=true,preserveActiveFlame=false) {
     current=element;
-    colorFadeStartedAt=null;
-    spectrumReveal=0;
-    spectrumTarget=0;
-    spectrumTransition=null;
-    rodOffsetX=0;rodOffsetY=0;
-    rodHasMoved=false;
-    rodOutsideSince=null;
-    setRodOffset(0,0);
-    sampleFixture.classList.remove('rod-moved');
-    resetColoredPlume();
+    if(preserveActiveFlame){
+      spectrumReveal=1;
+      spectrumTarget=1;
+      spectrumTransition=null;
+      rodHasMoved=true;
+      rodOutsideSince=null;
+      sampleFixture.classList.add('rod-moved');
+    }else{
+      flameColorTransition=null;
+      colorFadeStartedAt=null;
+      spectrumReveal=0;
+      spectrumTarget=0;
+      spectrumTransition=null;
+      rodOffsetX=0;rodOffsetY=0;
+      rodHasMoved=false;
+      rodOutsideSince=null;
+      setRodOffset(0,0);
+      sampleFixture.classList.remove('rod-moved');
+      resetColoredPlume();
+    }
     document.documentElement.style.setProperty('--salt-color', current.saltColor);
-    byId('lab-background').src = current.backgroundImage;
+    if(updateBackground)byId('lab-background').src=current.backgroundImage;
     byId('flame').style.opacity='1';
     byId('jar-hotspot').hidden=false;
     byId('jar-hotspot').disabled=false;
     resetReagentPanel();
+    byId('spectrum-note-title').textContent='Descrizione';
+    byId('spectrum-description').textContent=current.spectrumDescription;
     byId('flame').setAttribute('aria-label', `Fiamma ${current.colorName.toLowerCase()} del ${current.name.toLowerCase()}; rappresentazione qualitativa`);
     for (const button of byId('elements').children) button.setAttribute('aria-pressed', String(button.dataset.symbol===current.symbol));
     drawSpectrum();
     render();
   }
 
-  function returnRodHome(){
+  function animateRodTo(targetX,targetY,rotate=true){
     const startX=rodOffsetX,startY=rodOffsetY;
-    const distance=Math.hypot(startX,startY);
-    if(distance<.5){setRodOffset(0,0);return Promise.resolve();}
-    const duration=Math.max(240,Math.min(640,distance/1.1));
+    const distance=Math.hypot(targetX-startX,targetY-startY);
+    if(distance<.5){setRodOffsetRaw(targetX,targetY,rotate);return Promise.resolve();}
+    const duration=Math.max(215,Math.min(585,distance/ROD_SWITCH_SPEED));
     return new Promise(resolve=>{
       const started=performance.now();
       const step=now=>{
         const progress=Math.min(1,(now-started)/duration);
-        setRodOffset(startX*(1-progress),startY*(1-progress));
+        const eased=progress*progress*(3-2*progress);
+        setRodOffsetRaw(
+          startX+(targetX-startX)*eased,
+          startY+(targetY-startY)*eased,
+          rotate
+        );
         render();
         if(progress<1)requestAnimationFrame(step);else resolve();
       };
@@ -240,51 +406,133 @@
     });
   }
 
+  function rodOffscreenOffsets(){
+    const geometry=apparatusGeometry();
+    const rodLeft=geometry.sampleX-geometry.rodSaltX;
+    const leftMargin=Math.max(100,geometry.rodWidth*.35);
+    const rightMargin=8;
+    return {
+      left:-rodLeft-geometry.rodWidth-leftMargin,
+      right:stage.clientWidth-rodLeft+rightMargin
+    };
+  }
+
+  function fastRodOffsets(){
+    const geometry=apparatusGeometry();
+    const targetY=geometry.openingY-stage.clientHeight*.408*.18;
+    return {x:geometry.x+geometry.radius*.65-geometry.sampleX,y:targetY-geometry.sampleY};
+  }
+
+  async function transitionBackground(source,onStart){
+    const background=byId('lab-background');
+    const incoming=byId('lab-background-next');
+    incoming.classList.remove('is-visible');
+    incoming.src=source;
+    await waitForImage(incoming);
+    await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+    onStart?.();
+    incoming.classList.add('is-visible');
+    await new Promise(resolve=>{
+      let settled=false;
+      const finish=()=>{
+        if(settled)return;
+        settled=true;
+        incoming.removeEventListener('transitionend',finish);
+        resolve();
+      };
+      incoming.addEventListener('transitionend',finish);
+      setTimeout(finish,BACKGROUND_TRANSITION_DURATION+80);
+    });
+    background.src=source;
+    await waitForImage(background);
+    incoming.classList.remove('is-visible');
+  }
+
   async function selectElement(symbol) {
     if(!elements.has(symbol))throw new RangeError(`Unknown element: ${symbol}`);
     if(selectionBusy)return;
     selectionBusy=true;
+    byId('quick-mode').disabled=true;
     try{
+      const hadElement=Boolean(current);
       const deselect=current?.symbol===symbol;
-      await new Promise(resolve=>setTimeout(resolve,150));
-      await returnRodHome();
+      if(!hadElement){
+        if(jarPulseRestartTimer!==null)clearTimeout(jarPulseRestartTimer);
+        jarHotspot.classList.add('is-pulse-paused');
+        jarPulseRestartTimer=setTimeout(()=>{
+          jarHotspot.classList.remove('is-pulse-paused');
+          jarPulseRestartTimer=null;
+        },JAR_PULSE_RESTART_DELAY);
+      }
+      if(quickMode&&!deselect){
+        const previousElement=current;
+        const previousColor=previousElement?.color??null;
+        const nextElement=elements.get(symbol);
+        await transitionBackground(nextElement.backgroundImage,()=>{
+          if(previousColor)startFlameColorTransition(previousColor,nextElement.color);
+          applyElement(nextElement,false,Boolean(previousElement));
+          startSpectrumMorph(previousElement,nextElement);
+          sampleFixture.classList.remove('is-hidden');
+          sampleFixture.classList.add('is-fast-mode','rod-moved');
+          const target=fastRodOffsets();
+          setRodOffsetRaw(target.x,target.y);
+          rodHasMoved=true;
+          render();
+        });
+        return;
+      }
+      if(hadElement){
+        const exitX=rodOffscreenOffsets().right;
+        const keepRotation=Math.hypot(rodOffsetX,rodOffsetY)>.5;
+        await animateRodTo(exitX,rodOffsetY,keepRotation);
+      }
       rodHasMoved=false;
       rodOutsideSince=null;
       sampleFixture.classList.remove('rod-moved');
       resetColoredPlume();
-      const background=byId('lab-background');
-      const stageContent=byId('stage-content');
-      await new Promise(resolve=>setTimeout(resolve,150));
-      stageContent.classList.add('is-changing');
-      await new Promise(resolve=>setTimeout(resolve,140));
-      if(deselect)initializeNeutralState();else applyElement(elements.get(symbol));
-      await waitForImage(background);
-      await new Promise(resolve=>requestAnimationFrame(()=>{
-        stageContent.classList.remove('is-changing');
-        resolve();
-      }));
-      await new Promise(resolve=>setTimeout(resolve,140));
+      if(deselect){
+        initializeNeutralState(false,true);
+        await transitionBackground(data.neutralBackgroundImage,()=>jarHotspot.classList.add('is-fading-out'));
+        jarHotspot.hidden=true;
+        jarHotspot.classList.remove('is-fading-out');
+        return;
+      }
+      const nextElement=elements.get(symbol);
+      applyElement(nextElement,false);
+      const entryX=rodOffscreenOffsets().left;
+      setRodOffsetRaw(entryX,0,false);
+      sampleFixture.classList.remove('is-hidden');
+      render();
+      await Promise.all([
+        transitionBackground(nextElement.backgroundImage),
+        new Promise(resolve=>setTimeout(resolve,ROD_SWITCH_DELAY))
+      ]);
+      await animateRodTo(0,0,false);
     }finally{
       selectionBusy=false;
+      byId('quick-mode').disabled=false;
     }
   }
 
-  function initializeNeutralState(){
+  function initializeNeutralState(updateBackground=true,deferHotspotHide=false){
     current=null;
+    sampleFixture.classList.add('is-hidden');
     spectrumReveal=0;
     spectrumTarget=0;
     spectrumTransition=null;
     document.documentElement.style.setProperty('--salt-color',fallbackElement.saltColor);
-    byId('lab-background').src=data.neutralBackgroundImage;
+    if(updateBackground)byId('lab-background').src=data.neutralBackgroundImage;
     byId('flame').style.opacity='1';
     byId('flame').setAttribute('aria-label','Fiamma a butano; nessun elemento selezionato');
     const hotspot=byId('jar-hotspot');
-    hotspot.hidden=true;
+    hotspot.hidden=!deferHotspotHide;
     hotspot.disabled=true;
     hotspot.setAttribute('aria-label','Seleziona un elemento per mostrare la formula del reagente');
     hotspot.classList.remove('is-revealed');
     byId('reagent-panel').classList.remove('has-formula');
     byId('reagent-formula').replaceChildren();
+    byId('spectrum-note-title').textContent='Descrizione';
+    byId('spectrum-description').textContent='Seleziona un elemento per leggere la descrizione del suo spettro.';
     for(const button of byId('elements').children)button.setAttribute('aria-pressed','false');
     resetColoredPlume();
     drawSpectrum();
@@ -401,9 +649,9 @@
       float solitaryMask=mix(mix(1.0,withdrawalMask,withdrawing),revealMask,appearing);
       float transitionMask=mix(solitaryMask,max(withdrawalMask,revealMask),withdrawing*appearing);
       float overlayVertical=smoothstep(curvedStart-.026,curvedStart+.058,coloredH)*coloredTop*plumeClip*transitionMask*sampleActive;
-      float body=(1.0-smoothstep(.62,1.05,overlayD))*overlayVertical;
-      float veil=(1.0-smoothstep(.9,1.34,overlayD))*overlayVertical;
-      float rim=exp(-pow((overlayD-.77)*3.8,2.0))*overlayVertical;
+      float body=(1.0-smoothstep(.48,1.13,overlayD))*overlayVertical;
+      float veil=(1.0-smoothstep(.68,1.48,overlayD))*overlayVertical;
+      float rim=exp(-pow((overlayD-.77)*3.15,2.0))*overlayVertical;
       float center=exp(-overlayD*overlayD*2.0)*overlayVertical;
       float coloredSideShape=1.0-smoothstep(.52,1.28,overlayD);
       float coloredUpperSideFade=mix(1.0,coloredSideShape,upperFadeProgress*.3);
@@ -422,7 +670,7 @@
       vec3 butane=vec3(.065,.155,.35);
       vec3 blueHot=vec3(.19,.35,.54);
       float blueFlow=.9+.16*fbm(vec2(h*3.4-flow*1.35,x*7.0+t*.08));
-      vec3 butaneLayer=(butane*blueVeil*.2+mix(butane,blueHot,.3)*blueBody*.62)*blueFlow;
+      vec3 butaneLayer=(mix(butane,blueHot,.55)*blueVeil*.2+mix(butane,blueHot,.3)*blueBody*.62)*blueFlow;
       float innerVertical=smoothstep(-.01,.035,h)*(1.0-smoothstep(.27,.43,h));
       float innerWidth=max(.002,baseShape*mix(.34,.17,smoothstep(0.0,.43,h)));
       float innerEdgeWave=(sin(t*.86+h*9.1)*.0024+fine*.0016)*smoothstep(.02,.4,h);
@@ -442,7 +690,7 @@
       vec3 luminousCore=mix(hotCore,vec3(1.0),movingFine*.1);
       vec3 warm=mix(blendedTint*.94,luminousCore,temperature*(.72-lateralBlend*.16));
       float coloredBrightness=1.42;
-      vec3 colored=(blendedTint*veil*.2+warm*body*(fade+.16)+blendedTint*rim*.15)*transient*coloredBrightness*lateralDensity*coloredOpacity;
+      vec3 colored=(blendedTint*veil*.18+warm*body*(fade+.16)+blendedTint*rim*.09)*transient*coloredBrightness*lateralDensity*coloredOpacity;
       vec3 color=colored;
       color+=luminousCore*body*(emissionZone*.1+movingFine*.045)*coloredBrightness*coloredOpacity;
       float shellFront=clamp(blueBody*.62+blueVeil*.18,0.0,1.0);
@@ -453,7 +701,15 @@
       float coloredAlpha=clamp(veil*.1+body*(.44+.18*emissionZone+.09*movingFine),0.0,.72)*mix(1.0,.32,lateralBlend)*coloredOpacity;
       float blueAlpha=clamp(blueVeil*.15+blueBody*.42+innerBody*.4+innerGlow*.16,0.0,.78);
       float alpha=clamp(coloredAlpha+blueAlpha-coloredAlpha*blueAlpha,0.0,.86);
-      gl_FragColor=vec4(color,alpha);
+      vec3 displayColor=alpha>0.0001?color/alpha:vec3(0.0);
+      float coloredInfluence=alpha>0.0001?clamp(coloredAlpha/alpha,0.0,1.0):0.0;
+      float lightTint=smoothstep(.62,.82,tintLuma)*coloredInfluence;
+      float displayLuma=dot(displayColor,vec3(.299,.587,.114));
+      displayColor=vec3(displayLuma)+(displayColor-vec3(displayLuma))*(1.0+lightTint*.24);
+      float displayPeak=max(displayColor.r,max(displayColor.g,displayColor.b));
+      float peakLimit=mix(1.0,.88,lightTint);
+      displayColor=clamp(displayColor*min(1.0,peakLimit/max(.0001,displayPeak)),0.0,1.0);
+      gl_FragColor=vec4(displayColor,alpha);
     }`;
   let canvas=byId('flame'), gl=null, ctx=null, program=null, uniforms=null;
   const stage=canvas.parentElement;
@@ -464,11 +720,33 @@
   const rodHandle=stage.querySelector('.rod-drag-handle');
   const saltMarker=stage.querySelector('.salt-marker');
   const jarHotspot=byId('jar-hotspot');
+  const quickToggle=byId('quick-mode');
   rodGlowImage.src=sampleImage.src;
   rodFillImage.src=sampleImage.src;
   jarHotspot.addEventListener('click',showReagentFormula);
+  quickMode=quickToggle.checked;
+  quickToggle.addEventListener('change',async()=>{
+    quickMode=quickToggle.checked;
+    sampleFixture.classList.toggle('is-fast-mode',quickMode);
+    if(!quickMode||!current||selectionBusy)return;
+    rodHasMoved=true;
+    rodOutsideSince=null;
+    sampleFixture.classList.add('rod-moved');
+    const target=fastRodOffsets();
+    await animateRodTo(target.x,target.y);
+    render();
+  });
   const colorVector=color=>(color??'#000000').match(/[a-f\d]{2}/gi).map(s=>parseInt(s,16)/255);
-  const rgb=()=>colorVector(current?.color);
+  const rgb=()=>{
+    if(flameColorTransition){
+      const progress=Math.max(0,Math.min(1,(time-flameColorTransition.startedAt)/flameColorTransition.duration));
+      const eased=progress*progress*(3-2*progress);
+      const color=flameColorTransition.from.map((value,index)=>value+(flameColorTransition.to[index]-value)*eased);
+      if(progress>=1)flameColorTransition=null;
+      return color;
+    }
+    return colorVector(current?.color);
+  };
   const coloredOpacity=()=>{
     if(colorFadeOutStartedAt!==null)return Math.max(0,colorFadeOutFrom*(1-(time-colorFadeOutStartedAt)/colorFadeOutDuration));
     return colorFadeStartedAt===null?0:Math.min(1,(time-colorFadeStartedAt)/COLOR_FADE_DURATION);
@@ -509,6 +787,8 @@
   let lastColoredSample=null,withdrawalStartedAt=null,withdrawalSampleH=-1,revealStartedAt=null,lastSampleInside=false,exitRevealFront=-1;
 
   function resetColoredPlume() {
+    flameColorTransition=null;
+    spectrumMorph=null;
     lastColoredSample=null;
     withdrawalStartedAt=null;
     withdrawalSampleH=-1;
@@ -549,7 +829,7 @@
   }
 
   function resolveColoredPlume(geometry) {
-    const sampleInside=!selectionBusy&&sampleIsInsideFlame(geometry);
+    const sampleInside=(!selectionBusy||quickMode)&&sampleIsInsideFlame(geometry);
     setSpectrumTarget(sampleInside?1:0);
     updateRodInteractionGlow(sampleInside);
     if(sampleInside){
@@ -757,14 +1037,14 @@
     const backgroundZoom=1;
     const coverScale=Math.max(rect.width/naturalWidth,rect.height/naturalHeight);
     const coverOffsetX=(rect.width-naturalWidth*coverScale)/2;
-    const coverOffsetY=(rect.height-naturalHeight*coverScale)/2;
+    const coverOffsetY=(rect.height-naturalHeight*coverScale)*BACKGROUND_POSITION_Y;
     const scale=coverScale*backgroundZoom;
     const offsetX=rect.width/2+(coverOffsetX-rect.width/2)*backgroundZoom;
     const offsetY=coverOffsetY*backgroundZoom;
-    const x=offsetX+naturalWidth*.494*scale;
+    const x=offsetX+naturalWidth*.491*scale;
     const openingY=offsetY+naturalHeight*.424*scale;
     const sampleX=rect.width*.08;
-    const sampleY=offsetY+naturalHeight*.795*scale;
+    const sampleY=offsetY+naturalHeight*.78*scale;
     const rodHeight=Math.min(100,rect.width*.56/3);
     const rodAspect=sampleImage.naturalWidth&&sampleImage.naturalHeight?sampleImage.naturalWidth/sampleImage.naturalHeight:3.84;
     const rodWidth=rodHeight*rodAspect;
@@ -837,17 +1117,23 @@
     const minimumVisibleHandle=Math.min(28,handleWidth*.35);
     const minimumX=minimumVisibleHandle-handleLeft-handleWidth;
     const maximumX=rect.width-minimumVisibleHandle-handleLeft;
-    rodOffsetX=Math.max(minimumX,Math.min(maximumX,x));
+    const clampedX=Math.max(minimumX,Math.min(maximumX,x));
     const naturalTop=geometry.sampleY-geometry.rodSaltY;
     const visibleTop=naturalTop+geometry.rodHeight*.3812;
     const visibleBottom=naturalTop+geometry.rodHeight*.5733;
-    rodOffsetY=Math.max(-visibleTop,Math.min(rect.height-visibleBottom,y));
+    const clampedY=Math.max(-visibleTop,Math.min(rect.height-visibleBottom,y));
+    setRodOffsetRaw(clampedX,clampedY);
+  }
+  function setRodOffsetRaw(x,y,rotate=true){
+    rodOffsetX=x;
+    rodOffsetY=y;
     stage.style.setProperty('--rod-offset-x',`${rodOffsetX}px`);
     stage.style.setProperty('--rod-offset-y',`${rodOffsetY}px`);
+    stage.style.setProperty('--rod-angle',rotate&&Math.hypot(rodOffsetX,rodOffsetY)>.5?'-30deg':'0deg');
   }
   let drag=null;
   rodHandle.addEventListener('pointerdown',event=>{
-    if(event.button!==0)return;
+    if(event.button!==0||selectionBusy)return;
     event.preventDefault();
     drag={x:event.clientX,y:event.clientY,offsetX:rodOffsetX,offsetY:rodOffsetY};
     rodHandle.classList.add('is-dragging');
@@ -877,12 +1163,21 @@
     const rect=canvas.getBoundingClientRect();
     const pixelRatio=Math.min(1.5,window.devicePixelRatio||1);
     canvas.width=Math.max(1,Math.round(rect.width*pixelRatio));canvas.height=Math.max(1,Math.round(rect.height*pixelRatio));
-    setRodOffset(rodOffsetX,rodOffsetY);
+    if(quickMode&&current){
+      const target=fastRodOffsets();
+      setRodOffsetRaw(target.x,target.y);
+    }else if(selectionBusy)setRodOffsetRaw(rodOffsetX,rodOffsetY);else setRodOffset(rodOffsetX,rodOffsetY);
     if(gl)gl.viewport(0,0,canvas.width,canvas.height);
     render();drawSpectrum();
   }
   new ResizeObserver(resize).observe(canvas.parentElement);
   new ResizeObserver(drawSpectrum).observe(byId('spectrum').parentElement);
+  const syncSpectrumColumns=()=>{
+    const reagentWidth=byId('reagent-panel').getBoundingClientRect().width;
+    if(reagentWidth>0)app.style.setProperty('--reagent-width',`${reagentWidth}px`);
+  };
+  new ResizeObserver(syncSpectrumColumns).observe(byId('reagent-panel'));
+  syncSpectrumColumns();
   canvas.parentElement.querySelectorAll('img').forEach(image=>image.addEventListener('load',resize,{once:true}));
   let previous=0;
   function animate(now){
@@ -893,11 +1188,16 @@
         render();
         if(spectrumTransition){
           const before=spectrumReveal;
-          const progress=Math.min(1,(time-spectrumTransition.startedAt)/SPECTRUM_TRANSITION_DURATION);
+          const progress=Math.min(1,(time-spectrumTransition.startedAt)/spectrumTransition.duration);
           const eased=progress*progress*(3-2*progress);
           spectrumReveal=spectrumTransition.from+(spectrumTransition.to-spectrumTransition.from)*eased;
           if(progress>=1)spectrumTransition=null;
           if(Math.abs(spectrumReveal-before)>.0001)drawSpectrum();
+        }
+        if(spectrumMorph){
+          const progress=(time-spectrumMorph.startedAt)/spectrumMorph.duration;
+          drawSpectrum();
+          if(progress>=1)spectrumMorph=null;
         }
       }
     }
@@ -913,7 +1213,7 @@
     const images=[byId('lab-background'),sampleImage,rodGlowImage,rodFillImage];
     await Promise.all([...images.map(waitForImage),document.fonts?.ready??Promise.resolve()]);
     resize();
-    requestAnimationFrame(()=>requestAnimationFrame(()=>document.querySelector('.app').classList.add('is-ready')));
+    requestAnimationFrame(()=>requestAnimationFrame(()=>app.classList.add('is-ready')));
   }
   if(current)applyElement(current);else initializeNeutralState();
   resize();requestAnimationFrame(animate);revealViewer();

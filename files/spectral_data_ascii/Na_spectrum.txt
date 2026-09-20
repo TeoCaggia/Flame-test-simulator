@@ -1,0 +1,77 @@
+# Flame-test spectral data used by the viewer
+# element: Sodio (Na)
+# reagent: Cloruro di sodio (NaCl)
+# range_nm: 380-770 air wavelengths
+# NIST criterion: line_out=3, Only with observed wavelengths or intensities
+# Atomic intensity: numeric part of NIST Rel. int.; source-dependent and qualitative.
+# Molecular intensity: within-species source ratio; cross-species scale is an explicit estimate.
+# Emissions without a positive numeric relative intensity are excluded.
+# fields: species|wavelength_nm|wavelength_kind|rel_intensity_raw|rel_intensity_numeric|normalized_within_species|component_scale|plotted_relative|transition_type|source_ref|notes
+Na I|384.8|observed|5|5|6.25e-05|1|6.25e-05|E1|L6269|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|386.55|observed|130|130|0.001625|1|0.001625|E1|L6269|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|387.29|observed|19|19|0.0002375|1|0.0002375|E1|L6269|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|388.18|observed|420|420|0.00525|1|0.00525|E1|L6269|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|388.57|observed|36|36|0.00045|1|0.00045|E1|L6269|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|390.04|observed|15|15|0.0001875|1|0.0001875|E1|L6269|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|391.79|observed|160|160|0.002|1|0.002|E1|L6269|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|392.56|observed|85|85|0.0010625|1|0.0010625|E1|L6269|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|393.06|observed|15|15|0.0001875|1|0.0001875|E1|L6269|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|394.26|observed|32|32|0.0004|1|0.0004|E1|L6269|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|398.03|observed|14|14|0.000175|1|0.000175|E1|L6269|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|399.77|observed|14|14|0.000175|1|0.000175|E1|L6269|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|400.88|observed|27|27|0.0003375|1|0.0003375|E1|L6269|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|417.67|observed|82|82|0.001025|1|0.001025|E1|L6269|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|418.55|observed|150|150|0.001875|1|0.001875|E1|L6269|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|420.49|observed|46|46|0.000575|1|0.000575|E1|L6269|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|423.8987|observed|2|2|2.5e-05|1|2.5e-05|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|424.2082|observed|3*|3|3.75e-05|1|3.75e-05|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|424.2082|observed|3*|3|3.75e-05|1|3.75e-05|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|424.941|observed|1|1|1.25e-05|1|1.25e-05|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|425.252|observed|2|2|2.5e-05|1|2.5e-05|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|425.38|observed|17|17|0.0002125|1|0.0002125|E1|L6269|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|427.3642|observed|4|4|5e-05|1|5e-05|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|427.39|observed|23|23|0.0002875|1|0.0002875|E1|L6269|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|427.6787|observed|5*|5|6.25e-05|1|6.25e-05|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|427.6787|observed|5*|5|6.25e-05|1|6.25e-05|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|428.67|observed|46|46|0.000575|1|0.000575|E1|L6269|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|428.7838|observed|2|2|2.5e-05|1|2.5e-05|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|429.1006|observed|3|3|3.75e-05|1|3.75e-05|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|432.14|observed|6|6|7.5e-05|1|7.5e-05|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|432.4615|observed|7*|7|8.75e-05|1|8.75e-05|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|432.4615|observed|7*|7|8.75e-05|1|8.75e-05|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|434.1489|observed|4|4|5e-05|1|5e-05|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|434.4736|observed|5|5|6.25e-05|1|6.25e-05|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|439.0029|observed|8|8|0.0001|1|0.0001|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|439.334|observed|9*|9|0.0001125|1|0.0001125|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|439.334|observed|9*|9|0.0001125|1|0.0001125|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|441.9885|observed|6|6|7.5e-05|1|7.5e-05|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|442.3246|observed|7|7|8.75e-05|1|8.75e-05|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|443.23|observed|310|310|0.003875|1|0.003875|E1|L6269|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|449.4177|observed|10|10|0.000125|1|0.000125|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|449.7658|observed|11*|11|0.0001375|1|0.0001375|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|449.7658|observed|11*|11|0.0001375|1|0.0001375|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|454.1633|observed|7|7|8.75e-05|1|8.75e-05|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|454.5186|observed|8|8|0.0001|1|0.0001|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|466.48107|observed|1|1|1.25e-05|1|1.25e-05|E1|L15039|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|466.85595|observed|2*|2|2.5e-05|1|2.5e-05|E1|L15039|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|466.85595|observed|2*|2|2.5e-05|1|2.5e-05|E1|L15039|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|474.7941|observed|1|1|1.25e-05|1|1.25e-05|E1|L15039|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|475.18218|observed|2|2|2.5e-05|1|2.5e-05|E1|L15039|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|497.85414|observed|1|1|1.25e-05|1|1.25e-05|E1|L15039|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|498.28134|observed|2|2|2.5e-05|1|2.5e-05|E1|L15039|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|507.12|observed|270|270|0.003375|1|0.003375|E1|L6269|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|514.88381|observed|1|1|1.25e-05|1|1.25e-05|E1|L15039|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|515.34024|observed|2|2|2.5e-05|1|2.5e-05|E1|L15039|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|516.25|observed|83|83|0.0010375|1|0.0010375|E1|L6269|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|525.64|observed|7|7|8.75e-05|1|8.75e-05|E1|L6269|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|562.1|observed|42|42|0.000525|1|0.000525|E1|L6269|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|568.26333|observed|5|5|6.25e-05|1|6.25e-05|E1|L15039|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|568.81934|observed|1|1|1.25e-05|1|1.25e-05|E1|L15039|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|568.82046|observed|9|9|0.0001125|1|0.0001125|E1|L15039|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|574.42|observed|12|12|0.00015|1|0.00015|E1|L6269|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|588.995095|observed|80000|80000|1|1|1|E1|L5918|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|589.592424|observed|40000|40000|0.5|1|0.5|E1|L5918|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|615.42253|observed|1|1|1.25e-05|1|1.25e-05|E1|L15039|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|616.0747|observed|2|2|2.5e-05|1|2.5e-05|E1|L15039|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|737.323|observed|2|2|2.5e-05|1|2.5e-05|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+Na I|737.349|observed|1|1|1.25e-05|1|1.25e-05|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field

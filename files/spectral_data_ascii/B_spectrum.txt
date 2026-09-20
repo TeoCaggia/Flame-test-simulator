@@ -1,0 +1,24 @@
+# Flame-test spectral data used by the viewer
+# element: Boro (B)
+# reagent: Acido borico (H3BO3)
+# range_nm: 380-770 air wavelengths
+# NIST criterion: line_out=3, Only with observed wavelengths or intensities
+# Atomic intensity: numeric part of NIST Rel. int.; source-dependent and qualitative.
+# Molecular intensity: within-species source ratio; cross-species scale is an explicit estimate.
+# Emissions without a positive numeric relative intensity are excluded.
+# fields: species|wavelength_nm|wavelength_kind|rel_intensity_raw|rel_intensity_numeric|normalized_within_species|component_scale|plotted_relative|transition_type|source_ref|notes
+B I|581.84|observed|60|60|0.6|0.12|0.072|E1|L6232|NIST ASD Rel. int. descriptor preserved in raw field
+B I|582.107|observed|100|100|1|0.12|0.12|E1|L6232|NIST ASD Rel. int. descriptor preserved in raw field
+B I|582.233|observed|10|10|0.1|0.12|0.012|E1|L6232|NIST ASD Rel. int. descriptor preserved in raw field
+B I|594.263|observed|3a*|3|0.03|0.12|0.0036|E1|L694|NIST ASD Rel. int. descriptor preserved in raw field
+B I|594.263|observed|3a*|3|0.03|0.12|0.0036|E1|L694|NIST ASD Rel. int. descriptor preserved in raw field
+B I|594.272|observed|2a|2|0.02|0.12|0.0024|E1|L694|NIST ASD Rel. int. descriptor preserved in raw field
+B I|624.457|observed|9a*|9|0.09|0.12|0.0108|E1|L694|NIST ASD Rel. int. descriptor preserved in raw field
+B I|624.457|observed|9a*|9|0.09|0.12|0.0108|E1|L694|NIST ASD Rel. int. descriptor preserved in raw field
+B I|624.466|observed|6a|6|0.06|0.12|0.0072|E1|L694|NIST ASD Rel. int. descriptor preserved in raw field
+BO2|452|band center|10|10|0.1|1|0.1|molecular chemiluminescence band|https://eprints.lib.hokudai.ac.jp/repo/huscap/all/84211/Guo_CNF_manuscript_20190819.pdf|Boric-acid fluctuation bands. Relative heights are approximate readings of the green-flame curve in Guo et al. Fig. 5; 452 nm is constrained by the B-Flame compilation.
+BO2|472|band center|20|20|0.2|1|0.2|molecular chemiluminescence band|https://eprints.lib.hokudai.ac.jp/repo/huscap/all/84211/Guo_CNF_manuscript_20190819.pdf|Boric-acid fluctuation bands. Relative heights are approximate readings of the green-flame curve in Guo et al. Fig. 5; 452 nm is constrained by the B-Flame compilation.
+BO2|493|band center|30|30|0.3|1|0.3|molecular chemiluminescence band|https://eprints.lib.hokudai.ac.jp/repo/huscap/all/84211/Guo_CNF_manuscript_20190819.pdf|Boric-acid fluctuation bands. Relative heights are approximate readings of the green-flame curve in Guo et al. Fig. 5; 452 nm is constrained by the B-Flame compilation.
+BO2|518|band center|60|60|0.6|1|0.6|molecular chemiluminescence band|https://eprints.lib.hokudai.ac.jp/repo/huscap/all/84211/Guo_CNF_manuscript_20190819.pdf|Boric-acid fluctuation bands. Relative heights are approximate readings of the green-flame curve in Guo et al. Fig. 5; 452 nm is constrained by the B-Flame compilation.
+BO2|547|band center|100|100|1|1|1|molecular chemiluminescence band|https://eprints.lib.hokudai.ac.jp/repo/huscap/all/84211/Guo_CNF_manuscript_20190819.pdf|Boric-acid fluctuation bands. Relative heights are approximate readings of the green-flame curve in Guo et al. Fig. 5; 452 nm is constrained by the B-Flame compilation.
+BO2|580|band center|50|50|0.5|1|0.5|molecular chemiluminescence band|https://eprints.lib.hokudai.ac.jp/repo/huscap/all/84211/Guo_CNF_manuscript_20190819.pdf|Boric-acid fluctuation bands. Relative heights are approximate readings of the green-flame curve in Guo et al. Fig. 5; 452 nm is constrained by the B-Flame compilation.

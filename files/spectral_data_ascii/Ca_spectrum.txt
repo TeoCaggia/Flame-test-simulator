@@ -1,0 +1,100 @@
+# Flame-test spectral data used by the viewer
+# element: Calcio (Ca)
+# reagent: Cloruro di calcio (CaCl2)
+# range_nm: 380-770 air wavelengths
+# NIST criterion: line_out=3, Only with observed wavelengths or intensities
+# Atomic intensity: numeric part of NIST Rel. int.; source-dependent and qualitative.
+# Molecular intensity: within-species source ratio; cross-species scale is an explicit estimate.
+# Emissions without a positive numeric relative intensity are excluded.
+# fields: species|wavelength_nm|wavelength_kind|rel_intensity_raw|rel_intensity_numeric|normalized_within_species|component_scale|plotted_relative|transition_type|source_ref|notes
+Ca I|387.048|observed|9|9|0.18|0.18|0.0324|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|387.254|observed|11|11|0.22|0.18|0.0396|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|387.256|observed|11|11|0.22|0.18|0.0396|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|387.578|observed|12|12|0.24|0.18|0.0432|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|387.58|observed|12|12|0.24|0.18|0.0432|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|388.91|observed|6|6|0.12|0.18|0.0216|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|392.348|observed|6|6|0.12|0.18|0.0216|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|393.529|observed|9|9|0.18|0.18|0.0324|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|394.604|observed|6|6|0.12|0.18|0.0216|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|394.89|observed|15|15|0.3|0.18|0.054|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|395.705|observed|17|17|0.34|0.18|0.0612|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|397.257|observed|8|8|0.16|0.18|0.0288|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|397.371|observed|18|18|0.36|0.18|0.0648|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|409.853|observed|15|15|0.3|0.18|0.054|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|409.857|observed|15|15|0.3|0.18|0.054|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|422.673|observed|50|50|1|0.18|0.18|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|424.046|observed|15|15|0.3|0.18|0.054|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|428.301|observed|24|24|0.48|0.18|0.0864|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|428.936|observed|22|22|0.44|0.18|0.0792|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|429.899|observed|22|22|0.44|0.18|0.0792|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|430.253|observed|25|25|0.5|0.18|0.09|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|430.774|observed|23|23|0.46|0.18|0.0828|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|431.865|observed|22|22|0.44|0.18|0.0792|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|435.508|observed|20|20|0.4|0.18|0.072|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|442.544|observed|25|25|0.5|0.18|0.09|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|443.496|observed|26|26|0.52|0.18|0.0936|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|443.569|observed|25|25|0.5|0.18|0.09|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|445.478|observed|30|30|0.6|0.18|0.108|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|445.589|observed|28|28|0.56|0.18|0.1008|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|445.661|observed|20|20|0.4|0.18|0.072|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|452.694|observed|23|23|0.46|0.18|0.0828|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|457.855|observed|22|22|0.44|0.18|0.0792|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|458.14|observed|23|23|0.46|0.18|0.0828|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|458.147|observed|23|23|0.46|0.18|0.0828|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|458.587|observed|24|24|0.48|0.18|0.0864|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|458.596|observed|24|24|0.48|0.18|0.0864|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|468.527|observed|20|20|0.4|0.18|0.072|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|487.813|observed|25|25|0.5|0.18|0.09|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|504.162|observed|23|23|0.46|0.18|0.0828|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|518.885|observed|25|25|0.5|0.18|0.09|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|526.171|observed|22|22|0.44|0.18|0.0792|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|526.224|observed|23|23|0.46|0.18|0.0828|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|526.424|observed|22|22|0.44|0.18|0.0792|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|526.556|observed|24|24|0.48|0.18|0.0864|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|527.027|observed|25|25|0.5|0.18|0.09|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|534.947|observed|27|27|0.54|0.18|0.0972|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|551.298|observed|23|23|0.46|0.18|0.0828|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|558.197|observed|25|25|0.5|0.18|0.09|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|558.876|observed|27|27|0.54|0.18|0.0972|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|559.012|observed|24|24|0.48|0.18|0.0864|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|559.447|observed|26|26|0.52|0.18|0.0936|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|559.849|observed|25|25|0.5|0.18|0.09|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|560.129|observed|24|24|0.48|0.18|0.0864|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|560.285|observed|24|24|0.48|0.18|0.0864|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|585.745|observed|30|30|0.6|0.18|0.108|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|610.272|observed|27|27|0.54|0.18|0.0972|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|612.222|observed|29|29|0.58|0.18|0.1044|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|616.129|observed|22|22|0.44|0.18|0.0792|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|616.217|observed|30|30|0.6|0.18|0.108|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|616.376|observed|22|22|0.44|0.18|0.0792|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|616.644|observed|24|24|0.48|0.18|0.0864|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|616.906|observed|26|26|0.52|0.18|0.0936|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|616.956|observed|28|28|0.56|0.18|0.1008|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|643.907|observed|35|35|0.7|0.18|0.126|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|644.981|observed|30|30|0.6|0.18|0.108|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|645.56|observed|22|22|0.44|0.18|0.0792|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|646.257|observed|34|34|0.68|0.18|0.1224|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|647.166|observed|29|29|0.58|0.18|0.1044|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|649.378|observed|32|32|0.64|0.18|0.1152|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|649.965|observed|28|28|0.56|0.18|0.1008|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|657.278|observed|23|23|0.46|0.18|0.0828|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|671.769|observed|30|30|0.6|0.18|0.108|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|714.815|observed|33|33|0.66|0.18|0.1188|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|720.219|observed|31|31|0.62|0.18|0.1116|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+Ca I|732.615|observed|33|33|0.66|0.18|0.1188|E1|L6097|NIST ASD Rel. int. descriptor preserved in raw field
+CaCl|581|band center|3|3|0.03|1|0.03|molecular vibronic band|https://www.jpyro.co.uk/wp-content/uploads/j18_1_fglk1.pdf|CaCl2 reagent; scale anchored to the dominant CaCl bands in Fig. 14. Internal ratios from the cited source; cross-species scale is an explicit visual estimate.
+CaCl|593|band center|45|45|0.45|1|0.45|molecular vibronic band|https://www.jpyro.co.uk/wp-content/uploads/j18_1_fglk1.pdf|CaCl2 reagent; scale anchored to the dominant CaCl bands in Fig. 14. Internal ratios from the cited source; cross-species scale is an explicit visual estimate.
+CaCl|605|band center|11|11|0.11|1|0.11|molecular vibronic band|https://www.jpyro.co.uk/wp-content/uploads/j18_1_fglk1.pdf|CaCl2 reagent; scale anchored to the dominant CaCl bands in Fig. 14. Internal ratios from the cited source; cross-species scale is an explicit visual estimate.
+CaCl|608|band center|14|14|0.14|1|0.14|molecular vibronic band|https://www.jpyro.co.uk/wp-content/uploads/j18_1_fglk1.pdf|CaCl2 reagent; scale anchored to the dominant CaCl bands in Fig. 14. Internal ratios from the cited source; cross-species scale is an explicit visual estimate.
+CaCl|619|band center|99|99|0.99|1|0.99|molecular vibronic band|https://www.jpyro.co.uk/wp-content/uploads/j18_1_fglk1.pdf|CaCl2 reagent; scale anchored to the dominant CaCl bands in Fig. 14. Internal ratios from the cited source; cross-species scale is an explicit visual estimate.
+CaCl|621|band center|100|100|1|1|1|molecular vibronic band|https://www.jpyro.co.uk/wp-content/uploads/j18_1_fglk1.pdf|CaCl2 reagent; scale anchored to the dominant CaCl bands in Fig. 14. Internal ratios from the cited source; cross-species scale is an explicit visual estimate.
+CaCl|633|band center|9|9|0.09|1|0.09|molecular vibronic band|https://www.jpyro.co.uk/wp-content/uploads/j18_1_fglk1.pdf|CaCl2 reagent; scale anchored to the dominant CaCl bands in Fig. 14. Internal ratios from the cited source; cross-species scale is an explicit visual estimate.
+CaCl|635|band center|8|8|0.08|1|0.08|molecular vibronic band|https://www.jpyro.co.uk/wp-content/uploads/j18_1_fglk1.pdf|CaCl2 reagent; scale anchored to the dominant CaCl bands in Fig. 14. Internal ratios from the cited source; cross-species scale is an explicit visual estimate.
+CaOH|555|band center|45|45|0.45|0.15|0.0675|molecular vibronic band|https://www.jpyro.co.uk/wp-content/uploads/j18_1_fglk1.pdf|Transient hydroxide in the moist flame; relative scale estimated from Fig. 14. Internal ratios from the cited source; cross-species scale is an explicit visual estimate.
+CaOH|572|band center|1|1|0.01|0.15|0.0015|molecular vibronic band|https://www.jpyro.co.uk/wp-content/uploads/j18_1_fglk1.pdf|Transient hydroxide in the moist flame; relative scale estimated from Fig. 14. Internal ratios from the cited source; cross-species scale is an explicit visual estimate.
+CaOH|594|band center|7|7|0.07|0.15|0.0105|molecular vibronic band|https://www.jpyro.co.uk/wp-content/uploads/j18_1_fglk1.pdf|Transient hydroxide in the moist flame; relative scale estimated from Fig. 14. Internal ratios from the cited source; cross-species scale is an explicit visual estimate.
+CaOH|600|band center|11|11|0.11|0.15|0.0165|molecular vibronic band|https://www.jpyro.co.uk/wp-content/uploads/j18_1_fglk1.pdf|Transient hydroxide in the moist flame; relative scale estimated from Fig. 14. Internal ratios from the cited source; cross-species scale is an explicit visual estimate.
+CaOH|604|band center|14|14|0.14|0.15|0.021|molecular vibronic band|https://www.jpyro.co.uk/wp-content/uploads/j18_1_fglk1.pdf|Transient hydroxide in the moist flame; relative scale estimated from Fig. 14. Internal ratios from the cited source; cross-species scale is an explicit visual estimate.
+CaOH|625|band center|100|100|1|0.15|0.15|molecular vibronic band|https://www.jpyro.co.uk/wp-content/uploads/j18_1_fglk1.pdf|Transient hydroxide in the moist flame; relative scale estimated from Fig. 14. Internal ratios from the cited source; cross-species scale is an explicit visual estimate.
+CaOH|645|band center|10|10|0.1|0.15|0.015|molecular vibronic band|https://www.jpyro.co.uk/wp-content/uploads/j18_1_fglk1.pdf|Transient hydroxide in the moist flame; relative scale estimated from Fig. 14. Internal ratios from the cited source; cross-species scale is an explicit visual estimate.
+CaOH|665|band center|1|1|0.01|0.15|0.0015|molecular vibronic band|https://www.jpyro.co.uk/wp-content/uploads/j18_1_fglk1.pdf|Transient hydroxide in the moist flame; relative scale estimated from Fig. 14. Internal ratios from the cited source; cross-species scale is an explicit visual estimate.

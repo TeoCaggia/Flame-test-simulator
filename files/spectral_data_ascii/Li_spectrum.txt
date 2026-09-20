@@ -1,0 +1,28 @@
+# Flame-test spectral data used by the viewer
+# element: Litio (Li)
+# reagent: Cloruro di litio (LiCl)
+# range_nm: 380-770 air wavelengths
+# NIST criterion: line_out=3, Only with observed wavelengths or intensities
+# Atomic intensity: numeric part of NIST Rel. int.; source-dependent and qualitative.
+# Molecular intensity: within-species source ratio; cross-species scale is an explicit estimate.
+# Emissions without a positive numeric relative intensity are excluded.
+# fields: species|wavelength_nm|wavelength_kind|rel_intensity_raw|rel_intensity_numeric|normalized_within_species|component_scale|plotted_relative|transition_type|source_ref|notes
+Li I|391.53|observed|20|20|0.00555555556|1|0.00555555556|E1|L7397|NIST ASD Rel. int. descriptor preserved in raw field
+Li I|391.535|observed|20*|20|0.00555555556|1|0.00555555556|E1|L7397|NIST ASD Rel. int. descriptor preserved in raw field
+Li I|391.535|observed|20*|20|0.00555555556|1|0.00555555556|E1|L7397|NIST ASD Rel. int. descriptor preserved in raw field
+Li I|398.548|observed|10|10|0.00277777778|1|0.00277777778|E1|L7397|NIST ASD Rel. int. descriptor preserved in raw field
+Li I|398.554|observed|10|10|0.00277777778|1|0.00277777778|E1|L7397|NIST ASD Rel. int. descriptor preserved in raw field
+Li I|413.256|observed|40|40|0.0111111111|1|0.0111111111|E1|L7397|NIST ASD Rel. int. descriptor preserved in raw field
+Li I|413.262|observed|40*|40|0.0111111111|1|0.0111111111|E1|L7397|NIST ASD Rel. int. descriptor preserved in raw field
+Li I|413.262|observed|40*|40|0.0111111111|1|0.0111111111|E1|L7397|NIST ASD Rel. int. descriptor preserved in raw field
+Li I|427.307|observed|20|20|0.00555555556|1|0.00555555556|E1|L7397|NIST ASD Rel. int. descriptor preserved in raw field
+Li I|427.313|observed|20|20|0.00555555556|1|0.00555555556|E1|L7397|NIST ASD Rel. int. descriptor preserved in raw field
+Li I|460.283|observed|13|13|0.00361111111|1|0.00361111111|E1|L7397|NIST ASD Rel. int. descriptor preserved in raw field
+Li I|460.289|observed|13*|13|0.00361111111|1|0.00361111111|E1|L7397|NIST ASD Rel. int. descriptor preserved in raw field
+Li I|460.289|observed|13*|13|0.00361111111|1|0.00361111111|E1|L7397|NIST ASD Rel. int. descriptor preserved in raw field
+Li I|497.166|observed|8|8|0.00222222222|1|0.00222222222|E1|L7397|NIST ASD Rel. int. descriptor preserved in raw field
+Li I|497.175|observed|8|8|0.00222222222|1|0.00222222222|E1|L7397|NIST ASD Rel. int. descriptor preserved in raw field
+Li I|610.354|observed|320|320|0.0888888889|1|0.0888888889|E1|L7397|NIST ASD Rel. int. descriptor preserved in raw field
+Li I|610.365|observed|320|320|0.0888888889|1|0.0888888889|E1|L7397|NIST ASD Rel. int. descriptor preserved in raw field
+Li I|670.776|observed|3600|3600|1|1|1|E1|L7397|NIST ASD Rel. int. descriptor preserved in raw field
+Li I|670.791|observed|3600|3600|1|1|1|E1|L7397|NIST ASD Rel. int. descriptor preserved in raw field

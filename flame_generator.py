@@ -25,6 +25,8 @@ def build(output: Path, element: str = "Na") -> Path:
     for item in data["elements"]:
         if not item.get("reagentName") or not item.get("reagentFormula"):
             raise ValueError(f"Missing reagent label data for {item['symbol']}")
+        if not item.get("spectrumDescription"):
+            raise ValueError(f"Missing spectrum description for {item['symbol']}")
         background_path = ASSETS / "reagent_backgrounds" / f"{item['symbol']}.png"
         if not background_path.is_file():
             raise ValueError(f"Missing reagent background for {item['symbol']}: {background_path}")
@@ -32,28 +34,27 @@ def build(output: Path, element: str = "Na") -> Path:
             "data:image/png;base64,"
             + base64.b64encode(background_path.read_bytes()).decode("ascii")
         )
-        lines = item["lines_nm"]
-        bands = item.get("molecular_bands", [])
-        if (not lines and not bands) or lines != sorted(set(lines)) or not all(380 <= n <= 800 for n in lines):
-            raise ValueError(f"Invalid visible spectral lines for {item['symbol']}")
-        strengths = item.get("line_strengths", [])
-        if len(strengths) != len(lines) or not all(0 < value <= 1 for value in strengths):
-            raise ValueError(f"Invalid spectral line strengths for {item['symbol']}")
-        band_centers = [band.get("center_nm") for band in bands]
-        if (band_centers != sorted(set(band_centers))
-                or not all(380 <= center <= 800 for center in band_centers)
-                or not all(band.get("sigma_nm", 0) > 0 and 0 < band.get("strength", 0) <= 1 for band in bands)):
-            raise ValueError(f"Invalid molecular emission bands for {item['symbol']}")
-        background = item.get("background_lines_nm", [])
-        background_strengths = item.get("background_line_strengths", [])
-        if (background != sorted(set(background)) or not all(380 <= n <= 800 for n in background)
-                or len(background_strengths) != len(background)
-                or not all(0 < value <= 1 for value in background_strengths)):
-            raise ValueError(f"Invalid background spectral lines for {item['symbol']}")
+        components = item.get("spectral_components", [])
+        if not components:
+            raise ValueError(f"Missing spectral components for {item['symbol']}")
+        for component in components:
+            peaks = component['peaks']
+            wavelengths = [peak['nm'] for peak in peaks]
+            if (wavelengths != sorted(set(wavelengths))
+                    or not all(380 <= nm <= 770 for nm in wavelengths)
+                    or not all(0 < peak['strength'] <= 1 and peak['sigma_nm'] > 0 for peak in peaks)
+                    or not all(380 <= marker['nm'] <= 770 for marker in component['markers'])
+                    or not 0 < component.get('scale', 0) <= 1
+                    or not component.get('source') or not component.get('method')):
+                raise ValueError(f"Invalid spectral component: {item['symbol']} / {component['id']}")
+    palette = data.get('spectralPalette', [])
+    if [row[0] for row in palette] != list(range(380, 771)):
+        raise ValueError('Missing wavelength-calibrated reference palette')
     data["defaultElement"] = element
     css = (ASSETS / "style.css").read_text(encoding="utf-8")
-    font = base64.b64encode((ASSETS / "fonts" / "Syne.ttf").read_bytes()).decode("ascii")
-    css = css.replace("__SYNE_FONT__", font)
+    syne_font = base64.b64encode((ASSETS / "fonts" / "Syne.ttf").read_bytes()).decode("ascii")
+    fira_code_font = base64.b64encode((ASSETS / "fonts" / "FiraCode.ttf").read_bytes()).decode("ascii")
+    css = css.replace("__SYNE_FONT__", syne_font).replace("__FIRA_CODE_FONT__", fira_code_font)
     sample_rod = base64.b64encode((ASSETS / "sample_rod.png").read_bytes()).decode("ascii")
     payload = json.dumps(data, ensure_ascii=False).replace("<", "\\u003c")
     html = (ASSETS / "index.html").read_text(encoding="utf-8")
@@ -61,7 +62,13 @@ def build(output: Path, element: str = "Na") -> Path:
         "__STYLE__": css,
         "__DATA__": payload,
         "__SCRIPT__": (ASSETS / "viewer.js").read_text(encoding="utf-8"),
-        "__FONT_LICENSE__": (ASSETS / "fonts" / "OFL.txt").read_text(encoding="utf-8"),
+        "__FONT_LICENSE__": "\n\n".join(
+            "\n".join(
+                line.rstrip()
+                for line in (ASSETS / "fonts" / name).read_text(encoding="utf-8").splitlines()
+            )
+            for name in ("OFL.txt", "OFL-FiraCode.txt")
+        ),
         "__SAMPLE_ROD_IMAGE__": sample_rod,
     }
     html = re.sub(r"__(?:STYLE|DATA|SCRIPT|FONT_LICENSE|SAMPLE_ROD_IMAGE)__", lambda m: replacements[m[0]], html)

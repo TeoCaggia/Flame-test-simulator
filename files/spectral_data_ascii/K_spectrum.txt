@@ -1,0 +1,48 @@
+# Flame-test spectral data used by the viewer
+# element: Potassio (K)
+# reagent: Cloruro di potassio (KCl)
+# range_nm: 380-770 air wavelengths
+# NIST criterion: line_out=3, Only with observed wavelengths or intensities
+# Atomic intensity: numeric part of NIST Rel. int.; source-dependent and qualitative.
+# Molecular intensity: within-species source ratio; cross-species scale is an explicit estimate.
+# Emissions without a positive numeric relative intensity are excluded.
+# fields: species|wavelength_nm|wavelength_kind|rel_intensity_raw|rel_intensity_numeric|normalized_within_species|component_scale|plotted_relative|transition_type|source_ref|notes
+K I|404.4136|observed|18|18|0.72|1|0.72|E1|L3287|NIST ASD Rel. int. descriptor preserved in raw field
+K I|404.7208|observed|17|17|0.68|1|0.68|E1|L3287|NIST ASD Rel. int. descriptor preserved in raw field
+K I|464.1876|observed|10|10|0.4|1|0.4|E2|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+K I|464.2373|observed|11|11|0.44|1|0.44|E2|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+K I|474.0914|observed|4|4|0.16|1|0.16|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+K I|474.4345|observed|6|6|0.24|1|0.24|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+K I|475.3934|observed|5|5|0.2|1|0.2|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+K I|475.7389|observed|7|7|0.28|1|0.28|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+K I|478.6491|observed|5|5|0.2|1|0.2|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+K I|479.1049|observed|7|7|0.28|1|0.28|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+K I|479.9754|observed|6|6|0.24|1|0.24|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+K I|480.4348|observed|8|8|0.32|1|0.32|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+K I|484.9865|observed|7|7|0.28|1|0.28|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+K I|485.609|observed|8|8|0.32|1|0.32|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+K I|486.3483|observed|8|8|0.32|1|0.32|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+K I|486.9757|observed|9|9|0.36|1|0.36|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+K I|494.2002|observed|8bl|8|0.32|1|0.32|E1|L1792|NIST ASD Rel. int. descriptor preserved in raw field
+K I|495.0815|observed|9|9|0.36|1|0.36|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+K I|495.61461|observed|9|9|0.36|1|0.36|E1|L1792|NIST ASD Rel. int. descriptor preserved in raw field
+K I|496.5031|observed|10|10|0.4|1|0.4|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+K I|508.4226|observed|10|10|0.4|1|0.4|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+K I|509.7171|observed|11|11|0.44|1|0.44|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+K I|509.92|observed|11|11|0.44|1|0.44|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+K I|511.2249|observed|12|12|0.48|1|0.48|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+K I|532.3276|observed|12|12|0.48|1|0.48|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+K I|533.9688|observed|13|13|0.52|1|0.52|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+K I|534.297|observed|12|12|0.48|1|0.48|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+K I|535.9574|observed|14|14|0.56|1|0.56|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+K I|578.2384|observed|16|16|0.64|1|0.64|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+K I|580.1752|observed|17|17|0.68|1|0.68|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+K I|581.2148|observed|15|15|0.6|1|0.6|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+K I|583.1887|observed|17|17|0.68|1|0.68|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+K I|691.1084|observed|19|19|0.76|1|0.76|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+K I|693.6284|observed|12|12|0.48|1|0.48|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+K I|693.8767|observed|20|20|0.8|1|0.8|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+K I|696.418|observed|7|7|0.28|1|0.28|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+K I|696.4672|observed|12|12|0.48|1|0.48|E1|L6096|NIST ASD Rel. int. descriptor preserved in raw field
+K I|766.489913|observed|25r|25|1|1|1|E1|L8995|NIST ASD Rel. int. descriptor preserved in raw field
+K I|769.896456|observed|24r|24|0.96|1|0.96|E1|L8995|NIST ASD Rel. int. descriptor preserved in raw field

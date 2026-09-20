@@ -1,0 +1,207 @@
+# Flame-test spectral data used by the viewer
+# element: Rame (Cu)
+# reagent: Solfato di rame(II) (CuSO4)
+# range_nm: 380-770 air wavelengths
+# NIST criterion: line_out=3, Only with observed wavelengths or intensities
+# Atomic intensity: numeric part of NIST Rel. int.; source-dependent and qualitative.
+# Molecular intensity: within-species source ratio; cross-species scale is an explicit estimate.
+# Emissions without a positive numeric relative intensity are excluded.
+# fields: species|wavelength_nm|wavelength_kind|rel_intensity_raw|rel_intensity_numeric|normalized_within_species|component_scale|plotted_relative|transition_type|source_ref|notes
+Cu I|380.0502|observed|30h|30|0.012|0.15|0.0018|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|380.349|observed|5h|5|0.002|0.15|0.0003|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|380.5232|observed|100h|100|0.04|0.15|0.006|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|381.195|observed|8h|8|0.0032|0.15|0.00048|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|381.3542|observed|10|10|0.004|0.15|0.0006|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|381.749|observed|5|5|0.002|0.15|0.0003|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|382.0884|observed|60|60|0.024|0.15|0.0036|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|382.5047|observed|100h|100|0.04|0.15|0.006|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|383.7976|observed|5|5|0.002|0.15|0.0003|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|384.451|observed|4h|4|0.0016|0.15|0.00024|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|386.0472|observed|600|600|0.24|0.15|0.036|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|386.0808|observed|5|5|0.002|0.15|0.0003|E1|L772c156|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|386.1747|observed|250|250|0.1|0.15|0.015|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|386.2781|observed|5h|5|0.002|0.15|0.0003|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|388.1714|observed|5|5|0.002|0.15|0.0003|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|388.592|observed|3h*|3|0.0012|0.15|0.00018|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|388.592|observed|3h*|3|0.0012|0.15|0.00018|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|388.84|observed|4h|4|0.0016|0.15|0.00024|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|389.922|observed|8h|8|0.0032|0.15|0.00048|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|391.2335|observed|1h|1|0.0004|0.15|6e-05|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|392.1267|observed|5|5|0.002|0.15|0.0003|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|392.5274|observed|8|8|0.0032|0.15|0.00048|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|393.3027|observed|5|5|0.002|0.15|0.0003|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|394.6938|observed|3|3|0.0012|0.15|0.00018|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|395.1616|observed|2|2|0.0008|0.15|0.00012|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|396.416|observed|5h|5|0.002|0.15|0.0003|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|397.57|observed|5h|5|0.002|0.15|0.0003|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|397.9954|observed|5|5|0.002|0.15|0.0003|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|399.8018|observed|3|3|0.0012|0.15|0.00018|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|400.3028|observed|15|15|0.006|0.15|0.0009|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|401.0836|observed|8h|8|0.0032|0.15|0.00048|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|401.58|observed|10h|10|0.004|0.15|0.0006|E2|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|402.2629|observed|1250|1250|0.5|0.15|0.075|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|402.7026|observed|10|10|0.004|0.15|0.0006|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|405.0617|observed|20h|20|0.008|0.15|0.0012|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|405.238|observed|2|2|0.0008|0.15|0.00012|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|405.638|observed|35h|35|0.014|0.15|0.0021|M1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|405.678|observed|35h|35|0.014|0.15|0.0021|E2|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|406.2641|observed|2000|2000|0.8|0.15|0.12|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|406.3238|observed|650|650|0.26|0.15|0.039|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|406.953|observed|6h|6|0.0024|0.15|0.00036|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|407.3224|observed|20h|20|0.008|0.15|0.0012|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|407.5572|observed|50|50|0.02|0.15|0.003|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|408.0534|observed|15h|15|0.006|0.15|0.0009|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|410.4218|observed|25|25|0.01|0.15|0.0015|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|411.14|observed|3h|3|0.0012|0.15|0.00018|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|412.174|observed|10|10|0.004|0.15|0.0006|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|412.3287|observed|30h|30|0.012|0.15|0.0018|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|417.7758|observed|100h|100|0.04|0.15|0.006|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|421.88|observed|2h|2|0.0008|0.15|0.00012|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|423.09|observed|5h|5|0.002|0.15|0.0003|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|424.226|observed|30h|30|0.012|0.15|0.0018|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|424.8956|observed|150|150|0.06|0.15|0.009|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|425.339|observed|20h|20|0.008|0.15|0.0012|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|425.9401|observed|150h|150|0.06|0.15|0.009|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|426.7204|observed|2h|2|0.0008|0.15|0.00012|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|427.5107|observed|950|950|0.38|0.15|0.057|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|432.868|observed|20h|20|0.008|0.15|0.0012|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|433.6|observed|10h|10|0.004|0.15|0.0006|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|435.474|observed|10h|10|0.004|0.15|0.0006|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|437.82|observed|550h|550|0.22|0.15|0.033|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|439.7|observed|10h|10|0.004|0.15|0.0006|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|441.554|observed|200h|200|0.08|0.15|0.012|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|448.035|observed|500|500|0.2|0.15|0.03|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|450.735|observed|200h|200|0.08|0.15|0.012|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|450.9374|observed|400|400|0.16|0.15|0.024|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|451.3192|observed|50h|50|0.02|0.15|0.003|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|452.5112|observed|40h|40|0.016|0.15|0.0024|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|453.0785|observed|800|800|0.32|0.15|0.048|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|453.9695|observed|800h|800|0.32|0.15|0.048|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|458.697|observed|1300h|1300|0.52|0.15|0.078|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|464.258|observed|150h|150|0.06|0.15|0.009|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|465.1124|observed|2000|2000|0.8|0.15|0.12|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|467.472|observed|500h|500|0.2|0.15|0.03|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|467.734|observed|3h|3|0.0012|0.15|0.00018|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|469.749|observed|350h|350|0.14|0.15|0.021|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|470.171|observed|10h|10|0.004|0.15|0.0006|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|470.4594|observed|450|450|0.18|0.15|0.027|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|476.749|observed|75h|75|0.03|0.15|0.0045|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|477.622|observed|20h|20|0.008|0.15|0.0012|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|479.4|observed|150h|150|0.06|0.15|0.009|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|479.7042|observed|20|20|0.008|0.15|0.0012|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|484.229|observed|25h|25|0.01|0.15|0.0015|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|486.61|observed|75h|75|0.03|0.15|0.0045|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|501.6611|observed|400|400|0.16|0.15|0.024|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|503.436|observed|100h|100|0.04|0.15|0.006|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|507.6173|observed|100h|100|0.04|0.15|0.006|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|510.5541|observed|1500|1500|0.6|0.15|0.09|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|511.1913|observed|300|300|0.12|0.15|0.018|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|511.549|observed|10|10|0.004|0.15|0.0006|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|514.27|observed|10h|10|0.004|0.15|0.0006|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|514.412|observed|550h|550|0.22|0.15|0.033|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|515.3235|observed|2000|2000|0.8|0.15|0.12|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|515.836|observed|50h|50|0.02|0.15|0.003|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|517.56|observed|1h|1|0.0004|0.15|6e-05|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|520.087|observed|500h|500|0.2|0.15|0.03|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|521.278|observed|140h|140|0.056|0.15|0.0084|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|521.8202|observed|2500|2500|1|0.15|0.15|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|522.007|observed|500|500|0.2|0.15|0.03|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|523.765|observed|10h|10|0.004|0.15|0.0006|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|525.052|observed|500h|500|0.2|0.15|0.03|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|528.353|observed|5|5|0.002|0.15|0.0003|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|529.2517|observed|1650|1650|0.66|0.15|0.099|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|532.378|observed|3h|3|0.0012|0.15|0.00018|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|535.2666|observed|300|300|0.12|0.15|0.018|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|535.495|observed|250h|250|0.1|0.15|0.015|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|535.733|observed|3h|3|0.0012|0.15|0.00018|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|536.003|observed|200|200|0.08|0.15|0.012|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|537.6867|observed|5|5|0.002|0.15|0.0003|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|539.162|observed|450h|450|0.18|0.15|0.027|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|540.834|observed|100h|100|0.04|0.15|0.006|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|543.205|observed|250h|250|0.1|0.15|0.015|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|546.3138|observed|150|150|0.06|0.15|0.009|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|553.002|observed|1h|1|0.0004|0.15|6e-05|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|553.578|observed|50|50|0.02|0.15|0.003|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|555.4935|observed|100|100|0.04|0.15|0.006|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|562.92|observed|1h|1|0.0004|0.15|6e-05|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|564.65|observed|2h|2|0.0008|0.15|0.00012|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|570.024|observed|1500|1500|0.6|0.15|0.09|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|572.796|observed|5|5|0.002|0.15|0.0003|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|573.2325|observed|75|75|0.03|0.15|0.0045|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|578.2132|observed|1500|1500|0.6|0.15|0.09|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|583.126|observed|1h|1|0.0004|0.15|6e-05|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|585.11|observed|2h|2|0.0008|0.15|0.00012|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|585.694|observed|5h|5|0.002|0.15|0.0003|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|593.475|observed|1h|1|0.0004|0.15|6e-05|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|596.659|observed|3h|3|0.0012|0.15|0.00018|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|603.233|observed|2h|2|0.0008|0.15|0.00012|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|612.773|observed|1h|1|0.0004|0.15|6e-05|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|616.57|observed|1h|1|0.0004|0.15|6e-05|E1|L150|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|622.111|observed|2h|2|0.0008|0.15|0.00012|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|622.366|observed|4|4|0.0016|0.15|0.00024|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|623.379|observed|1h|1|0.0004|0.15|6e-05|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|625.337|observed|1h|1|0.0004|0.15|6e-05|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|626.83|observed|20h|20|0.008|0.15|0.0012|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|632.545|observed|5|5|0.002|0.15|0.0003|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|637.33|observed|1|1|0.0004|0.15|6e-05|E1|L150|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|642.757|observed|1h|1|0.0004|0.15|6e-05|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|643.335|observed|1|1|0.0004|0.15|6e-05|E1|L150|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|647.42|observed|10|10|0.004|0.15|0.0006|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|648.518|observed|5|5|0.002|0.15|0.0003|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|655.098|observed|1|1|0.0004|0.15|6e-05|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|656.554|observed|1h|1|0.0004|0.15|6e-05|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|662.161|observed|30h|30|0.012|0.15|0.0018|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|662.967|observed|5h|5|0.002|0.15|0.0003|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|663.47|observed|2h|2|0.0008|0.15|0.00012|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|667.223|observed|10|10|0.004|0.15|0.0006|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|674.142|observed|100|100|0.04|0.15|0.006|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|674.929|observed|2h|2|0.0008|0.15|0.00012|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|677.564|observed|2h|2|0.0008|0.15|0.00012|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|682.186|observed|2h|2|0.0008|0.15|0.00012|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|683.546|observed|1h|1|0.0004|0.15|6e-05|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|684.099|observed|3h|3|0.0012|0.15|0.00018|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|688.194|observed|10|10|0.004|0.15|0.0006|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|688.992|observed|10h|10|0.004|0.15|0.0006|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|689.09|observed|10*|10|0.004|0.15|0.0006|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|689.09|observed|10*|10|0.004|0.15|0.0006|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|690.594|observed|100|100|0.04|0.15|0.006|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|692.006|observed|50h|50|0.02|0.15|0.003|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|693.582|observed|5h|5|0.002|0.15|0.0003|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|696.834|observed|5|5|0.002|0.15|0.0003|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|700.005|observed|2h|2|0.0008|0.15|0.00012|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|703.937|observed|25*|25|0.01|0.15|0.0015|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|703.937|observed|25*|25|0.01|0.15|0.0015|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|703.937|observed|25*|25|0.01|0.15|0.0015|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|712.466|observed|5h|5|0.002|0.15|0.0003|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|715.429|observed|5|5|0.002|0.15|0.0003|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|719.356|observed|50h|50|0.02|0.15|0.003|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|742.72|observed|5h|5|0.002|0.15|0.0003|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|745.25|observed|2h|2|0.0008|0.15|0.00012|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+Cu I|757.009|observed|200h|200|0.08|0.15|0.012|E1|L772|NIST ASD Rel. int. descriptor preserved in raw field
+CuOH|505|band center|46|46|0.46|1|0.46|molecular vibronic band|https://www.jpyro.co.uk/wp-content/uploads/j18_1_fglk1.pdf|Dominant copper emitter in the aqueous-flame spectrum; applicable to CuSO4 in a moist flame. Internal ratios from the cited source; cross-species scale is an explicit visual estimate.
+CuOH|512|band center|44|44|0.44|1|0.44|molecular vibronic band|https://www.jpyro.co.uk/wp-content/uploads/j18_1_fglk1.pdf|Dominant copper emitter in the aqueous-flame spectrum; applicable to CuSO4 in a moist flame. Internal ratios from the cited source; cross-species scale is an explicit visual estimate.
+CuOH|524|band center|75|75|0.75|1|0.75|molecular vibronic band|https://www.jpyro.co.uk/wp-content/uploads/j18_1_fglk1.pdf|Dominant copper emitter in the aqueous-flame spectrum; applicable to CuSO4 in a moist flame. Internal ratios from the cited source; cross-species scale is an explicit visual estimate.
+CuOH|533|band center|84|84|0.84|1|0.84|molecular vibronic band|https://www.jpyro.co.uk/wp-content/uploads/j18_1_fglk1.pdf|Dominant copper emitter in the aqueous-flame spectrum; applicable to CuSO4 in a moist flame. Internal ratios from the cited source; cross-species scale is an explicit visual estimate.
+CuOH|546|band center|100|100|1|1|1|molecular vibronic band|https://www.jpyro.co.uk/wp-content/uploads/j18_1_fglk1.pdf|Dominant copper emitter in the aqueous-flame spectrum; applicable to CuSO4 in a moist flame. Internal ratios from the cited source; cross-species scale is an explicit visual estimate.
+CuOH|605|band center|10|10|0.1|1|0.1|molecular vibronic band|https://www.jpyro.co.uk/wp-content/uploads/j18_1_fglk1.pdf|Dominant copper emitter in the aqueous-flame spectrum; applicable to CuSO4 in a moist flame. Internal ratios from the cited source; cross-species scale is an explicit visual estimate.
+CuH|401|band center|18|18|0.18|0.4|0.072|molecular vibronic band|https://www.jpyro.co.uk/wp-content/uploads/j18_1_fglk1.pdf|Transient hydride in the fuel-rich part of the flame; scale estimated from Fig. 17/18. Internal ratios from the cited source; cross-species scale is an explicit visual estimate.
+CuH|407|band center|12|12|0.12|0.4|0.048|molecular vibronic band|https://www.jpyro.co.uk/wp-content/uploads/j18_1_fglk1.pdf|Transient hydride in the fuel-rich part of the flame; scale estimated from Fig. 17/18. Internal ratios from the cited source; cross-species scale is an explicit visual estimate.
+CuH|413|band center|10|10|0.1|0.4|0.04|molecular vibronic band|https://www.jpyro.co.uk/wp-content/uploads/j18_1_fglk1.pdf|Transient hydride in the fuel-rich part of the flame; scale estimated from Fig. 17/18. Internal ratios from the cited source; cross-species scale is an explicit visual estimate.
+CuH|416|band center|7|7|0.07|0.4|0.028|molecular vibronic band|https://www.jpyro.co.uk/wp-content/uploads/j18_1_fglk1.pdf|Transient hydride in the fuel-rich part of the flame; scale estimated from Fig. 17/18. Internal ratios from the cited source; cross-species scale is an explicit visual estimate.
+CuH|428|band center|100|100|1|0.4|0.4|molecular vibronic band|https://www.jpyro.co.uk/wp-content/uploads/j18_1_fglk1.pdf|Transient hydride in the fuel-rich part of the flame; scale estimated from Fig. 17/18. Internal ratios from the cited source; cross-species scale is an explicit visual estimate.
+CuH|433|band center|55|55|0.55|0.4|0.22|molecular vibronic band|https://www.jpyro.co.uk/wp-content/uploads/j18_1_fglk1.pdf|Transient hydride in the fuel-rich part of the flame; scale estimated from Fig. 17/18. Internal ratios from the cited source; cross-species scale is an explicit visual estimate.
+CuH|441|band center|38|38|0.38|0.4|0.152|molecular vibronic band|https://www.jpyro.co.uk/wp-content/uploads/j18_1_fglk1.pdf|Transient hydride in the fuel-rich part of the flame; scale estimated from Fig. 17/18. Internal ratios from the cited source; cross-species scale is an explicit visual estimate.
+CuH|444|band center|24|24|0.24|0.4|0.096|molecular vibronic band|https://www.jpyro.co.uk/wp-content/uploads/j18_1_fglk1.pdf|Transient hydride in the fuel-rich part of the flame; scale estimated from Fig. 17/18. Internal ratios from the cited source; cross-species scale is an explicit visual estimate.
+CuO|450|band center|25|25|0.25|0.25|0.0625|molecular vibronic band|https://www.jpyro.co.uk/wp-content/uploads/j18_1_fglk1.pdf|CuSO4 decomposition/oxidation product; scale estimated from Fig. 17/18. Internal ratios from the cited source; cross-species scale is an explicit visual estimate.
+CuO|453|band center|27|27|0.27|0.25|0.0675|molecular vibronic band|https://www.jpyro.co.uk/wp-content/uploads/j18_1_fglk1.pdf|CuSO4 decomposition/oxidation product; scale estimated from Fig. 17/18. Internal ratios from the cited source; cross-species scale is an explicit visual estimate.
+CuO|458|band center|33|33|0.33|0.25|0.0825|molecular vibronic band|https://www.jpyro.co.uk/wp-content/uploads/j18_1_fglk1.pdf|CuSO4 decomposition/oxidation product; scale estimated from Fig. 17/18. Internal ratios from the cited source; cross-species scale is an explicit visual estimate.
+CuO|467|band center|52|52|0.52|0.25|0.13|molecular vibronic band|https://www.jpyro.co.uk/wp-content/uploads/j18_1_fglk1.pdf|CuSO4 decomposition/oxidation product; scale estimated from Fig. 17/18. Internal ratios from the cited source; cross-species scale is an explicit visual estimate.
+CuO|471|band center|53|53|0.53|0.25|0.1325|molecular vibronic band|https://www.jpyro.co.uk/wp-content/uploads/j18_1_fglk1.pdf|CuSO4 decomposition/oxidation product; scale estimated from Fig. 17/18. Internal ratios from the cited source; cross-species scale is an explicit visual estimate.
+CuO|477|band center|57|57|0.57|0.25|0.1425|molecular vibronic band|https://www.jpyro.co.uk/wp-content/uploads/j18_1_fglk1.pdf|CuSO4 decomposition/oxidation product; scale estimated from Fig. 17/18. Internal ratios from the cited source; cross-species scale is an explicit visual estimate.
+CuO|480|band center|66|66|0.66|0.25|0.165|molecular vibronic band|https://www.jpyro.co.uk/wp-content/uploads/j18_1_fglk1.pdf|CuSO4 decomposition/oxidation product; scale estimated from Fig. 17/18. Internal ratios from the cited source; cross-species scale is an explicit visual estimate.
+CuO|486|band center|69|69|0.69|0.25|0.1725|molecular vibronic band|https://www.jpyro.co.uk/wp-content/uploads/j18_1_fglk1.pdf|CuSO4 decomposition/oxidation product; scale estimated from Fig. 17/18. Internal ratios from the cited source; cross-species scale is an explicit visual estimate.
+CuO|488|band center|83|83|0.83|0.25|0.2075|molecular vibronic band|https://www.jpyro.co.uk/wp-content/uploads/j18_1_fglk1.pdf|CuSO4 decomposition/oxidation product; scale estimated from Fig. 17/18. Internal ratios from the cited source; cross-species scale is an explicit visual estimate.
+CuO|492|band center|100|100|1|0.25|0.25|molecular vibronic band|https://www.jpyro.co.uk/wp-content/uploads/j18_1_fglk1.pdf|CuSO4 decomposition/oxidation product; scale estimated from Fig. 17/18. Internal ratios from the cited source; cross-species scale is an explicit visual estimate.
+CuO|606|band center|42|42|0.42|0.25|0.105|molecular vibronic band|https://www.jpyro.co.uk/wp-content/uploads/j18_1_fglk1.pdf|CuSO4 decomposition/oxidation product; scale estimated from Fig. 17/18. Internal ratios from the cited source; cross-species scale is an explicit visual estimate.
+CuO|616|band center|59|59|0.59|0.25|0.1475|molecular vibronic band|https://www.jpyro.co.uk/wp-content/uploads/j18_1_fglk1.pdf|CuSO4 decomposition/oxidation product; scale estimated from Fig. 17/18. Internal ratios from the cited source; cross-species scale is an explicit visual estimate.
+CuO|632|band center|47|47|0.47|0.25|0.1175|molecular vibronic band|https://www.jpyro.co.uk/wp-content/uploads/j18_1_fglk1.pdf|CuSO4 decomposition/oxidation product; scale estimated from Fig. 17/18. Internal ratios from the cited source; cross-species scale is an explicit visual estimate.
