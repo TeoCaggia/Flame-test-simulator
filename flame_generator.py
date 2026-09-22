@@ -1,6 +1,8 @@
 """Build a self-contained, offline flame-test viewer using only Python's stdlib."""
 import argparse
 import base64
+import csv
+import io
 import json
 import re
 from pathlib import Path
@@ -8,6 +10,35 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 ASSETS = ROOT / "files" / "viewer"
 DATA = ROOT / "files" / "elements.json"
+REAGENT_PICTURES = ROOT / "files" / "pictures"
+EXPERIMENTAL_SPECTRA = ROOT / "files" / "spectral_sources" / "definitivo"
+EXPERIMENTAL_FILES = {
+    "Li": "Li_litio.csv",
+    "B": "B_boro.csv",
+    "K": "K_potassio.csv",
+    "Ca": "Ca_calcio.csv",
+    "Cu": "Cu_rame.csv",
+    "Sr": "Sr_stronzio.csv",
+    "Ba": "Ba_bario.csv",
+}
+
+
+def load_experimental_spectrum(path: Path) -> list[list[float]]:
+    if not path.is_file():
+        raise ValueError(f"Missing experimental spectrum: {path}")
+    source = "\n".join(
+        line for line in path.read_text(encoding="utf-8").splitlines()
+        if not line.startswith("#")
+    )
+    points = [
+        [round(float(row["wavelength_nm"]), 3), round(float(row["intensity_counts"]), 5)]
+        for row in csv.DictReader(io.StringIO(source))
+        if 380 <= float(row["wavelength_nm"]) <= 770
+    ]
+    wavelengths = [point[0] for point in points]
+    if len(points) < 2 or wavelengths != sorted(set(wavelengths)):
+        raise ValueError(f"Invalid experimental spectrum: {path}")
+    return points
 
 
 def build(output: Path, element: str = "Na") -> Path:
@@ -34,6 +65,17 @@ def build(output: Path, element: str = "Na") -> Path:
             "data:image/png;base64,"
             + base64.b64encode(background_path.read_bytes()).decode("ascii")
         )
+        reagent_picture = REAGENT_PICTURES / f"{item['symbol']}.png"
+        if reagent_picture.is_file():
+            item["reagentImage"] = (
+                "data:image/png;base64,"
+                + base64.b64encode(reagent_picture.read_bytes()).decode("ascii")
+            )
+        experimental_file = EXPERIMENTAL_FILES.get(item["symbol"])
+        if experimental_file:
+            item["experimentalSpectrum"] = load_experimental_spectrum(
+                EXPERIMENTAL_SPECTRA / experimental_file
+            )
         components = item.get("spectral_components", [])
         if not components:
             raise ValueError(f"Missing spectral components for {item['symbol']}")

@@ -354,7 +354,7 @@ button:focus-visible { outline: none; }
   justify-self: end;
   min-width: 0;
   min-height: 0;
-  padding: 24px;
+  padding: 0;
   background:
     radial-gradient(circle at 50% 46%, rgba(168, 206, 255, .07), transparent 48%),
     var(--void-deep);
@@ -362,7 +362,6 @@ button:focus-visible { outline: none; }
 }
 
 .reagent-formula {
-  opacity: 0;
   color: var(--ink);
   font-family: 'Fira Code', monospace;
   font-size: clamp(2.75rem, 7vw, 5.5rem);
@@ -370,12 +369,57 @@ button:focus-visible { outline: none; }
   line-height: 1;
   letter-spacing: .1px;
   text-shadow: 0 0 28px rgba(168, 206, 255, .16);
+}
+
+.reagent-placeholder {
+  grid-area: 1 / 1;
+  padding: 24px;
+  color: rgba(232, 232, 240, .72);
+  font-family: 'Fira Code', monospace;
+  font-size: .8125rem;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: .15px;
+  transition: opacity .16s ease, visibility .16s ease;
+}
+
+.reagent-image,
+.reagent-unavailable {
+  grid-area: 1 / 1;
+  opacity: 0;
+  visibility: hidden;
   transform: translateY(8px) scale(.97);
-  transition: opacity .22s ease, transform .22s cubic-bezier(.34, 1.38, .64, 1);
+  transition: opacity .36s ease-in-out, transform .36s cubic-bezier(.34, 1.38, .64, 1), visibility .36s ease;
   will-change: opacity, transform;
 }
 
-.reagent-panel.has-formula .reagent-formula { opacity: 1; transform: none; }
+.reagent-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.reagent-unavailable {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  padding: 24px;
+}
+
+.reagent-unavailable-label {
+  color: rgba(232, 232, 240, .72);
+  font-family: 'Fira Code', monospace;
+  font-size: .8125rem;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: .15px;
+}
+
+.reagent-panel.has-image .reagent-placeholder,
+.reagent-panel.has-unavailable .reagent-placeholder { opacity: 0; visibility: hidden; }
+.reagent-panel.has-image .reagent-image,
+.reagent-panel.has-unavailable .reagent-unavailable { opacity: 1; visibility: visible; transform: none; }
 .reagent-formula sub { font-size: .55em; vertical-align: -.25em; }
 
 .lab-background {
@@ -450,7 +494,7 @@ button:focus-visible { outline: none; }
   height: var(--rod-height);
   object-fit: contain;
   transform: translate3d(var(--rod-offset-x, 0), var(--rod-offset-y, 0), 0) rotate(var(--rod-angle, 0deg));
-  transform-origin: var(--rod-salt-x) var(--rod-salt-y);
+  transform-origin: var(--rod-pivot-x, var(--rod-salt-x)) var(--rod-pivot-y, var(--rod-salt-y));
   user-select: none;
   pointer-events: none;
   will-change: transform, opacity;
@@ -477,7 +521,7 @@ button:focus-visible { outline: none; }
   width: var(--rod-handle-width);
   height: var(--rod-handle-height);
   transform: translate3d(var(--rod-offset-x, 0), var(--rod-offset-y, 0), 0) rotate(var(--rod-angle, 0deg));
-  transform-origin: calc(var(--rod-salt-x) - var(--rod-handle-x)) calc(var(--rod-salt-y) - var(--rod-handle-y));
+  transform-origin: calc(var(--rod-pivot-x, var(--rod-salt-x)) - var(--rod-handle-x)) calc(var(--rod-pivot-y, var(--rod-salt-y)) - var(--rod-handle-y));
   user-select: none;
   pointer-events: auto;
   touch-action: none;
@@ -506,7 +550,8 @@ button:focus-visible { outline: none; }
   opacity: .78;
   filter: saturate(.84);
   clip-path: polygon(19% 13%, 43% 5%, 68% 12%, 91% 36%, 86% 68%, 65% 91%, 34% 94%, 9% 70%, 6% 39%);
-  transform: translate3d(var(--rod-offset-x, 0), var(--rod-offset-y, 0), 0);
+  transform: translate3d(var(--rod-offset-x, 0), var(--rod-offset-y, 0), 0) rotate(var(--rod-angle, 0deg));
+  transform-origin: calc(var(--rod-pivot-x, var(--rod-salt-x)) - var(--rod-salt-x) + var(--salt-radius)) calc(var(--rod-pivot-y, var(--rod-salt-y)) - var(--rod-salt-y) + var(--salt-radius));
   pointer-events: none;
   will-change: transform;
 }
@@ -536,15 +581,44 @@ button:focus-visible { outline: none; }
 
 .spectrum-heading { display: flex; align-items: center; min-width: 0; }
 
-.spectrum-title {
-  margin: 0;
+.spectrum-mode {
+  display: inline-grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3px;
+  padding: 3px;
+  border: 1px solid var(--stroke);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .028);
+}
+
+.spectrum-mode-button {
+  min-height: 27px;
+  padding: 5px 12px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
   color: var(--ink);
-  font-family: Syne, system-ui, sans-serif;
-  font-size: 1.1875rem;
-  font-weight: 700;
-  line-height: 1.25;
-  letter-spacing: -.5px;
-  text-align: left;
+  font-family: 'Fira Code', monospace;
+  font-size: .8125rem;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: .15px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color .14s ease, background .14s ease, border-color .14s ease;
+}
+
+.spectrum-mode-button:hover { border-color: rgba(255, 255, 255, .22); }
+
+.spectrum-mode-button[aria-pressed="true"] {
+  border-color: rgba(255, 255, 255, .9);
+  background: rgba(255, 255, 255, .9);
+  color: #000;
+}
+
+.spectrum-mode-button:focus-visible {
+  outline: 3px solid rgba(130, 180, 255, .9);
+  outline-offset: 2px;
 }
 
 #spectrum {
@@ -569,6 +643,13 @@ button:focus-visible { outline: none; }
 
 .spectrum-axis-label { fill: var(--lamp-cool); }
 .spectrum-cursor-label { fill: var(--ink); }
+.spectrum-unavailable {
+  fill: var(--ink);
+  font-family: 'Fira Code', monospace;
+  font-size: .8125rem;
+  font-weight: 400;
+  letter-spacing: .15px;
+}
 
 .spectrum-note {
   position: relative;

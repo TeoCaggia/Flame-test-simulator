@@ -18,6 +18,9 @@
   let rodOutsideSince = null;
   let selectionBusy=false;
   let quickMode=false;
+  let reagentAutoReveal=false;
+  let reagentRevealFrame=null;
+  let spectrumMode='theoretical';
   const COLOR_FADE_DURATION=.5;
   let colorFadeStartedAt=null,colorFadeOutStartedAt=null,colorFadeOutFrom=0,colorFadeOutDuration=COLOR_FADE_DURATION;
   let spectrumReveal=0;
@@ -29,6 +32,7 @@
   const SPECTRUM_SAMPLES_PER_PIXEL=2;
   const ROD_SWITCH_DELAY=500;
   const ROD_SWITCH_SPEED=1.43;
+  const ROD_ROTATION_DURATION=500;
   const BACKGROUND_TRANSITION_DURATION=360;
   let flameColorTransition=null;
   const BACKGROUND_POSITION_Y=.24;
@@ -126,25 +130,51 @@
     return before[1]+(after[1]-before[1])*ratio;
   }
 
+  function spectrumSamples(element,mode,pixelWidth,view){
+    if(!element)return [[view[0],0],[view[1],0]];
+    let points;
+    let minimum=0;
+    if(mode==='experimental'){
+      const source=element.experimentalSpectrum;
+      if(!source?.length)return [];
+      points=[
+        [view[0],valueAtPoints(source,view[0])],
+        ...source.filter(([nm])=>nm>view[0]&&nm<view[1]),
+        [view[1],valueAtPoints(source,view[1])]
+      ];
+      minimum=points.reduce((lowest,point)=>Math.min(lowest,point[1]),Infinity);
+    }else{
+      points=combinedSamples(element,'all',element.spectral_components,pixelWidth,view);
+    }
+    const maximum=points.reduce((highest,point)=>Math.max(highest,point[1]),-Infinity);
+    const range=maximum-minimum;
+    return range>0?points.map(([nm,value])=>[nm,(value-minimum)/range]):points.map(([nm])=>[nm,0]);
+  }
+
+  const spectrumAvailable=(element,mode)=>Boolean(
+    element&&(mode==='theoretical'||element.experimentalSpectrum?.length)
+  );
+
   function spectrumMorphSamples(morph,pixelWidth,view,progress){
     const key=`${pixelWidth}:${view[0]}:${view[1]}`;
     let base=morph.cache.get(key);
     if(!base){
-      const samplesFor=element=>element
-        ?combinedSamples(element,'all',element.spectral_components,pixelWidth,view)
-        :[[view[0],0],[view[1],0]];
-      const from=samplesFor(morph.fromElement),to=samplesFor(morph.toElement);
-      const fromMax=from.reduce((maximum,point)=>Math.max(maximum,point[1]),0)||1;
-      const toMax=to.reduce((maximum,point)=>Math.max(maximum,point[1]),0)||1;
+      const from=spectrumSamples(morph.fromElement,morph.fromMode,pixelWidth,view);
+      const to=spectrumSamples(morph.toElement,morph.toMode,pixelWidth,view);
       const positions=[...new Set([...from.map(point=>point[0]),...to.map(point=>point[0])])].sort((a,b)=>a-b);
-      base=positions.map(nm=>[nm,valueAtPoints(from,nm)/fromMax,valueAtPoints(to,nm)/toMax]);
+      base=positions.map(nm=>[nm,valueAtPoints(from,nm),valueAtPoints(to,nm)]);
       morph.cache.set(key,base);
     }
     return base.map(([nm,from,to])=>[nm,from+(to-from)*progress]);
   }
 
-  function startSpectrumMorph(fromElement,toElement){
-    spectrumMorph={fromElement,toElement,startedAt:time,duration:BACKGROUND_TRANSITION_DURATION/1000,cache:new Map()};
+  function startSpectrumMorph(fromElement,toElement,fromMode=spectrumMode,toMode=spectrumMode){
+    if(!spectrumAvailable(fromElement,fromMode)||!spectrumAvailable(toElement,toMode)){
+      spectrumMorph=null;
+      drawSpectrum();
+      return;
+    }
+    spectrumMorph={fromElement,toElement,fromMode,toMode,startedAt:time,duration:BACKGROUND_TRANSITION_DURATION/1000,cache:new Map()};
     drawSpectrum();
   }
 
@@ -191,22 +221,37 @@
       svg.setAttribute('aria-label','Spettro vuoto; nessun elemento selezionato.');
       return;
     }
+    if(!spectrumAvailable(current,spectrumMode)){
+      svg.append(svgNode('text',{x:(left+right)/2,y:(top+baseline)/2+4,class:'spectrum-unavailable','text-anchor':'middle'},'non ancora disponibile'));
+      svg.onpointermove=null;
+      svg.onpointerleave=null;
+      svg.onpointerdown=null;
+      svg.onpointerup=null;
+      svg.onpointercancel=null;
+      svg.ondblclick=null;
+      svg.setAttribute('aria-label',`Spettro sperimentale di ${current.name}: non ancora disponibile.`);
+      return;
+    }
     const components=current.spectral_components;
     const morphProgress=spectrumMorph?Math.max(0,Math.min(1,(time-spectrumMorph.startedAt)/spectrumMorph.duration)):null;
     const easedMorph=morphProgress===null?null:morphProgress*morphProgress*(3-2*morphProgress);
     const points=spectrumMorph
       ?spectrumMorphSamples(spectrumMorph,right-left,spectrumView,easedMorph)
-      :combinedSamples(current,'all',components,right-left,spectrumView);
+      :spectrumSamples(current,spectrumMode,right-left,spectrumView);
     const signalMaximum=points.reduce((maximum,point)=>Math.max(maximum,point[1]),0);
     const signalHeight=baseline-top-7;
     const signalScale=signalMaximum>0?(spectrumMorph?signalHeight:signalHeight/signalMaximum):0;
     if(signalMaximum>0){
       const tracePoints=points.map(([nm,value])=>`${x(nm)},${baseline-signalScale*value*spectrumReveal}`);
       const trace=svgNode('path',{d:`M ${tracePoints.join(' L ')}`,fill:'none',stroke:'url(#visible-spectrum)','stroke-width':1.2375,'stroke-linejoin':'round','stroke-linecap':'round','data-spectrum':'combined'});
-      trace.append(svgNode('title',{},[...new Set(components.map(component=>speciesLabel(component.id)))].join(', ')));
+      trace.append(svgNode('title',{},spectrumMode==='theoretical'
+        ?[...new Set(components.map(component=>speciesLabel(component.id)))].join(', ')
+        :'Spettro sperimentale'));
       svg.append(trace);
     }
-    const summary=components.map(c=>`${speciesLabel(c.id)}: ${c.peaks.length} segnali con intensità`).join('; ');
+    const summary=spectrumMode==='theoretical'
+      ?components.map(c=>`${speciesLabel(c.id)}: ${c.peaks.length} segnali con intensità`).join('; ')
+      :`${current.experimentalSpectrum.length} misure sperimentali`;
     const selectionShade=svgNode('rect',{x:left,y:top,width:0,height:baseline-top,fill:'#a8ceff','fill-opacity':.10,'visibility':'hidden','pointer-events':'none','data-zoom-selection':'true'});
     const cursor=svgNode('g',{'visibility':'hidden','pointer-events':'none','aria-hidden':'true'});
     const selectionStartLine=svgNode('line',{y1:top,y2:baseline,stroke:'#a8ceff','stroke-opacity':'.62','stroke-width':1,'visibility':'hidden','pointer-events':'none'});
@@ -237,16 +282,17 @@
       cursorLine.setAttribute('x1',point.x);
       cursorLine.setAttribute('x2',point.x);
       cursorLabel.setAttribute('x',Math.max(left+30,Math.min(right-30,point.x)));
-      const contributions=components.map(component=>({
+      const contributions=spectrumMode==='theoretical'?components.map(component=>({
         label:component.id,
         value:componentValueAt(component,nm)
-      })).filter(item=>item.value>1e-8).sort((a,b)=>b.value-a.value);
+      })).filter(item=>item.value>1e-8).sort((a,b)=>b.value-a.value):[];
       const total=contributions.reduce((sum,item)=>sum+item.value,0);
       const origins=[...new Set(contributions.filter((item,index)=>index<2&&item.value>=contributions[0].value*.05)
         .map(item=>speciesLabel(item.label)))].join(' · ');
+      const experimentalValue=spectrumMode==='experimental'?valueAtPoints(current.experimentalSpectrum,nm):null;
       cursorLabel.textContent=spectrumDrag
         ?`${Math.min(spectrumDrag.nm,nm).toLocaleString('it-IT',{maximumFractionDigits:1})}–${Math.max(spectrumDrag.nm,nm).toLocaleString('it-IT',{maximumFractionDigits:1})} nm`
-        :`${nm.toLocaleString('it-IT',{minimumFractionDigits:1,maximumFractionDigits:1})} nm${total>signalMaximum*.01&&origins?' · '+origins:''}`;
+        :`${nm.toLocaleString('it-IT',{minimumFractionDigits:1,maximumFractionDigits:1})} nm${experimentalValue===null?(total>signalMaximum*.01&&origins?' · '+origins:''):` · ${experimentalValue.toLocaleString('it-IT',{maximumFractionDigits:2})} conteggi`}`;
       cursor.setAttribute('visibility','visible');
     }:null;
     svg.onpointerdown=event=>{
@@ -280,7 +326,7 @@
     };
     svg.onpointerleave=()=>{if(!spectrumDrag)cursor.setAttribute('visibility','hidden');};
     svg.ondblclick=event=>{event.preventDefault();spectrumDrag=null;spectrumView=[...bounds];drawSpectrum();};
-    svg.setAttribute('aria-label', `Spettro qualitativo di ${current.name}, intervallo ${viewStart.toFixed(1)}-${viewEnd.toFixed(1)} nm: ${summary}. Trascina per ingrandire; doppio clic per ripristinare. ${data.spectralMethod}`);
+    svg.setAttribute('aria-label', `${spectrumMode==='theoretical'?'Spettro teorico qualitativo':'Spettro sperimentale'} di ${current.name}, intervallo ${viewStart.toFixed(1)}-${viewEnd.toFixed(1)} nm: ${summary}. Trascina per ingrandire; doppio clic per ripristinare.${spectrumMode==='theoretical'?' '+data.spectralMethod:''}`);
   }
 
   function adjacentElementSymbol(direction){
@@ -328,20 +374,48 @@
   }
 
   function resetReagentPanel(){
-    byId('reagent-panel').classList.remove('has-formula');
+    if(reagentRevealFrame!==null){
+      cancelAnimationFrame(reagentRevealFrame);
+      reagentRevealFrame=null;
+    }
+    byId('reagent-panel').classList.remove('has-image','has-unavailable');
     byId('reagent-formula').replaceChildren();
+    const image=byId('reagent-image');
+    image.removeAttribute('src');
+    image.alt='';
+    document.querySelector('.reagent-placeholder').textContent='Clicca sul barattolo per vedere il sale';
     const hotspot=byId('jar-hotspot');
     hotspot.classList.remove('is-revealed');
-    hotspot.setAttribute('aria-label',`Mostra la formula di ${current.reagentName.toLowerCase()}`);
+    hotspot.setAttribute('aria-label',`Mostra il reagente ${current.reagentName.toLowerCase()}`);
   }
 
   function showReagentFormula(){
     if(!current)return;
-    setFormulaText(byId('reagent-formula'),current.reagentFormula);
-    byId('reagent-panel').classList.add('has-formula');
+    reagentAutoReveal=quickMode;
+    const panel=byId('reagent-panel');
+    let visibleClass;
+    if(current.reagentImage){
+      const image=byId('reagent-image');
+      image.src=current.reagentImage;
+      image.alt=`${current.reagentName} (${current.reagentFormula})`;
+      visibleClass='has-image';
+    }else{
+      setFormulaText(byId('reagent-formula'),current.reagentFormula);
+      visibleClass='has-unavailable';
+    }
+    if(quickMode){
+      reagentRevealFrame=requestAnimationFrame(()=>{
+        reagentRevealFrame=requestAnimationFrame(()=>{
+          reagentRevealFrame=null;
+          panel.classList.add(visibleClass);
+        });
+      });
+    }else panel.classList.add(visibleClass);
     const hotspot=byId('jar-hotspot');
     hotspot.classList.add('is-revealed');
-    hotspot.setAttribute('aria-label',`${current.reagentName}: ${current.reagentFormula}`);
+    hotspot.setAttribute('aria-label',current.reagentImage
+      ?`Foto di ${current.reagentName}, formula ${current.reagentFormula}`
+      :`${current.reagentName}: ${current.reagentFormula}. Foto non ancora disponibile`);
   }
 
   function startFlameColorTransition(fromColor,toColor){
@@ -376,6 +450,7 @@
     byId('jar-hotspot').hidden=false;
     byId('jar-hotspot').disabled=false;
     resetReagentPanel();
+    if(quickMode&&reagentAutoReveal)showReagentFormula();
     byId('spectrum-note-title').textContent='Descrizione';
     byId('spectrum-description').textContent=current.spectrumDescription;
     byId('flame').setAttribute('aria-label', `Fiamma ${current.colorName.toLowerCase()} del ${current.name.toLowerCase()}; rappresentazione qualitativa`);
@@ -471,7 +546,7 @@
         await transitionBackground(nextElement.backgroundImage,()=>{
           if(previousColor)startFlameColorTransition(previousColor,nextElement.color);
           applyElement(nextElement,false,Boolean(previousElement));
-          startSpectrumMorph(previousElement,nextElement);
+          startSpectrumMorph(previousElement,nextElement,spectrumMode,spectrumMode);
           sampleFixture.classList.remove('is-hidden');
           sampleFixture.classList.add('is-fast-mode','rod-moved');
           const target=fastRodOffsets();
@@ -529,8 +604,9 @@
     hotspot.disabled=true;
     hotspot.setAttribute('aria-label','Seleziona un elemento per mostrare la formula del reagente');
     hotspot.classList.remove('is-revealed');
-    byId('reagent-panel').classList.remove('has-formula');
+    byId('reagent-panel').classList.remove('has-image','has-unavailable');
     byId('reagent-formula').replaceChildren();
+    document.querySelector('.reagent-placeholder').textContent='Scegli un elemento';
     byId('spectrum-note-title').textContent='Descrizione';
     byId('spectrum-description').textContent='Seleziona un elemento per leggere la descrizione del suo spettro.';
     for(const button of byId('elements').children)button.setAttribute('aria-pressed','false');
@@ -713,6 +789,10 @@
     }`;
   let canvas=byId('flame'), gl=null, ctx=null, program=null, uniforms=null;
   const stage=canvas.parentElement;
+  const reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
+  let rodAngle=0,rodAngleTarget=0,rodAngleAnimation=null,rodAngleFrame=null;
+  let rodPivotX=null,rodPivotY=null;
+  let drag=null;
   const sampleImage=stage.querySelector('.sample-image');
   const sampleFixture=stage.querySelector('.sample-fixture');
   const rodGlowImage=stage.querySelector('.rod-glow-image');
@@ -721,6 +801,7 @@
   const saltMarker=stage.querySelector('.salt-marker');
   const jarHotspot=byId('jar-hotspot');
   const quickToggle=byId('quick-mode');
+  const spectrumModeButtons=[...document.querySelectorAll('.spectrum-mode-button')];
   rodGlowImage.src=sampleImage.src;
   rodFillImage.src=sampleImage.src;
   jarHotspot.addEventListener('click',showReagentFormula);
@@ -728,7 +809,8 @@
   quickToggle.addEventListener('change',async()=>{
     quickMode=quickToggle.checked;
     sampleFixture.classList.toggle('is-fast-mode',quickMode);
-    if(!quickMode||!current||selectionBusy)return;
+    if(!quickMode){reagentAutoReveal=false;return;}
+    if(!current||selectionBusy)return;
     rodHasMoved=true;
     rodOutsideSince=null;
     sampleFixture.classList.add('rod-moved');
@@ -736,6 +818,18 @@
     await animateRodTo(target.x,target.y);
     render();
   });
+  for(const button of spectrumModeButtons){
+    button.addEventListener('click',()=>{
+      const nextMode=button.dataset.spectrumMode;
+      if(nextMode===spectrumMode)return;
+      const previousMode=spectrumMode;
+      spectrumMode=nextMode;
+      for(const option of spectrumModeButtons){
+        option.setAttribute('aria-pressed',String(option.dataset.spectrumMode===spectrumMode));
+      }
+      startSpectrumMorph(current,current,previousMode,spectrumMode);
+    });
+  }
   const colorVector=color=>(color??'#000000').match(/[a-f\d]{2}/gi).map(s=>parseInt(s,16)/255);
   const rgb=()=>{
     if(flameColorTransition){
@@ -1109,6 +1203,28 @@
       gl.uniform3fv(uniforms.tint,rgb()); gl.drawArrays(gl.TRIANGLES,0,6);
     } else if(ctx) drawFallback();
   }
+  function setRodPivotAtCursor(clientX,clientY){
+    const geometry=apparatusGeometry();
+    const stageRect=stage.getBoundingClientRect();
+    const oldPivotX=rodPivotX??geometry.rodSaltX;
+    const oldPivotY=rodPivotY??geometry.rodSaltY;
+    const angle=rodAngle*Math.PI/180;
+    const cosine=Math.cos(angle),sine=Math.sin(angle);
+    const cursorX=clientX-stageRect.left-stage.clientLeft-(geometry.sampleX-geometry.rodSaltX)-rodOffsetX;
+    const cursorY=clientY-stageRect.top-stage.clientTop-(geometry.sampleY-geometry.rodSaltY)-rodOffsetY;
+    const relativeX=cursorX-oldPivotX,relativeY=cursorY-oldPivotY;
+    const nextPivotX=oldPivotX+cosine*relativeX+sine*relativeY;
+    const nextPivotY=oldPivotY-sine*relativeX+cosine*relativeY;
+    const deltaX=oldPivotX-nextPivotX,deltaY=oldPivotY-nextPivotY;
+    rodOffsetX+=deltaX-(cosine*deltaX-sine*deltaY);
+    rodOffsetY+=deltaY-(sine*deltaX+cosine*deltaY);
+    rodPivotX=nextPivotX;
+    rodPivotY=nextPivotY;
+    stage.style.setProperty('--rod-pivot-x',`${rodPivotX}px`);
+    stage.style.setProperty('--rod-pivot-y',`${rodPivotY}px`);
+    stage.style.setProperty('--rod-offset-x',`${rodOffsetX}px`);
+    stage.style.setProperty('--rod-offset-y',`${rodOffsetY}px`);
+  }
   function setRodOffset(x,y) {
     const geometry=apparatusGeometry();
     const rect={width:stage.clientWidth,height:stage.clientHeight};
@@ -1124,18 +1240,43 @@
     const clampedY=Math.max(-visibleTop,Math.min(rect.height-visibleBottom,y));
     setRodOffsetRaw(clampedX,clampedY);
   }
+  function updateRodAngle(now){
+    const animation=rodAngleAnimation;
+    if(!animation){rodAngleFrame=null;return;}
+    const progress=Math.min(1,(now-animation.startedAt)/ROD_ROTATION_DURATION);
+    const eased=progress*progress*(3-2*progress);
+    rodAngle=animation.from+(animation.to-animation.from)*eased;
+    stage.style.setProperty('--rod-angle',`${rodAngle}deg`);
+    if(progress<1)rodAngleFrame=requestAnimationFrame(updateRodAngle);
+    else{rodAngle=animation.to;rodAngleAnimation=null;rodAngleFrame=null;}
+  }
+  function setRodAngleTarget(target){
+    if(target===rodAngleTarget)return;
+    rodAngleTarget=target;
+    if(reducedMotion.matches){
+      if(rodAngleFrame!==null)cancelAnimationFrame(rodAngleFrame);
+      rodAngle=target;
+      rodAngleAnimation=null;
+      rodAngleFrame=null;
+      stage.style.setProperty('--rod-angle',`${rodAngle}deg`);
+      return;
+    }
+    rodAngleAnimation={from:rodAngle,to:target,startedAt:performance.now()};
+    if(rodAngleFrame===null)rodAngleFrame=requestAnimationFrame(updateRodAngle);
+  }
   function setRodOffsetRaw(x,y,rotate=true){
     rodOffsetX=x;
     rodOffsetY=y;
     stage.style.setProperty('--rod-offset-x',`${rodOffsetX}px`);
     stage.style.setProperty('--rod-offset-y',`${rodOffsetY}px`);
-    stage.style.setProperty('--rod-angle',rotate&&Math.hypot(rodOffsetX,rodOffsetY)>.5?'-30deg':'0deg');
+    setRodAngleTarget(rotate&&(drag||Math.hypot(rodOffsetX,rodOffsetY)>.5)?-30:0);
   }
-  let drag=null;
   rodHandle.addEventListener('pointerdown',event=>{
     if(event.button!==0||selectionBusy)return;
     event.preventDefault();
+    setRodPivotAtCursor(event.clientX,event.clientY);
     drag={x:event.clientX,y:event.clientY,offsetX:rodOffsetX,offsetY:rodOffsetY};
+    setRodAngleTarget(-30);
     rodHandle.classList.add('is-dragging');
     rodHandle.setPointerCapture(event.pointerId);
   });
@@ -1153,6 +1294,7 @@
   const endDrag=event=>{
     if(!drag)return;
     drag=null;
+    if(Math.hypot(rodOffsetX,rodOffsetY)<=.5)setRodAngleTarget(0);
     rodHandle.classList.remove('is-dragging');
     if(rodHandle.hasPointerCapture(event.pointerId))rodHandle.releasePointerCapture(event.pointerId);
   };

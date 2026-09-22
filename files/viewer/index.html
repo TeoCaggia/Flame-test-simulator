@@ -56,12 +56,20 @@ __FONT_LICENSE__
       </div>
     </section>
     <section id="reagent-panel" class="reagent-panel panel" aria-live="polite">
-      <strong id="reagent-formula" class="reagent-formula"></strong>
+      <span class="reagent-placeholder">Scegli un elemento</span>
+      <img id="reagent-image" class="reagent-image" alt="">
+      <div class="reagent-unavailable">
+        <strong id="reagent-formula" class="reagent-formula"></strong>
+        <span class="reagent-unavailable-label">Foto non ancora disponibile</span>
+      </div>
     </section>
     <section class="spectrum" aria-label="Spettro di emissione">
       <div class="spectrum-plot panel">
         <div class="spectrum-heading">
-          <h2 class="spectrum-title">Spettro di emissione</h2>
+          <div class="spectrum-mode" role="group" aria-label="Tipo di spettro">
+            <button class="spectrum-mode-button" type="button" data-spectrum-mode="theoretical" aria-pressed="true">Spettro teorico</button>
+            <button class="spectrum-mode-button" type="button" data-spectrum-mode="experimental" aria-pressed="false">Spettro sperimentale</button>
+          </div>
         </div>
         <svg id="spectrum" viewBox="0 0 1000 148" role="img" aria-label="Righe atomiche e bande molecolari dello spettro di emissione"></svg>
       </div>
