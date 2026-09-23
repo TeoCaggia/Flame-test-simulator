@@ -3,16 +3,17 @@
   const data = JSON.parse(document.getElementById('flame-data').textContent);
   const byId = id => document.getElementById(id);
   const app = document.querySelector('.app');
+  const loader=byId('viewer-loader');
   const elements = new Map(data.elements.map(element => [element.symbol, element]));
   byId('elements').style.setProperty('--element-count', data.elements.length);
   const query = new URLSearchParams(location.search);
   const requestedElement=elements.get(query.get('element'));
   const fallbackElement=elements.get(data.defaultElement)||data.elements[0];
   let current=requestedElement||null;
-  const bounds = [380, 770];
+  const bounds = [380, 850];
   let spectrumView=[...bounds];
   let spectrumDrag=null;
-  const spectrumTicks = [380,400,450,500,550,600,650,700,750,770];
+  const spectrumTicks = [380,400,450,500,550,600,650,700,750,800,850];
   let time = 0;
   let rodHasMoved = false;
   let rodOutsideSince = null;
@@ -20,6 +21,11 @@
   let quickMode=false;
   let reagentAutoReveal=false;
   let reagentRevealFrame=null;
+  let reagentCrossfadeTimer=null;
+  let reagentImageIndex=0;
+  let reagentVideoThumbnailIndex=0;
+  let reagentTransitionToken=0;
+  let reagentVideoFrameTimer=null;
   let spectrumMode='theoretical';
   const COLOR_FADE_DURATION=.5;
   let colorFadeStartedAt=null,colorFadeOutStartedAt=null,colorFadeOutFrom=0,colorFadeOutDuration=COLOR_FADE_DURATION;
@@ -33,6 +39,7 @@
   const ROD_SWITCH_DELAY=500;
   const ROD_SWITCH_SPEED=1.43;
   const ROD_ROTATION_DURATION=500;
+  const ROD_ACTIVE_ANGLE=-30;
   const BACKGROUND_TRANSITION_DURATION=360;
   let flameColorTransition=null;
   const BACKGROUND_POSITION_Y=.24;
@@ -58,6 +65,13 @@
     return node;
   }
   function spectralColor(nm) {
+    if(nm>=750){
+      const start=data.spectralPalette[750-380][1];
+      const garnet=[111,20,43];
+      const progress=Math.max(0,Math.min(1,(nm-750)/100));
+      const color=start.map((value,index)=>Math.round(value+(garnet[index]-value)*progress));
+      return `rgb(${color.join(',')})`;
+    }
     const index=Math.max(0,Math.min(390,Math.round(nm)-380));
     return `rgb(${data.spectralPalette[index][1].join(',')})`;
   }
@@ -282,17 +296,16 @@
       cursorLine.setAttribute('x1',point.x);
       cursorLine.setAttribute('x2',point.x);
       cursorLabel.setAttribute('x',Math.max(left+30,Math.min(right-30,point.x)));
-      const contributions=spectrumMode==='theoretical'?components.map(component=>({
+      const contributions=components.map(component=>({
         label:component.id,
         value:componentValueAt(component,nm)
-      })).filter(item=>item.value>1e-8).sort((a,b)=>b.value-a.value):[];
+      })).filter(item=>item.value>1e-8).sort((a,b)=>b.value-a.value);
       const total=contributions.reduce((sum,item)=>sum+item.value,0);
       const origins=[...new Set(contributions.filter((item,index)=>index<2&&item.value>=contributions[0].value*.05)
         .map(item=>speciesLabel(item.label)))].join(' · ');
-      const experimentalValue=spectrumMode==='experimental'?valueAtPoints(current.experimentalSpectrum,nm):null;
       cursorLabel.textContent=spectrumDrag
         ?`${Math.min(spectrumDrag.nm,nm).toLocaleString('it-IT',{maximumFractionDigits:1})}–${Math.max(spectrumDrag.nm,nm).toLocaleString('it-IT',{maximumFractionDigits:1})} nm`
-        :`${nm.toLocaleString('it-IT',{minimumFractionDigits:1,maximumFractionDigits:1})} nm${experimentalValue===null?(total>signalMaximum*.01&&origins?' · '+origins:''):` · ${experimentalValue.toLocaleString('it-IT',{maximumFractionDigits:2})} conteggi`}`;
+        :`${nm.toLocaleString('it-IT',{minimumFractionDigits:1,maximumFractionDigits:1})} nm${total>signalMaximum*.01&&origins?' · '+origins:''}`;
       cursor.setAttribute('visibility','visible');
     }:null;
     svg.onpointerdown=event=>{
@@ -373,56 +386,378 @@
     }
   }
 
-  function resetReagentPanel(){
+  function hideReagentVideoFrame(animate=true){
+    const frame=byId('reagent-video-frame');
+    if(reagentVideoFrameTimer!==null){
+      clearTimeout(reagentVideoFrameTimer);
+      reagentVideoFrameTimer=null;
+    }
+    const clear=()=>{
+      frame.classList.remove('is-visible');
+      const context=frame.getContext('2d');
+      context?.clearRect(0,0,frame.width,frame.height);
+    };
+    if(!animate){clear();return;}
+    frame.classList.remove('is-visible');
+    reagentVideoFrameTimer=setTimeout(()=>{
+      clear();
+      reagentVideoFrameTimer=null;
+    },BACKGROUND_TRANSITION_DURATION+80);
+  }
+
+  function captureReagentVideoFrame(video){
+    if(!video.classList.contains('is-playing')||video.readyState<2||!video.videoWidth||!video.videoHeight)return false;
+    const frame=byId('reagent-video-frame');
+    const shell=byId('reagent-panel');
+    const pixelRatio=Math.min(1.5,window.devicePixelRatio||1);
+    const width=Math.max(1,Math.round(shell.clientWidth*pixelRatio));
+    const height=Math.max(1,Math.round(shell.clientHeight*pixelRatio));
+    frame.width=width;
+    frame.height=height;
+    const sourceRatio=video.videoWidth/video.videoHeight;
+    const targetRatio=width/height;
+    let sourceX=0,sourceY=0,sourceWidth=video.videoWidth,sourceHeight=video.videoHeight;
+    if(sourceRatio>targetRatio){
+      sourceWidth=video.videoHeight*targetRatio;
+      sourceX=(video.videoWidth-sourceWidth)/2;
+    }else{
+      sourceHeight=video.videoWidth/targetRatio;
+      sourceY=(video.videoHeight-sourceHeight)/2;
+    }
+    frame.getContext('2d').drawImage(video,sourceX,sourceY,sourceWidth,sourceHeight,0,0,width,height);
+    video.pause();
+    frame.classList.add('is-visible');
+    void frame.offsetWidth;
+    return true;
+  }
+
+  function clearReagentVideo(preserveFrame=false){
+    const video=byId('reagent-video');
+    const framePreserved=preserveFrame&&captureReagentVideoFrame(video);
+    if(!framePreserved)hideReagentVideoFrame(false);
+    video.pause();
+    video.loop=false;
+    video.muted=false;
+    video.classList.remove('is-playing');
+    video.removeAttribute('src');
+    video.removeAttribute('aria-label');
+    video.dataset.symbol='';
+    video.load();
+    byId('reagent-video-play').classList.remove('is-hidden');
+    return framePreserved;
+  }
+
+  function clearReagentVideoFrameAfterTransition(){
+    const transitionToken=reagentTransitionToken;
+    if(reagentVideoFrameTimer!==null)clearTimeout(reagentVideoFrameTimer);
+    reagentVideoFrameTimer=setTimeout(()=>{
+      if(transitionToken===reagentTransitionToken)hideReagentVideoFrame(false);
+      reagentVideoFrameTimer=null;
+    },BACKGROUND_TRANSITION_DURATION+80);
+  }
+
+  function settleVideoThumbnailCrossfade(){
+    const thumbnails=[byId('reagent-video-thumbnail'),byId('reagent-video-thumbnail-next')];
+    const incomingIndex=thumbnails.findIndex(thumbnail=>
+      thumbnail.classList.contains('is-incoming')&&thumbnail.classList.contains('is-active')
+    );
+    if(incomingIndex>=0)reagentVideoThumbnailIndex=incomingIndex;
+    thumbnails.forEach((thumbnail,index)=>{
+      thumbnail.classList.remove('is-incoming');
+      thumbnail.classList.toggle('is-active',index===reagentVideoThumbnailIndex&&thumbnail.hasAttribute('src'));
+    });
+  }
+
+  const REAGENT_PANEL_STATES=['has-video','has-video-unavailable','has-image','has-unavailable'];
+  function setReagentPanelState(visibleClass,onReveal){
+    const panel=byId('reagent-panel');
+    const previousClass=REAGENT_PANEL_STATES.find(state=>panel.classList.contains(state));
+    const transitionToken=reagentTransitionToken;
+    panel.classList.remove(...REAGENT_PANEL_STATES);
+    const reveal=()=>{
+      if(transitionToken!==reagentTransitionToken)return;
+      panel.classList.add(visibleClass);
+      onReveal?.();
+    };
+    if(previousClass&&previousClass!==visibleClass){
+      reagentRevealFrame=requestAnimationFrame(()=>{
+        reagentRevealFrame=requestAnimationFrame(()=>{
+          reagentRevealFrame=null;
+          reveal();
+        });
+      });
+    }else reveal();
+  }
+
+  function showElementVideo(){
+    const panel=byId('reagent-panel');
+    const video=byId('reagent-video');
+    const thumbnails=[byId('reagent-video-thumbnail'),byId('reagent-video-thumbnail-next')];
+    const playButton=byId('reagent-video-play');
+    const framePreserved=clearReagentVideo(true);
+    if(!current?.videoSource){
+      for(const thumbnail of thumbnails)thumbnail.alt='';
+      setReagentPanelState('has-video-unavailable');
+      if(framePreserved)clearReagentVideoFrameAfterTransition();
+      return;
+    }
+    const alt=`Fotogramma della prova alla fiamma del ${current.name.toLowerCase()}`;
+    video.setAttribute('aria-label',`Video della prova alla fiamma del ${current.name.toLowerCase()}`);
+    playButton.setAttribute('aria-label',`Riproduci il video del ${current.name.toLowerCase()}`);
+    if(framePreserved&&panel.classList.contains('has-video')){
+      const outgoing=thumbnails[reagentVideoThumbnailIndex];
+      const incomingIndex=1-reagentVideoThumbnailIndex;
+      const incoming=thumbnails[incomingIndex];
+      outgoing.classList.remove('is-active','is-incoming');
+      incoming.classList.remove('is-incoming');
+      incoming.src=current.videoThumbnail;
+      incoming.alt=alt;
+      const revealThumbnail=()=>{
+        incoming.style.transition='none';
+        incoming.classList.add('is-active');
+        void incoming.offsetWidth;
+        incoming.style.removeProperty('transition');
+        outgoing.classList.remove('is-active');
+        outgoing.removeAttribute('src');
+        outgoing.alt='';
+        reagentVideoThumbnailIndex=incomingIndex;
+        if(!quickMode)requestAnimationFrame(()=>hideReagentVideoFrame(true));
+      };
+      if(incoming.complete)revealThumbnail();
+      else{
+        incoming.onload=revealThumbnail;
+        incoming.onerror=revealThumbnail;
+      }
+      return;
+    }
+    if(panel.classList.contains('has-video')&&thumbnails[reagentVideoThumbnailIndex].classList.contains('is-active')){
+      const transitionToken=reagentTransitionToken;
+      const outgoing=thumbnails[reagentVideoThumbnailIndex];
+      const incomingIndex=1-reagentVideoThumbnailIndex;
+      const incoming=thumbnails[incomingIndex];
+      incoming.classList.remove('is-active');
+      incoming.classList.add('is-incoming');
+      incoming.src=current.videoThumbnail;
+      incoming.alt=alt;
+      const startCrossfade=()=>{
+        if(transitionToken!==reagentTransitionToken)return;
+        reagentRevealFrame=requestAnimationFrame(()=>{
+          reagentRevealFrame=null;
+          incoming.classList.add('is-active');
+          outgoing.classList.remove('is-active');
+          if(framePreserved&&!quickMode)hideReagentVideoFrame(true);
+          const finish=()=>{
+            if(transitionToken!==reagentTransitionToken)return;
+            reagentVideoThumbnailIndex=incomingIndex;
+            incoming.classList.remove('is-incoming');
+            outgoing.alt='';
+          };
+          reagentCrossfadeTimer=setTimeout(finish,BACKGROUND_TRANSITION_DURATION+80);
+        });
+      };
+      if(incoming.complete)startCrossfade();
+      else{
+        incoming.onload=startCrossfade;
+        incoming.onerror=startCrossfade;
+      }
+      return;
+    }
+    const thumbnail=thumbnails[reagentVideoThumbnailIndex];
+    thumbnail.src=current.videoThumbnail;
+    thumbnail.alt=alt;
+    setReagentPanelState('has-video');
+    thumbnail.classList.add('is-active');
+    if(framePreserved&&!quickMode)hideReagentVideoFrame(true);
+  }
+
+  function resetReagentPanel(showVideo=true){
+    reagentTransitionToken++;
     if(reagentRevealFrame!==null){
       cancelAnimationFrame(reagentRevealFrame);
       reagentRevealFrame=null;
     }
-    byId('reagent-panel').classList.remove('has-image','has-unavailable');
+    if(reagentCrossfadeTimer!==null){
+      clearTimeout(reagentCrossfadeTimer);
+      reagentCrossfadeTimer=null;
+    }
+    settleVideoThumbnailCrossfade();
     byId('reagent-formula').replaceChildren();
-    const image=byId('reagent-image');
-    image.removeAttribute('src');
-    image.alt='';
-    document.querySelector('.reagent-placeholder').textContent='Clicca sul barattolo per vedere il sale';
+    for(const image of [byId('reagent-image'),byId('reagent-image-next')]){
+      image.classList.remove('is-active','is-incoming');
+      image.alt='';
+    }
+    reagentImageIndex=0;
+    document.querySelector('.reagent-placeholder').textContent='';
+    const hotspot=byId('jar-hotspot');
+    hotspot.classList.remove('is-revealed');
+    hotspot.setAttribute('aria-label',`Mostra il reagente ${current.reagentName.toLowerCase()}`);
+    if(showVideo)showElementVideo();
+  }
+
+  function showReagentFormula(crossfade=false){
+    if(!current)return;
+    const transitionToken=++reagentTransitionToken;
+    reagentAutoReveal=quickMode;
+    const panel=byId('reagent-panel');
+    const framePreserved=clearReagentVideo(true);
+    let visibleClass;
+    if(current.reagentImage){
+      const source=current.reagentImage;
+      const alt=`${current.reagentName} (${current.reagentFormula})`;
+      if(crossfade){
+        const images=[byId('reagent-image'),byId('reagent-image-next')];
+        const outgoing=images[reagentImageIndex];
+        const incomingIndex=1-reagentImageIndex;
+        const incoming=images[incomingIndex];
+        if(reagentCrossfadeTimer!==null){
+          clearTimeout(reagentCrossfadeTimer);
+          reagentCrossfadeTimer=null;
+        }
+        for(const image of images)image.classList.remove('is-incoming');
+        incoming.classList.remove('is-active');
+        incoming.classList.add('is-incoming');
+        incoming.src=source;
+        incoming.alt=alt;
+        const startCrossfade=()=>{
+          if(transitionToken!==reagentTransitionToken)return;
+          reagentRevealFrame=requestAnimationFrame(()=>{
+            reagentRevealFrame=null;
+            let incomingSettled=false;
+            const finishIncoming=()=>{
+              if(incomingSettled)return;
+              incomingSettled=true;
+              incoming.removeEventListener('transitionend',onIncomingTransitionEnd);
+              if(reagentCrossfadeTimer!==null)clearTimeout(reagentCrossfadeTimer);
+              if(transitionToken!==reagentTransitionToken)return;
+              reagentImageIndex=incomingIndex;
+              outgoing.classList.remove('is-active');
+              reagentCrossfadeTimer=setTimeout(()=>{
+                if(transitionToken===reagentTransitionToken){
+                  incoming.classList.remove('is-incoming');
+                  outgoing.alt='';
+                }
+                reagentCrossfadeTimer=null;
+              },BACKGROUND_TRANSITION_DURATION);
+            };
+            const onIncomingTransitionEnd=event=>{
+              if(event.propertyName==='opacity')finishIncoming();
+            };
+            incoming.addEventListener('transitionend',onIncomingTransitionEnd);
+            incoming.classList.add('is-active');
+            reagentCrossfadeTimer=setTimeout(finishIncoming,BACKGROUND_TRANSITION_DURATION+80);
+          });
+        };
+        if(incoming.complete)startCrossfade();
+        else{
+          incoming.onload=startCrossfade;
+          incoming.onerror=startCrossfade;
+        }
+      }else{
+        const image=byId(reagentImageIndex?'reagent-image-next':'reagent-image');
+        image.src=source;
+        image.alt=alt;
+        visibleClass='has-image';
+      }
+    }else{
+      setFormulaText(byId('reagent-formula'),current.reagentFormula);
+      visibleClass='has-unavailable';
+    }
+    if(visibleClass)setReagentPanelState(visibleClass,()=>{
+      if(visibleClass==='has-image')byId(reagentImageIndex?'reagent-image-next':'reagent-image').classList.add('is-active');
+    });
+    if(framePreserved)clearReagentVideoFrameAfterTransition();
+    const hotspot=byId('jar-hotspot');
+    hotspot.classList.add('is-revealed');
+    hotspot.setAttribute('aria-label',current.reagentImage
+      ?`Mostra il video della prova alla fiamma del ${current.name.toLowerCase()}`
+      :`${current.reagentName}: ${current.reagentFormula}. Foto non ancora disponibile`);
+  }
+
+  function returnToElementVideo(){
+    if(!current?.reagentImage)return;
+    reagentAutoReveal=false;
+    reagentTransitionToken++;
+    if(reagentRevealFrame!==null){
+      cancelAnimationFrame(reagentRevealFrame);
+      reagentRevealFrame=null;
+    }
+    if(reagentCrossfadeTimer!==null){
+      clearTimeout(reagentCrossfadeTimer);
+      reagentCrossfadeTimer=null;
+    }
+    settleVideoThumbnailCrossfade();
+    const panel=byId('reagent-panel');
+    showElementVideo();
+    for(const image of [byId('reagent-image'),byId('reagent-image-next')]){
+      image.classList.remove('is-active','is-incoming');
+      image.alt='';
+    }
     const hotspot=byId('jar-hotspot');
     hotspot.classList.remove('is-revealed');
     hotspot.setAttribute('aria-label',`Mostra il reagente ${current.reagentName.toLowerCase()}`);
   }
 
-  function showReagentFormula(){
-    if(!current)return;
-    reagentAutoReveal=quickMode;
+  function toggleReagentMedia(){
     const panel=byId('reagent-panel');
-    let visibleClass;
-    if(current.reagentImage){
-      const image=byId('reagent-image');
-      image.src=current.reagentImage;
-      image.alt=`${current.reagentName} (${current.reagentFormula})`;
-      visibleClass='has-image';
-    }else{
-      setFormulaText(byId('reagent-formula'),current.reagentFormula);
-      visibleClass='has-unavailable';
-    }
-    if(quickMode){
-      reagentRevealFrame=requestAnimationFrame(()=>{
-        reagentRevealFrame=requestAnimationFrame(()=>{
-          reagentRevealFrame=null;
-          panel.classList.add(visibleClass);
-        });
-      });
-    }else panel.classList.add(visibleClass);
-    const hotspot=byId('jar-hotspot');
-    hotspot.classList.add('is-revealed');
-    hotspot.setAttribute('aria-label',current.reagentImage
-      ?`Foto di ${current.reagentName}, formula ${current.reagentFormula}`
-      :`${current.reagentName}: ${current.reagentFormula}. Foto non ancora disponibile`);
+    if(current?.reagentImage&&panel.classList.contains('has-image'))returnToElementVideo();
+    else showReagentFormula();
   }
+
+  async function playCurrentVideo(automatic=false){
+    const video=byId('reagent-video');
+    if(!current?.videoSource)return;
+    video.loop=quickMode;
+    video.muted=automatic;
+    if(automatic)byId('reagent-video-play').classList.add('is-hidden');
+    if(video.dataset.symbol!==current.symbol){
+      video.dataset.symbol=current.symbol;
+      video.src=current.videoSource;
+      video.setAttribute('aria-label',`Video della prova alla fiamma del ${current.name.toLowerCase()}`);
+    }
+    try{await video.play();}
+    catch{byId('reagent-video-play').classList.remove('is-hidden');}
+  }
+  byId('reagent-video-play').addEventListener('click',()=>{
+    playCurrentVideo(false);
+  });
+  byId('reagent-video').addEventListener('playing',event=>{
+    event.currentTarget.classList.add('is-playing');
+    byId('reagent-video-play').classList.add('is-hidden');
+    if(byId('reagent-video-frame').classList.contains('is-visible')){
+      requestAnimationFrame(()=>hideReagentVideoFrame(true));
+    }
+  });
+  byId('reagent-video').addEventListener('click',event=>{
+    const video=event.currentTarget;
+    if(video.paused||video.ended||!video.classList.contains('is-playing'))return;
+    video.pause();
+    byId('reagent-video-play').classList.remove('is-hidden');
+  });
+  byId('reagent-video').addEventListener('ended',event=>{
+    event.currentTarget.currentTime=0;
+    if(quickMode&&current?.videoSource&&event.currentTarget.dataset.symbol===current.symbol){
+      event.currentTarget.play().catch(()=>byId('reagent-video-play').classList.remove('is-hidden'));
+      return;
+    }
+    event.currentTarget.classList.remove('is-playing');
+    byId('reagent-video-play').classList.remove('is-hidden');
+  });
+  byId('reagent-video').addEventListener('error',()=>{
+    const video=byId('reagent-video');
+    if(!video.getAttribute('src')||video.dataset.symbol!==current?.symbol)return;
+    const panel=byId('reagent-panel');
+    const framePreserved=captureReagentVideoFrame(video);
+    setReagentPanelState('has-video-unavailable');
+    if(framePreserved)clearReagentVideoFrameAfterTransition();
+  });
 
   function startFlameColorTransition(fromColor,toColor){
     flameColorTransition={from:colorVector(fromColor),to:colorVector(toColor),startedAt:time,duration:BACKGROUND_TRANSITION_DURATION/1000};
   }
 
   function applyElement(element,updateBackground=true,preserveActiveFlame=false) {
+    const crossfadeReagent=quickMode&&reagentAutoReveal&&Boolean(element.reagentImage)
+      &&byId('reagent-panel').classList.contains('has-image');
     current=element;
     if(preserveActiveFlame){
       spectrumReveal=1;
@@ -449,8 +784,12 @@
     byId('flame').style.opacity='1';
     byId('jar-hotspot').hidden=false;
     byId('jar-hotspot').disabled=false;
-    resetReagentPanel();
-    if(quickMode&&reagentAutoReveal)showReagentFormula();
+    if(crossfadeReagent)showReagentFormula(true);
+    else{
+      const preserveReagentView=quickMode&&reagentAutoReveal;
+      resetReagentPanel(!preserveReagentView);
+      if(preserveReagentView)showReagentFormula();
+    }
     byId('spectrum-note-title').textContent='Descrizione';
     byId('spectrum-description').textContent=current.spectrumDescription;
     byId('flame').setAttribute('aria-label', `Fiamma ${current.colorName.toLowerCase()} del ${current.name.toLowerCase()}; rappresentazione qualitativa`);
@@ -494,8 +833,21 @@
 
   function fastRodOffsets(){
     const geometry=apparatusGeometry();
+    const pivotX=rodPivotX??geometry.rodSaltX;
+    const pivotY=rodPivotY??geometry.rodSaltY;
+    const angle=ROD_ACTIVE_ANGLE*Math.PI/180;
+    const cosine=Math.cos(angle),sine=Math.sin(angle);
+    const saltFromPivotX=geometry.rodSaltX-pivotX;
+    const saltFromPivotY=geometry.rodSaltY-pivotY;
+    const rotatedSaltX=pivotX+cosine*saltFromPivotX-sine*saltFromPivotY;
+    const rotatedSaltY=pivotY+sine*saltFromPivotX+cosine*saltFromPivotY;
+    const rotationShiftX=rotatedSaltX-geometry.rodSaltX;
+    const rotationShiftY=rotatedSaltY-geometry.rodSaltY;
     const targetY=geometry.openingY-stage.clientHeight*.408*.18;
-    return {x:geometry.x+geometry.radius*.65-geometry.sampleX,y:targetY-geometry.sampleY};
+    return {
+      x:geometry.x+geometry.radius*.65-geometry.sampleX-rotationShiftX,
+      y:targetY-geometry.sampleY-rotationShiftY
+    };
   }
 
   async function transitionBackground(source,onStart){
@@ -545,7 +897,9 @@
         const nextElement=elements.get(symbol);
         await transitionBackground(nextElement.backgroundImage,()=>{
           if(previousColor)startFlameColorTransition(previousColor,nextElement.color);
+          reagentAutoReveal=false;
           applyElement(nextElement,false,Boolean(previousElement));
+          playCurrentVideo(true);
           startSpectrumMorph(previousElement,nextElement,spectrumMode,spectrumMode);
           sampleFixture.classList.remove('is-hidden');
           sampleFixture.classList.add('is-fast-mode','rod-moved');
@@ -604,7 +958,8 @@
     hotspot.disabled=true;
     hotspot.setAttribute('aria-label','Seleziona un elemento per mostrare la formula del reagente');
     hotspot.classList.remove('is-revealed');
-    byId('reagent-panel').classList.remove('has-image','has-unavailable');
+    byId('reagent-panel').classList.remove('has-video','has-video-unavailable','has-image','has-unavailable');
+    clearReagentVideo();
     byId('reagent-formula').replaceChildren();
     document.querySelector('.reagent-placeholder').textContent='Scegli un elemento';
     byId('spectrum-note-title').textContent='Descrizione';
@@ -792,7 +1147,7 @@
   const reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
   let rodAngle=0,rodAngleTarget=0,rodAngleAnimation=null,rodAngleFrame=null;
   let rodPivotX=null,rodPivotY=null;
-  let drag=null;
+  let drag=null,rodReturning=false;
   const sampleImage=stage.querySelector('.sample-image');
   const sampleFixture=stage.querySelector('.sample-fixture');
   const rodGlowImage=stage.querySelector('.rod-glow-image');
@@ -804,10 +1159,11 @@
   const spectrumModeButtons=[...document.querySelectorAll('.spectrum-mode-button')];
   rodGlowImage.src=sampleImage.src;
   rodFillImage.src=sampleImage.src;
-  jarHotspot.addEventListener('click',showReagentFormula);
+  jarHotspot.addEventListener('click',toggleReagentMedia);
   quickMode=quickToggle.checked;
   quickToggle.addEventListener('change',async()=>{
     quickMode=quickToggle.checked;
+    byId('reagent-video').loop=quickMode;
     sampleFixture.classList.toggle('is-fast-mode',quickMode);
     if(!quickMode){reagentAutoReveal=false;return;}
     if(!current||selectionBusy)return;
@@ -1269,14 +1625,14 @@
     rodOffsetY=y;
     stage.style.setProperty('--rod-offset-x',`${rodOffsetX}px`);
     stage.style.setProperty('--rod-offset-y',`${rodOffsetY}px`);
-    setRodAngleTarget(rotate&&(drag||Math.hypot(rodOffsetX,rodOffsetY)>.5)?-30:0);
+    setRodAngleTarget(rotate&&(drag||Math.hypot(rodOffsetX,rodOffsetY)>.5)?ROD_ACTIVE_ANGLE:0);
   }
   rodHandle.addEventListener('pointerdown',event=>{
-    if(event.button!==0||selectionBusy)return;
+    if(event.button!==0||selectionBusy||rodReturning)return;
     event.preventDefault();
     setRodPivotAtCursor(event.clientX,event.clientY);
     drag={x:event.clientX,y:event.clientY,offsetX:rodOffsetX,offsetY:rodOffsetY};
-    setRodAngleTarget(-30);
+    setRodAngleTarget(ROD_ACTIVE_ANGLE);
     rodHandle.classList.add('is-dragging');
     rodHandle.setPointerCapture(event.pointerId);
   });
@@ -1291,12 +1647,19 @@
     }
     render();
   });
-  const endDrag=event=>{
+  const endDrag=async event=>{
     if(!drag)return;
     drag=null;
-    if(Math.hypot(rodOffsetX,rodOffsetY)<=.5)setRodAngleTarget(0);
     rodHandle.classList.remove('is-dragging');
     if(rodHandle.hasPointerCapture(event.pointerId))rodHandle.releasePointerCapture(event.pointerId);
+    if(quickMode&&current){
+      rodReturning=true;
+      const target=fastRodOffsets();
+      try{await animateRodTo(target.x,target.y);}finally{rodReturning=false;}
+      render();
+      return;
+    }
+    if(Math.hypot(rodOffsetX,rodOffsetY)<=.5)setRodAngleTarget(0);
   };
   rodHandle.addEventListener('pointerup',endDrag);
   rodHandle.addEventListener('pointercancel',endDrag);
@@ -1351,11 +1714,97 @@
       if(!image.complete||!image.naturalWidth)await new Promise(resolve=>image.addEventListener('load',resolve,{once:true}));
     }
   }
-  async function revealViewer(){
-    const images=[byId('lab-background'),sampleImage,rodGlowImage,rodFillImage];
-    await Promise.all([...images.map(waitForImage),document.fonts?.ready??Promise.resolve()]);
+  const nextFrame=()=>new Promise(resolve=>requestAnimationFrame(resolve));
+  function updateLoadingProgress(completed,total){
+    const percentage=total?Math.round(completed/total*100):100;
+    byId('viewer-loader-bar').style.width=`${percentage}%`;
+    byId('viewer-loader-value').textContent=`${percentage}%`;
+    const progress=byId('viewer-loader-progress');
+    progress.setAttribute('aria-valuenow',String(percentage));
+    progress.setAttribute('aria-valuetext',`${percentage}% completato`);
+  }
+  async function preloadImageSource(source){
+    const image=new Image();
+    image.src=source;
+    try{
+      if(image.decode)await image.decode();
+      else if(!image.complete)await new Promise(resolve=>{
+        image.addEventListener('load',resolve,{once:true});
+        image.addEventListener('error',()=>resolve(),{once:true});
+      });
+    }catch(error){
+      throw new Error('Impossibile decodificare una risorsa grafica',{cause:error});
+    }
+    if(!image.complete||!image.naturalWidth)throw new Error('Risorsa grafica non caricata');
+  }
+  async function preloadViewerFonts(){
+    if(!document.fonts)return;
+    const [syne,fira]=await Promise.all([
+      document.fonts.load('800 1.833333rem Syne','Caricamento'),
+      document.fonts.load('400 1.3125rem "Fira Code"','100%'),
+      document.fonts.ready
+    ]);
+    if(!syne.length||!fira.length)throw new Error('Font del viewer non caricati');
+  }
+  async function prepareViewerMotion(){
     resize();
-    requestAnimationFrame(()=>requestAnimationFrame(()=>app.classList.add('is-ready')));
+    render();
+    if(gl)gl.finish();
+    const animatedElements=[
+      document.body,
+      ...document.querySelectorAll('.element,.rod-glow-image,.rod-fill-image,.jar-glow-layer')
+    ];
+    for(const element of animatedElements){
+      const styles=getComputedStyle(element);
+      void styles.animationName;
+      void styles.animationDuration;
+      void styles.transform;
+    }
+    void app.offsetWidth;
+    await nextFrame();
+    const animations=typeof document.getAnimations==='function'
+      ?document.getAnimations()
+      :typeof document.documentElement.getAnimations==='function'
+        ?document.documentElement.getAnimations({subtree:true})
+        :[];
+    await Promise.all(animations.map(animation=>animation.ready.catch(()=>{})));
+    await nextFrame();
+  }
+  async function revealViewer(){
+    const imageSources=[...new Set([
+      data.neutralBackgroundImage,
+      sampleImage.src,
+      ...data.elements.flatMap(element=>[element.backgroundImage,element.reagentImage,element.videoThumbnail])
+    ].filter(Boolean))];
+    const spectrumJobs=data.elements.flatMap(element=>[
+      [element,'theoretical'],
+      ...(element.experimentalSpectrum?.length?[[element,'experimental']]:[])
+    ]);
+    const total=imageSources.length+spectrumJobs.length+2;
+    let completed=0;
+    const advance=()=>updateLoadingProgress(++completed,total);
+    updateLoadingProgress(0,total);
+    const imageLoads=imageSources.map(source=>preloadImageSource(source).then(advance));
+    const fontLoad=preloadViewerFonts().then(advance);
+    const spectrumWidth=Math.max(1,Math.round(byId('spectrum').parentElement.getBoundingClientRect().width-40));
+    for(const [element,mode] of spectrumJobs){
+      spectrumSamples(element,mode,spectrumWidth,bounds);
+      advance();
+      await nextFrame();
+    }
+    await Promise.all([...imageLoads,fontLoad]);
+    const images=[byId('lab-background'),sampleImage,rodGlowImage,rodFillImage];
+    await Promise.all(images.map(waitForImage));
+    await prepareViewerMotion();
+    advance();
+    updateLoadingProgress(total,total);
+    await nextFrame();
+    app.removeAttribute('inert');
+    app.setAttribute('aria-busy','false');
+    app.classList.add('is-ready');
+    await nextFrame();
+    loader.classList.add('is-complete');
+    loader.setAttribute('aria-hidden','true');
   }
   if(current)applyElement(current);else initializeNeutralState();
   resize();requestAnimationFrame(animate);revealViewer();

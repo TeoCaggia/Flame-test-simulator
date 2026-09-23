@@ -81,6 +81,82 @@ button {
 
 button:focus-visible { outline: none; }
 
+.viewer-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  background: var(--void);
+  opacity: 1;
+  visibility: visible;
+  transition: opacity .28s ease, visibility 0s linear .28s;
+}
+
+.viewer-loader::before {
+  position: absolute;
+  width: min(62vw, 640px);
+  height: min(30vw, 260px);
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(56, 161, 255, .055), transparent 68%);
+  content: '';
+  pointer-events: none;
+}
+
+.viewer-loader.is-complete {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.viewer-loader-content {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 11px 14px;
+  width: min(58.6667vw, 560px);
+}
+
+.viewer-loader-title {
+  grid-column: 1 / -1;
+  color: var(--ink);
+  font-family: Syne, system-ui, sans-serif;
+  font-size: 1.833333rem;
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -.2px;
+}
+
+.viewer-loader-progress {
+  height: 6.666667px;
+  overflow: hidden;
+  border: 1px solid rgba(168, 206, 255, .30);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .035);
+}
+
+.viewer-loader-bar {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgba(168, 206, 255, .58), rgba(232, 228, 216, .88));
+  box-shadow: 0 0 14px rgba(168, 206, 255, .24);
+  transition: width .16s ease-out;
+}
+
+.viewer-loader-value {
+  min-width: 4ch;
+  color: rgba(232, 232, 240, .72);
+  font-family: 'Fira Code', monospace;
+  font-size: 1.3125rem;
+  line-height: 1;
+  letter-spacing: .15px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
 .app {
   position: relative;
   z-index: 1;
@@ -242,26 +318,19 @@ button:focus-visible { outline: none; }
 .stage-content { position: absolute; inset: 0; }
 
 .quick-mode-toggle {
-  --element-color: var(--lamp-cool);
   position: absolute;
   z-index: 6;
   top: 12px;
   left: 12px;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 9px;
   width: max-content;
   max-width: calc(100% - 24px);
-  min-height: 40px;
-  padding: 3px 11px;
-  overflow: hidden;
-  border: 2px solid color-mix(in srgb, var(--element-color) 40%, var(--stroke));
-  border-radius: 6px;
-  background:
-    linear-gradient(145deg,
-      color-mix(in srgb, var(--element-color) 14%, var(--vitrine)) 0%,
-      color-mix(in srgb, var(--element-color) 4%, var(--vitrine)) 54%,
-      var(--vitrine) 100%);
+  min-height: 27px;
+  padding: 5px 12px;
+  border: 1px solid rgba(255, 255, 255, .22);
+  border-radius: 999px;
+  background: rgba(2, 2, 14, .88);
   color: var(--ink);
   font-family: 'Fira Code', monospace;
   font-size: .8125rem;
@@ -270,39 +339,18 @@ button:focus-visible { outline: none; }
   letter-spacing: .15px;
   white-space: nowrap;
   cursor: pointer;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, .80);
-  transition: border-color .16s ease, box-shadow .16s ease, transform .16s ease, background .16s ease;
-}
-
-.quick-mode-toggle::before {
-  position: absolute;
-  top: 0;
-  right: 8px;
-  left: 8px;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .25), transparent);
-  content: '';
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .72);
+  transition: color .14s ease, background .14s ease, border-color .14s ease;
 }
 
 .quick-mode-toggle:hover {
-  border-color: color-mix(in srgb, var(--element-color) 86%, white);
-  background:
-    linear-gradient(145deg,
-      color-mix(in srgb, var(--element-color) 16%, var(--vitrine)) 0%,
-      color-mix(in srgb, var(--element-color) 5%, var(--vitrine)) 58%,
-      var(--vitrine) 100%);
-  box-shadow:
-    0 0 24px color-mix(in srgb, var(--element-color) 30%, transparent),
-    0 0 7px color-mix(in srgb, var(--element-color) 20%, transparent),
-    0 12px 28px rgba(0, 0, 0, .82);
-  transform: translateY(-1px) scale(1.035);
+  border-color: rgba(255, 255, 255, .46);
 }
 
 .quick-mode-toggle:has(input:checked) {
-  border-color: color-mix(in srgb, var(--element-color) 88%, white);
-  box-shadow:
-    inset 0 0 18px color-mix(in srgb, var(--element-color) 10%, transparent),
-    0 0 18px color-mix(in srgb, var(--element-color) 24%, transparent);
+  border-color: rgba(255, 255, 255, .9);
+  background: rgba(255, 255, 255, .9);
+  color: #000;
 }
 
 .quick-mode-toggle input {
@@ -313,37 +361,12 @@ button:focus-visible { outline: none; }
   pointer-events: none;
 }
 
-.quick-mode-switch {
-  position: relative;
-  flex: 0 0 30px;
-  width: 30px;
-  height: 16px;
-  border: 1px solid currentColor;
-  border-radius: 999px;
-  background: transparent;
-  opacity: .72;
-}
-
-.quick-mode-switch::after {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: currentColor;
-  content: '';
-  transition: transform .18s ease;
-}
-
-.quick-mode-toggle input:checked + .quick-mode-switch::after { transform: translateX(14px); }
-
 .quick-mode-toggle:has(input:focus-visible) {
-  box-shadow: 0 0 0 3px rgba(130, 180, 255, .9), 0 0 0 1px rgba(8, 10, 20, .85) inset;
+  outline: 3px solid rgba(130, 180, 255, .9);
+  outline-offset: 2px;
 }
 
-.quick-mode-toggle:has(input:disabled) { cursor: default; }
-.sample-fixture.is-fast-mode .rod-drag-handle { pointer-events: none; cursor: default; }
+.quick-mode-toggle:has(input:disabled) { cursor: default; opacity: .66; }
 
 .reagent-panel {
   display: grid;
@@ -383,21 +406,123 @@ button:focus-visible { outline: none; }
   transition: opacity .16s ease, visibility .16s ease;
 }
 
+.reagent-video-shell,
+.reagent-video-unavailable,
 .reagent-image,
 .reagent-unavailable {
   grid-area: 1 / 1;
   opacity: 0;
   visibility: hidden;
-  transform: translateY(8px) scale(.97);
-  transition: opacity .36s ease-in-out, transform .36s cubic-bezier(.34, 1.38, .64, 1), visibility .36s ease;
-  will-change: opacity, transform;
 }
 
-.reagent-image {
+.reagent-video-shell {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  transition: opacity .36s ease-in-out, visibility 0s linear .36s;
+}
+
+.reagent-video-thumbnail,
+.reagent-video {
+  position: absolute;
+  inset: 0;
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
+
+.reagent-video-thumbnail {
+  z-index: 0;
+  opacity: 0;
+  transition: opacity .36s ease-in-out;
+  will-change: opacity;
+}
+
+.reagent-video-thumbnail.is-active { opacity: 1; }
+.reagent-video-thumbnail.is-incoming { z-index: 1; }
+
+.reagent-video {
+  z-index: 2;
+  background: var(--void-deep);
+  opacity: 0;
+  transition: opacity .18s ease;
+}
+
+.reagent-video.is-playing { opacity: 1; cursor: pointer; }
+
+.reagent-video-frame {
+  position: absolute;
+  z-index: 3;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .36s ease-in-out;
+}
+
+.reagent-video-frame.is-visible { opacity: 1; transition: none; }
+
+.reagent-video-play {
+  position: absolute;
+  z-index: 4;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  place-items: center;
+  width: 60px;
+  height: 60px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, .34);
+  border-radius: 50%;
+  background: rgba(4, 4, 12, .76);
+  color: rgba(232, 232, 240, .94);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, .04) inset, 0 12px 32px rgba(0, 0, 0, .80);
+  backdrop-filter: blur(12px) saturate(1.2);
+  transform: translate(-50%, -50%);
+  transition: opacity .16s ease, transform .16s ease, border-color .16s ease, background .16s ease, color .16s ease, box-shadow .16s ease;
+}
+
+.reagent-video-play svg { width: 24px; height: 24px; fill: currentColor; transform: translateX(1px); }
+.reagent-video-play:hover {
+  border-color: rgba(255, 255, 255, .90);
+  background: rgba(232, 232, 240, .90);
+  color: #000;
+  box-shadow: 0 0 22px rgba(168, 206, 255, .22), 0 12px 32px rgba(0, 0, 0, .80);
+  transform: translate(-50%, -50%) scale(1.06);
+}
+.reagent-video-play:active { transform: translate(-50%, -50%) scale(.97); }
+.reagent-video-play:focus-visible {
+  box-shadow: 0 0 0 3px rgba(130, 180, 255, .9), 0 0 0 1px rgba(8, 10, 20, .85) inset, 0 12px 32px rgba(0, 0, 0, .80);
+}
+.reagent-video-play.is-hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+
+.reagent-video-unavailable {
+  align-self: center;
+  padding: 24px;
+  color: rgba(232, 232, 240, .72);
+  font-family: 'Fira Code', monospace;
+  font-size: .8125rem;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: .15px;
+  transition: opacity .36s ease-in-out, visibility 0s linear .36s;
+}
+
+.reagent-image {
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: none;
+  transition: opacity .36s ease-in-out, visibility 0s linear .36s;
+  will-change: opacity;
+}
+
+.reagent-image.is-incoming { z-index: 1; }
 
 .reagent-unavailable {
   display: flex;
@@ -405,6 +530,9 @@ button:focus-visible { outline: none; }
   align-items: center;
   gap: 18px;
   padding: 24px;
+  transform: translateY(8px) scale(.97);
+  transition: opacity .36s ease-in-out, transform .36s cubic-bezier(.34, 1.38, .64, 1), visibility .36s ease;
+  will-change: opacity, transform;
 }
 
 .reagent-unavailable-label {
@@ -416,9 +544,21 @@ button:focus-visible { outline: none; }
   letter-spacing: .15px;
 }
 
+.reagent-panel.has-video .reagent-placeholder,
+.reagent-panel.has-video-unavailable .reagent-placeholder,
 .reagent-panel.has-image .reagent-placeholder,
 .reagent-panel.has-unavailable .reagent-placeholder { opacity: 0; visibility: hidden; }
-.reagent-panel.has-image .reagent-image,
+.reagent-panel.has-video .reagent-video-shell,
+.reagent-panel.has-video-unavailable .reagent-video-unavailable {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity .36s ease-in-out, visibility 0s linear 0s;
+}
+.reagent-image.is-active {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity .36s ease-in-out, visibility 0s linear 0s;
+}
 .reagent-panel.has-unavailable .reagent-unavailable { opacity: 1; visibility: visible; transform: none; }
 .reagent-formula sub { font-size: .55em; vertical-align: -.25em; }
 
@@ -778,6 +918,8 @@ button:focus-visible { outline: none; }
   }
 
   body::before { transform: none !important; }
+  .viewer-loader::before { display: none; }
   .element:hover,
   .quick-mode-toggle:hover { transform: none; }
+  .reagent-video-play:hover { transform: translate(-50%, -50%); }
 }

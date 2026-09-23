@@ -4,9 +4,9 @@
       "symbol": "Li",
       "name": "Litio",
       "number": 3,
-      "color": "#ff2528",
+      "color": "#f0004c",
       "saltColor": "#e8e1d2",
-      "colorName": "Rosso carminio",
+      "colorName": "Fucsia carminio",
       "reagentName": "Cloruro di litio",
       "reagentFormula": "LiCl",
       "spectrumDescription": "Lo spettro presenta poche righe, di cui la più intensa si trova intorno a 671 nm ed è accompagnata da emissioni arancioni molto più deboli. Il colore intenso rende i sali di litio utili per ottenere effetti rosso cremisi nei fuochi d'artificio e nei razzi di segnalazione.",
@@ -107,9 +107,9 @@
       "symbol": "B",
       "name": "Boro",
       "number": 5,
-      "color": "#4cf07c",
+      "color": "#8fd34f",
       "saltColor": "#e8e1d2",
-      "colorName": "Verde brillante",
+      "colorName": "Verde giallastro",
       "reagentName": "Acido borico",
       "reagentFormula": "H3BO3",
       "spectrumDescription": "A differenza di quanto accade per molti metalli, il colore verde non deriva da singole righe atomiche, ma da ampie bande di emissione delle molecole di BO2 che si formano nella fiamma. Questa caratteristica fiamma verde dei composti borati viene spesso usata nelle dimostrazioni didattiche e come prova qualitativa per riconoscere la presenza di boro.",
@@ -233,9 +233,9 @@
       "symbol": "Na",
       "name": "Sodio",
       "number": 11,
-      "color": "#ffd21f",
+      "color": "#e5a000",
       "saltColor": "#e8e1d2",
-      "colorName": "Giallo-arancio",
+      "colorName": "Giallo ambra",
       "reagentName": "Cloruro di sodio",
       "reagentFormula": "NaCl",
       "spectrumDescription": "Quasi tutta l'emissione è concentrata in un doppietto giallo-arancio con segnali a 589,0 e 589,6 nm, talmente intensi da essere in grado di nascondere le emissioni di altri elementi presenti in una fiamma. Questa stessa luce gialla si può osservare comunemente in cucina quando l'acqua salata raggiunge la fiamma dei fornelli e il sale disciolto produce rapidi lampi gialli molto intensi. L'emissione del sodio è stata inoltre sfruttata in molte lampade per l'illuminazione stradale, oggi progressivamente sostituite da luci a LED.",
@@ -566,9 +566,9 @@
       "symbol": "K",
       "name": "Potassio",
       "number": 19,
-      "color": "#c49bff",
+      "color": "#d88fb8",
       "saltColor": "#e8e1d2",
-      "colorName": "Lilla",
+      "colorName": "Lilla rosato",
       "reagentName": "Cloruro di potassio",
       "reagentFormula": "KCl",
       "spectrumDescription": "Lo spettro presenta emissioni particolarmente intense nel violetto e nel rosso profondo. Siccome l'occhio umano è poco sensibile alle estremità dello spettro visibile, la fiamma lilla del potassio può apparire debole e può facilmente essere coperta da altre emissioni più intense. I sali di potassio contribuiscono alle emissioni viola in ambito pirotecnico.",
@@ -784,9 +784,9 @@
       "symbol": "Ca",
       "name": "Calcio",
       "number": 20,
-      "color": "#ff713c",
+      "color": "#e77b1f",
       "saltColor": "#e8e1d2",
-      "colorName": "Rosso-arancio",
+      "colorName": "Giallo-arancio",
       "reagentName": "Cloruro di calcio",
       "reagentFormula": "CaCl2",
       "spectrumDescription": "Le righe atomiche si sovrappongono alle bande prodotte da CaCl e CaOH, formando uno spettro più complesso che risulta in un'emissione rosso-arancio. Questa combinazione di lunghezze d'onda permette di distinguere la fiamma del calcio da quella rossa di litio e stronzio. I sali di calcio sono usati spesso nei fuochi d'artificio e nei razzi di segnalazione; la loro emissione viene anche utilizzata nella caratterizzazione della composizione delle acque minerali.",
@@ -13745,9 +13745,9 @@
       "symbol": "Cu",
       "name": "Rame",
       "number": 29,
-      "color": "#38e7ba",
+      "color": "#70d65c",
       "saltColor": "#168fc7",
-      "colorName": "Verde-azzurro",
+      "colorName": "Verde brillante",
       "reagentName": "Solfato di rame(II)",
       "reagentFormula": "CuSO4",
       "spectrumDescription": "Nella fiamma prodotta dal solfato di rame gran parte della tonalità verde-azzurra deriva da emissioni molecolari di CuO e CuOH formatisi nella fiamma. Il colore cambia sensibilmente in base alla temperatura, all'umidità e alla presenza di cloro; per questo ottenere un colore blu puro e stabile è una delle principali difficoltà in ambito pirotecnico.",
@@ -15058,9 +15058,9 @@
       "symbol": "Sr",
       "name": "Stronzio",
       "number": 38,
-      "color": "#ff2d20",
+      "color": "#ef4a58",
       "saltColor": "#e8e1d2",
-      "colorName": "Rosso intenso",
+      "colorName": "Rosso rosato",
       "reagentName": "Nitrato di stronzio",
       "reagentFormula": "Sr(NO3)2",
       "spectrumDescription": "Lo spettro combina righe atomiche poco intense e forti bande molecolari di SrOH, che complessivamente generano un rosso saturo e facilmente visibile. Questa emissione risulta più netta e resistente alle contaminazioni rispetto a quella, di colore simile, del litio; pertanto i sali di stronzio sono tra i più usati in ambito pirotecnico e all'interno dei razzi di segnalazione.",
@@ -16164,12 +16164,12 @@
       "symbol": "Ba",
       "name": "Bario",
       "number": 56,
-      "color": "#a3ea6a",
+      "color": "#c8cf35",
       "saltColor": "#e8e1d2",
-      "colorName": "Verde pallido",
+      "colorName": "Giallo-verde",
       "reagentName": "Nitrato di bario",
       "reagentFormula": "Ba(NO3)2",
-      "spectrumDescription": "La luce verde pallida è prodotta dalla sovrapposizione di molte emissioni atomiche e molecolari provenienti da BaO e BaOH formatisi nella fiamma. Il colore risultante tende maggiormente al giallo rispetto all'emissione del boro e viene spesso impiegato nella produzione di segnali luminosi.",
+      "spectrumDescription": "La luce verde pallida è prodotta dalla sovrapposizione di molte emissioni atomiche e molecolari provenienti da BaO e BaOH formatisi nella fiamma. La larga banda nel vicino infrarosso intorno a 832 nm è attribuita a BaOH e non contribuisce direttamente al colore visibile. Il colore risultante tende maggiormente al giallo rispetto all'emissione del boro e viene spesso impiegato nella produzione di segnali luminosi.",
       "spectral_components": [
         {
           "id": "Ba I",
@@ -16833,7 +16833,10 @@
           "kind": "molecular",
           "scale": 0.65,
           "source": "https://www.jpyro.co.uk/wp-content/uploads/j18_1_fglk1.pdf",
-          "method": "Transient hydroxide in a moist flame; scale estimated from composite Fig. 15a. Internal ratios from the cited source; cross-species scale is an explicit visual estimate.",
+          "additional_sources": [
+            "https://doi.org/10.1155/1990/36585"
+          ],
+          "method": "Transient hydroxide in a moist flame; visible ratios and scale estimated from the cited flame-spectrum source. The 832 nm BaOH band centre follows Mestdagh et al. (1990); its 8 nm sigma matches the 18.5 nm FWHM measured in the local experimental spectrum. Cross-species scale is an explicit visual estimate.",
           "transition_type": "molecular vibronic band",
           "peaks": [
             {
@@ -16860,6 +16863,11 @@
               "nm": 745,
               "strength": 0.47,
               "sigma_nm": 2.5
+            },
+            {
+              "nm": 832,
+              "strength": 1.0,
+              "sigma_nm": 8.0
             }
           ],
           "markers": [],
@@ -16883,6 +16891,10 @@
             [
               745,
               47
+            ],
+            [
+              832,
+              100
             ]
           ]
         },

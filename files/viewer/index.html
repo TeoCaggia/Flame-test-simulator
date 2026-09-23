@@ -12,12 +12,20 @@ __FONT_LICENSE__
   <style>__STYLE__</style>
 </head>
 <body>
-  <main class="app">
+  <div id="viewer-loader" class="viewer-loader" role="status" aria-label="Caricamento del viewer">
+    <div class="viewer-loader-content">
+      <strong class="viewer-loader-title">Caricamento</strong>
+      <div id="viewer-loader-progress" class="viewer-loader-progress" role="progressbar" aria-label="Avanzamento del caricamento" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <span id="viewer-loader-bar" class="viewer-loader-bar"></span>
+      </div>
+      <span id="viewer-loader-value" class="viewer-loader-value" aria-hidden="true">0%</span>
+    </div>
+  </div>
+  <main class="app" inert aria-busy="true">
     <nav id="elements" class="elements panel" aria-label="Elementi disponibili"></nav>
     <section class="stage panel" aria-label="Visualizzazione della fiamma">
       <label class="quick-mode-toggle">
         <input id="quick-mode" type="checkbox">
-        <span class="quick-mode-switch" aria-hidden="true"></span>
         <span>Modalità rapida</span>
       </label>
       <div id="stage-content" class="stage-content">
@@ -57,7 +65,20 @@ __FONT_LICENSE__
     </section>
     <section id="reagent-panel" class="reagent-panel panel" aria-live="polite">
       <span class="reagent-placeholder">Scegli un elemento</span>
+      <div class="reagent-video-shell">
+        <img id="reagent-video-thumbnail" class="reagent-video-thumbnail" alt="">
+        <img id="reagent-video-thumbnail-next" class="reagent-video-thumbnail reagent-video-thumbnail-next" alt="">
+        <video id="reagent-video" class="reagent-video" preload="none" playsinline></video>
+        <canvas id="reagent-video-frame" class="reagent-video-frame" aria-hidden="true"></canvas>
+        <button id="reagent-video-play" class="reagent-video-play" type="button" aria-label="Riproduci il video">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M8 5.7v12.6L18 12z"/>
+          </svg>
+        </button>
+      </div>
+      <span class="reagent-video-unavailable">Video non ancora disponibile</span>
       <img id="reagent-image" class="reagent-image" alt="">
+      <img id="reagent-image-next" class="reagent-image reagent-image-next" alt="">
       <div class="reagent-unavailable">
         <strong id="reagent-formula" class="reagent-formula"></strong>
         <span class="reagent-unavailable-label">Foto non ancora disponibile</span>
