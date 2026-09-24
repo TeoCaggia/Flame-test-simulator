@@ -1167,6 +1167,7 @@
     sampleFixture.classList.toggle('is-fast-mode',quickMode);
     if(!quickMode){reagentAutoReveal=false;return;}
     if(!current||selectionBusy)return;
+    if(!byId('reagent-panel').classList.contains('has-image'))playCurrentVideo(true);
     rodHasMoved=true;
     rodOutsideSince=null;
     sampleFixture.classList.add('rod-moved');
