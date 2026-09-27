@@ -18,6 +18,7 @@ EXPERIMENTAL_SPECTRA = ROOT / "files" / "spectral_sources" / "definitivo"
 EXPERIMENTAL_FILES = {
     "Li": "Li_litio.csv",
     "B": "B_boro.csv",
+    "Na": "Na.csv",
     "K": "K_potassio.csv",
     "Ca": "Ca_calcio.csv",
     "Cu": "Cu_rame.csv",

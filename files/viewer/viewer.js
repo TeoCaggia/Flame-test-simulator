@@ -10,10 +10,10 @@
   const requestedElement=elements.get(query.get('element'));
   const fallbackElement=elements.get(data.defaultElement)||data.elements[0];
   let current=requestedElement||null;
-  const bounds = [380, 850];
+  const bounds = [380, 820];
   let spectrumView=[...bounds];
   let spectrumDrag=null;
-  const spectrumTicks = [380,400,450,500,550,600,650,700,750,800,850];
+  const spectrumTicks = [380,400,450,500,550,600,650,700,750,800,820];
   let time = 0;
   let rodHasMoved = false;
   let rodOutsideSince = null;
@@ -42,7 +42,12 @@
   const ROD_ACTIVE_ANGLE=-30;
   const BACKGROUND_TRANSITION_DURATION=360;
   let flameColorTransition=null;
-  const BACKGROUND_POSITION_Y=.24;
+  const FLAME_HEIGHT_RATIO=.408;
+  const BUNSEN_OPENING_SOURCE_Y=434/1024;
+  const BUNSEN_BOTTOM_SOURCE_Y=760/1024;
+  const ROD_SALT_Y_RATIO=.476;
+  const ROD_VISIBLE_TOP_RATIO=.3812;
+  const ROD_VISIBLE_BOTTOM_RATIO=.5733;
   const JAR_PULSE_RESTART_DELAY=1000;
   let jarPulseRestartTimer=null;
   const svgNS = 'http://www.w3.org/2000/svg';
@@ -843,7 +848,7 @@
     const rotatedSaltY=pivotY+sine*saltFromPivotX+cosine*saltFromPivotY;
     const rotationShiftX=rotatedSaltX-geometry.rodSaltX;
     const rotationShiftY=rotatedSaltY-geometry.rodSaltY;
-    const targetY=geometry.openingY-stage.clientHeight*.408*.18;
+    const targetY=geometry.openingY-stage.clientHeight*FLAME_HEIGHT_RATIO*.18;
     return {
       x:geometry.x+geometry.radius*.65-geometry.sampleX-rotationShiftX,
       y:targetY-geometry.sampleY-rotationShiftY
@@ -897,9 +902,8 @@
         const nextElement=elements.get(symbol);
         await transitionBackground(nextElement.backgroundImage,()=>{
           if(previousColor)startFlameColorTransition(previousColor,nextElement.color);
-          reagentAutoReveal=false;
           applyElement(nextElement,false,Boolean(previousElement));
-          playCurrentVideo(true);
+          if(!reagentAutoReveal)playCurrentVideo(true);
           startSpectrumMorph(previousElement,nextElement,spectrumMode,spectrumMode);
           sampleFixture.classList.remove('is-hidden');
           sampleFixture.classList.add('is-fast-mode','rod-moved');
@@ -996,7 +1000,7 @@
       float shapePulse=smoothstep(.6,.84,shapeSignal);
       float heightScale=1.0+shapePulse*.06;
       float widthScale=1.0+shapePulse*.07;
-      float h=(uv.y-base)/(.408*heightScale);
+      float h=(uv.y-base)/(${FLAME_HEIGHT_RATIO}*heightScale);
       float aspect=resolution.x/resolution.y;
       float x=(uv.x-flameOrigin.x/resolution.x)*aspect/.75;
       float rise=fbm(vec2(h*5.8-flow*2.7,x*8.0+t*.13))-.5;
@@ -1025,7 +1029,7 @@
       blueBody*=blueBodySideFade;
       blueVeil*=blueVeilSideFade;
 
-      float sampleH=(samplePosition.y-flameOrigin.y)/(resolution.y*.408*heightScale);
+      float sampleH=(samplePosition.y-flameOrigin.y)/(resolution.y*${FLAME_HEIGHT_RATIO}*heightScale);
       float sampleX=(samplePosition.x-flameOrigin.x)/resolution.y/.75;
       float coloredH=(h-sampleH)/max(.1,1.02-sampleH);
       float ch=clamp(coloredH,0.0,1.0);
@@ -1167,6 +1171,9 @@
     sampleFixture.classList.toggle('is-fast-mode',quickMode);
     if(!quickMode){reagentAutoReveal=false;return;}
     if(!current||selectionBusy)return;
+    reagentAutoReveal=false;
+    resetReagentPanel();
+    playCurrentVideo(true);
     rodHasMoved=true;
     rodOutsideSince=null;
     sampleFixture.classList.add('rod-moved');
@@ -1259,7 +1266,7 @@
 
   function sampleIsInsideFlame(geometry) {
     if(!current)return false;
-    const h=(geometry.sampleY-geometry.y)/(canvas.height*.408);
+    const h=(geometry.sampleY-geometry.y)/(canvas.height*FLAME_HEIGHT_RATIO);
     if(h<0||h>1.02)return false;
     const cap=Math.sqrt(Math.max(0,1-Math.pow(Math.max(0,(h-.88)/.17),2)));
     const mouth=geometry.radius;
@@ -1293,7 +1300,7 @@
       }
       lastSampleInside=true;
       exitRevealFront=-1;
-      const sampleH=(geometry.sampleY-geometry.y)/(canvas.height*.408);
+      const sampleH=(geometry.sampleY-geometry.y)/(canvas.height*FLAME_HEIGHT_RATIO);
       const coloredEnd=.95;
       let revealFront=revealStartedAt===null?-1:sampleH+(time-revealStartedAt)*PLUME_FRONT_SPEED;
       if(revealFront>=coloredEnd+.03){revealStartedAt=null;revealFront=-1;}
@@ -1304,7 +1311,7 @@
     }
     if(lastColoredSample){
       const held={...geometry,sampleX:lastColoredSample.x,sampleY:lastColoredSample.y,sampleRadius:lastColoredSample.radius};
-      const sampleH=(held.sampleY-held.y)/(canvas.height*.408);
+      const sampleH=(held.sampleY-held.y)/(canvas.height*FLAME_HEIGHT_RATIO);
       const coloredEnd=.95;
       if(withdrawalStartedAt===null){
         colorFadeOutFrom=coloredOpacity();
@@ -1339,7 +1346,7 @@
     const shapeSignal=.5+Math.sin(time*.55+1.4)*.26+Math.sin(time*1.07+4.2)*.15+Math.sin(time*1.71+.3)*.09;
     const shapeUnit=Math.max(0,Math.min(1,(shapeSignal-.58)/.28));
     const shapePulse=shapeUnit*shapeUnit*(3-2*shapeUnit);
-    const height=h*.408*(1+shapePulse*.06);
+    const height=h*FLAME_HEIGHT_RATIO*(1+shapePulse*.06);
     const widthScale=1+shapePulse*.07;
     const sampleStop=Math.max(.04,Math.min(.98,(geometry.sampleY-geometry.y)/height));
     const envelopeAt=v=>{
@@ -1484,22 +1491,23 @@
     const rect={width:stage.clientWidth,height:stage.clientHeight};
     const image=stage.querySelector('.lab-background');
     const naturalWidth=image.naturalWidth||1536,naturalHeight=image.naturalHeight||1024;
-    const backgroundZoom=1;
-    const coverScale=Math.max(rect.width/naturalWidth,rect.height/naturalHeight);
-    const coverOffsetX=(rect.width-naturalWidth*coverScale)/2;
-    const coverOffsetY=(rect.height-naturalHeight*coverScale)*BACKGROUND_POSITION_Y;
-    const scale=coverScale*backgroundZoom;
-    const offsetX=rect.width/2+(coverOffsetX-rect.width/2)*backgroundZoom;
-    const offsetY=coverOffsetY*backgroundZoom;
+    const openingSourceY=naturalHeight*BUNSEN_OPENING_SOURCE_Y;
+    const bunsenBottomSourceY=naturalHeight*BUNSEN_BOTTOM_SOURCE_Y;
+    const scale=rect.height*(1+FLAME_HEIGHT_RATIO)/(openingSourceY+bunsenBottomSourceY);
+    const renderedWidth=naturalWidth*scale;
+    const offsetX=(rect.width-renderedWidth)/2;
+    const offsetY=(rect.height*(1+FLAME_HEIGHT_RATIO)-(openingSourceY+bunsenBottomSourceY)*scale)/2;
     const x=offsetX+naturalWidth*.491*scale;
-    const openingY=offsetY+naturalHeight*.424*scale;
+    const openingY=offsetY+openingSourceY*scale;
     const sampleX=rect.width*.08;
     const sampleY=offsetY+naturalHeight*.78*scale;
-    const rodHeight=Math.min(100,rect.width*.56/3);
+    const maximumRodHeightTop=sampleY/(ROD_SALT_Y_RATIO-ROD_VISIBLE_TOP_RATIO);
+    const maximumRodHeightBottom=(rect.height-sampleY)/(ROD_VISIBLE_BOTTOM_RATIO-ROD_SALT_Y_RATIO);
+    const rodHeight=Math.max(1,Math.min(100,rect.width*.56/3,maximumRodHeightTop,maximumRodHeightBottom));
     const rodAspect=sampleImage.naturalWidth&&sampleImage.naturalHeight?sampleImage.naturalWidth/sampleImage.naturalHeight:3.84;
     const rodWidth=rodHeight*rodAspect;
     const rodSaltX=rodHeight*.117;
-    const rodSaltY=rodHeight*.476;
+    const rodSaltY=rodHeight*ROD_SALT_Y_RATIO;
     const handleX=rodHeight*1.2;
     const handleY=rodHeight*.3;
     const handleWidth=rodWidth-handleX-rodHeight*.06;
@@ -1509,6 +1517,11 @@
     const jarY=offsetY+naturalHeight*.268*scale;
     const jarWidth=naturalWidth*.119*scale;
     const jarHeight=naturalHeight*.438*scale;
+    stage.style.setProperty('--background-offset-x',`${offsetX}px`);
+    stage.style.setProperty('--background-offset-y',`${offsetY}px`);
+    stage.style.setProperty('--background-width',`${naturalWidth*scale}px`);
+    stage.style.setProperty('--background-height',`${naturalHeight*scale}px`);
+    app.style.setProperty('--stage-width',`${renderedWidth}px`);
     stage.style.setProperty('--apparatus-x',`${x}px`);
     stage.style.setProperty('--sample-x',`${sampleX}px`);
     stage.style.setProperty('--sample-y',`${sampleY}px`);
@@ -1591,8 +1604,8 @@
     const maximumX=rect.width-minimumVisibleHandle-handleLeft;
     const clampedX=Math.max(minimumX,Math.min(maximumX,x));
     const naturalTop=geometry.sampleY-geometry.rodSaltY;
-    const visibleTop=naturalTop+geometry.rodHeight*.3812;
-    const visibleBottom=naturalTop+geometry.rodHeight*.5733;
+    const visibleTop=naturalTop+geometry.rodHeight*ROD_VISIBLE_TOP_RATIO;
+    const visibleBottom=naturalTop+geometry.rodHeight*ROD_VISIBLE_BOTTOM_RATIO;
     const clampedY=Math.max(-visibleTop,Math.min(rect.height-visibleBottom,y));
     setRodOffsetRaw(clampedX,clampedY);
   }
