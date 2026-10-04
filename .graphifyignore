@@ -1,0 +1,11 @@
+# Generated viewer and vendored libraries
+output/
+files/viewer/vendor/
+# Local tooling
+.impeccable/
+graphify-out/
+__pycache__/
+# Media and font licences: not project sources
+*.png
+*.mp4
+files/viewer/fonts/

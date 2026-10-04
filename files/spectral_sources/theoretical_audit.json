@@ -1,0 +1,465 @@
+{
+  "generated_at": "2026-10-02T12:24:30.386Z",
+  "temperature_K": 2200,
+  "atomic_relative_threshold": 0.000001,
+  "usb2000_sigma_nm": 0.84,
+  "range_nm": [
+    380,
+    850
+  ],
+  "atomic": {
+    "Li I": {
+      "spectrum": "Li I",
+      "source": "https://physics.nist.gov/cgi-bin/ASD/lines1.pl?spectra=Li+I&limits_type=0&low_w=380&upp_w=850&unit=1&format=3&line_out=3&en_unit=1&output=0&page_size=5000&show_obs_wl=1&show_calc_wl=1&intens_out=on&enrg_out=on&bibrefs=1&order_out=0&show_av=2&tsb_value=0&allowed_out=1&forbid_out=1&A_out=0&J_out=on",
+      "database_rows": 36,
+      "retained_lines": 6
+    },
+    "Na I": {
+      "spectrum": "Na I",
+      "source": "https://physics.nist.gov/cgi-bin/ASD/lines1.pl?spectra=Na+I&limits_type=0&low_w=380&upp_w=850&unit=1&format=3&line_out=3&en_unit=1&output=0&page_size=5000&show_obs_wl=1&show_calc_wl=1&intens_out=on&enrg_out=on&bibrefs=1&order_out=0&show_av=2&tsb_value=0&allowed_out=1&forbid_out=1&A_out=0&J_out=on",
+      "database_rows": 132,
+      "retained_lines": 7
+    },
+    "K I": {
+      "spectrum": "K I",
+      "source": "https://physics.nist.gov/cgi-bin/ASD/lines1.pl?spectra=K+I&limits_type=0&low_w=380&upp_w=850&unit=1&format=3&line_out=3&en_unit=1&output=0&page_size=5000&show_obs_wl=1&show_calc_wl=1&intens_out=on&enrg_out=on&bibrefs=1&order_out=0&show_av=2&tsb_value=0&allowed_out=1&forbid_out=1&A_out=0&J_out=on",
+      "database_rows": 59,
+      "retained_lines": 6
+    },
+    "Ca I": {
+      "spectrum": "Ca I",
+      "source": "https://physics.nist.gov/cgi-bin/ASD/lines1.pl?spectra=Ca+I&limits_type=0&low_w=380&upp_w=850&unit=1&format=3&line_out=3&en_unit=1&output=0&page_size=5000&show_obs_wl=1&show_calc_wl=1&intens_out=on&enrg_out=on&bibrefs=1&order_out=0&show_av=2&tsb_value=0&allowed_out=1&forbid_out=1&A_out=0&J_out=on",
+      "database_rows": 80,
+      "retained_lines": 46
+    },
+    "Fe I": {
+      "spectrum": "Fe I",
+      "source": "https://physics.nist.gov/cgi-bin/ASD/lines1.pl?spectra=Fe+I&limits_type=0&low_w=380&upp_w=850&unit=1&format=3&line_out=3&en_unit=1&output=0&page_size=5000&show_obs_wl=1&show_calc_wl=1&intens_out=on&enrg_out=on&bibrefs=1&order_out=0&show_av=2&tsb_value=0&allowed_out=1&forbid_out=1&A_out=0&J_out=on",
+      "database_rows": 2688,
+      "retained_lines": 302
+    },
+    "Cu I": {
+      "spectrum": "Cu I",
+      "source": "https://physics.nist.gov/cgi-bin/ASD/lines1.pl?spectra=Cu+I&limits_type=0&low_w=380&upp_w=850&unit=1&format=3&line_out=3&en_unit=1&output=0&page_size=5000&show_obs_wl=1&show_calc_wl=1&intens_out=on&enrg_out=on&bibrefs=1&order_out=0&show_av=2&tsb_value=0&allowed_out=1&forbid_out=1&A_out=0&J_out=on",
+      "database_rows": 200,
+      "retained_lines": 9
+    },
+    "Rb I": {
+      "spectrum": "Rb I",
+      "source": "https://physics.nist.gov/cgi-bin/ASD/lines1.pl?spectra=Rb+I&limits_type=0&low_w=380&upp_w=850&unit=1&format=3&line_out=3&en_unit=1&output=0&page_size=5000&show_obs_wl=1&show_calc_wl=1&intens_out=on&enrg_out=on&bibrefs=1&order_out=0&show_av=2&tsb_value=0&allowed_out=1&forbid_out=1&A_out=0&J_out=on",
+      "database_rows": 44,
+      "retained_lines": 6
+    },
+    "Sr I": {
+      "spectrum": "Sr I",
+      "source": "https://physics.nist.gov/cgi-bin/ASD/lines1.pl?spectra=Sr+I&limits_type=0&low_w=380&upp_w=850&unit=1&format=3&line_out=3&en_unit=1&output=0&page_size=5000&show_obs_wl=1&show_calc_wl=1&intens_out=on&enrg_out=on&bibrefs=1&order_out=0&show_av=2&tsb_value=0&allowed_out=1&forbid_out=1&A_out=0&J_out=on",
+      "database_rows": 185,
+      "retained_lines": 51
+    },
+    "Cs I": {
+      "spectrum": "Cs I",
+      "source": "https://physics.nist.gov/cgi-bin/ASD/lines1.pl?spectra=Cs+I&limits_type=0&low_w=380&upp_w=850&unit=1&format=3&line_out=3&en_unit=1&output=0&page_size=5000&show_obs_wl=1&show_calc_wl=1&intens_out=on&enrg_out=on&bibrefs=1&order_out=0&show_av=2&tsb_value=0&allowed_out=1&forbid_out=1&A_out=0&J_out=on",
+      "database_rows": 71,
+      "retained_lines": 5
+    },
+    "Ba I": {
+      "spectrum": "Ba I",
+      "source": "https://physics.nist.gov/cgi-bin/ASD/lines1.pl?spectra=Ba+I&limits_type=0&low_w=380&upp_w=850&unit=1&format=3&line_out=3&en_unit=1&output=0&page_size=5000&show_obs_wl=1&show_calc_wl=1&intens_out=on&enrg_out=on&bibrefs=1&order_out=0&show_av=2&tsb_value=0&allowed_out=1&forbid_out=1&A_out=0&J_out=on",
+      "database_rows": 135,
+      "retained_lines": 67
+    },
+    "Ba II": {
+      "spectrum": "Ba II",
+      "source": "https://physics.nist.gov/cgi-bin/ASD/lines1.pl?spectra=Ba+II&limits_type=0&low_w=380&upp_w=850&unit=1&format=3&line_out=3&en_unit=1&output=0&page_size=5000&show_obs_wl=1&show_calc_wl=1&intens_out=on&enrg_out=on&bibrefs=1&order_out=0&show_av=2&tsb_value=0&allowed_out=1&forbid_out=1&A_out=0&J_out=on",
+      "database_rows": 51,
+      "retained_lines": 5
+    }
+  },
+  "molecular": {
+    "B:BO2": {
+      "source": "https://www.jpyro.co.uk/wp-content/uploads/j24_17_hwp9c.pdf",
+      "peaks": 6,
+      "normalized_from_raw_values": true
+    },
+    "Ca:CaCl": {
+      "source": "https://www.jpyro.co.uk/wp-content/uploads/j18_1_fglk1.pdf",
+      "peaks": 8,
+      "normalized_from_raw_values": true
+    },
+    "Ca:CaOH": {
+      "source": "https://www.jpyro.co.uk/wp-content/uploads/j18_1_fglk1.pdf",
+      "peaks": 8,
+      "normalized_from_raw_values": true
+    },
+    "Fe:FeO": {
+      "source": "https://academic.oup.com/mnras/article/500/4/4296/5974545",
+      "peaks": 3,
+      "normalized_from_raw_values": true
+    },
+    "Cu:CuOH": {
+      "source": "https://www.jpyro.co.uk/wp-content/uploads/j18_1_fglk1.pdf",
+      "peaks": 6,
+      "normalized_from_raw_values": true
+    },
+    "Cu:CuH": {
+      "source": "https://www.jpyro.co.uk/wp-content/uploads/j18_1_fglk1.pdf",
+      "peaks": 8,
+      "normalized_from_raw_values": true
+    },
+    "Cu:CuO": {
+      "source": "https://www.jpyro.co.uk/wp-content/uploads/j18_1_fglk1.pdf",
+      "peaks": 13,
+      "normalized_from_raw_values": true
+    },
+    "Sr:SrOH": {
+      "source": "https://www.jpyro.co.uk/wp-content/uploads/j18_1_fglk1.pdf",
+      "peaks": 9,
+      "normalized_from_raw_values": true
+    },
+    "Sr:SrO/Sr2O2": {
+      "source": "https://www.jpyro.co.uk/wp-content/uploads/j18_1_fglk1.pdf",
+      "peaks": 2,
+      "normalized_from_raw_values": true
+    },
+    "Ba:BaO condensed": {
+      "source": "https://www.jpyro.co.uk/wp-content/uploads/j18_1_fglk1.pdf",
+      "peaks": 1,
+      "normalized_from_raw_values": true
+    },
+    "Ba:BaOH": {
+      "source": "https://www.jpyro.co.uk/wp-content/uploads/j18_1_fglk1.pdf",
+      "peaks": 6,
+      "normalized_from_raw_values": true
+    },
+    "Ba:BaO gas": {
+      "source": "https://www.jpyro.co.uk/wp-content/uploads/j18_1_fglk1.pdf",
+      "peaks": 33,
+      "normalized_from_raw_values": true
+    }
+  },
+  "fits": {
+    "Li": {
+      "rmse": 0.032113,
+      "shift_nm": 0,
+      "scales": {
+        "Li I": 1
+      }
+    },
+    "B": {
+      "rmse": 0.113795,
+      "shift_nm": -0.24,
+      "scales": {
+        "BO2": 1
+      }
+    },
+    "Na": {
+      "rmse": 0.014582,
+      "shift_nm": -0.3,
+      "scales": {
+        "Na I": 1
+      }
+    },
+    "K": {
+      "rmse": 0.021872,
+      "shift_nm": -0.62,
+      "scales": {
+        "K I": 1
+      }
+    },
+    "Ca": {
+      "rmse": 0.076009,
+      "shift_nm": -0.98,
+      "scales": {
+        "Ca I": 0.20705,
+        "CaCl": 0.391192,
+        "CaOH": 1
+      }
+    },
+    "Cu": {
+      "rmse": 0.180574,
+      "shift_nm": 2,
+      "scales": {
+        "Cu I": 0,
+        "CuOH": 1,
+        "CuH": 0.1386,
+        "CuO": 0.205216
+      }
+    },
+    "Sr": {
+      "rmse": 0.072977,
+      "shift_nm": -0.08,
+      "scales": {
+        "Sr I": 0.047548,
+        "SrOH": 1,
+        "SrO/Sr2O2": 0.011731
+      }
+    },
+    "Ba": {
+      "rmse": 0.169964,
+      "shift_nm": -1.2,
+      "scales": {
+        "Ba I": 1,
+        "Ba II": 0.208067,
+        "BaO condensed": 0.771093,
+        "BaOH": 0.932281,
+        "BaO gas": 0.412874
+      }
+    }
+  },
+  "residual_peaks": {
+    "Li": [
+      {
+        "nm": 669.686,
+        "residual": 0.462
+      },
+      {
+        "nm": 671.98,
+        "residual": 0.4493
+      }
+    ],
+    "B": [
+      {
+        "nm": 523.782,
+        "residual": 0.2973
+      },
+      {
+        "nm": 523.087,
+        "residual": 0.2875
+      },
+      {
+        "nm": 522.044,
+        "residual": 0.2749
+      },
+      {
+        "nm": 512.989,
+        "residual": 0.2513
+      },
+      {
+        "nm": 513.687,
+        "residual": 0.2429
+      },
+      {
+        "nm": 540.063,
+        "residual": 0.229
+      },
+      {
+        "nm": 541.445,
+        "residual": 0.2248
+      },
+      {
+        "nm": 553.156,
+        "residual": 0.2177
+      },
+      {
+        "nm": 515.081,
+        "residual": 0.2167
+      },
+      {
+        "nm": 510.895,
+        "residual": 0.2068
+      },
+      {
+        "nm": 542.135,
+        "residual": 0.1936
+      },
+      {
+        "nm": 583.906,
+        "residual": 0.0997
+      }
+    ],
+    "Na": [
+      {
+        "nm": 590.69,
+        "residual": 0.078
+      }
+    ],
+    "K": [
+      {
+        "nm": 768.73,
+        "residual": 0.4428
+      },
+      {
+        "nm": 765.283,
+        "residual": 0.2158
+      },
+      {
+        "nm": 771.234,
+        "residual": 0.0989
+      }
+    ],
+    "Ca": [
+      {
+        "nm": 617.644,
+        "residual": 0.3756
+      },
+      {
+        "nm": 614.626,
+        "residual": 0.2736
+      },
+      {
+        "nm": 615.297,
+        "residual": 0.2719
+      },
+      {
+        "nm": 647.616,
+        "residual": 0.2652
+      },
+      {
+        "nm": 612.612,
+        "residual": 0.2216
+      },
+      {
+        "nm": 553.156,
+        "residual": 0.1969
+      },
+      {
+        "nm": 609.252,
+        "residual": 0.1939
+      },
+      {
+        "nm": 611.605,
+        "residual": 0.1905
+      },
+      {
+        "nm": 428.015,
+        "residual": 0.1799
+      },
+      {
+        "nm": 661.804,
+        "residual": 0.1746
+      },
+      {
+        "nm": 423.341,
+        "residual": 0.1746
+      },
+      {
+        "nm": 407.108,
+        "residual": 0.1628
+      }
+    ],
+    "Cu": [
+      {
+        "nm": 541.445,
+        "residual": 0.7538
+      },
+      {
+        "nm": 542.135,
+        "residual": 0.7475
+      },
+      {
+        "nm": 555.217,
+        "residual": 0.5961
+      },
+      {
+        "nm": 519.957,
+        "residual": 0.496
+      },
+      {
+        "nm": 520.653,
+        "residual": 0.4872
+      },
+      {
+        "nm": 499.702,
+        "residual": 0.3149
+      },
+      {
+        "nm": 497.598,
+        "residual": 0.2679
+      },
+      {
+        "nm": 569.943,
+        "residual": 0.2652
+      },
+      {
+        "nm": 570.626,
+        "residual": 0.2584
+      },
+      {
+        "nm": 530.375,
+        "residual": 0.2173
+      },
+      {
+        "nm": 485.294,
+        "residual": 0.1025
+      },
+      {
+        "nm": 475.767,
+        "residual": 0.1021
+      }
+    ],
+    "Sr": [
+      {
+        "nm": 666.405,
+        "residual": 0.4736
+      },
+      {
+        "nm": 604.877,
+        "residual": 0.3907
+      },
+      {
+        "nm": 685.042,
+        "residual": 0.2309
+      },
+      {
+        "nm": 683.414,
+        "residual": 0.1524
+      }
+    ],
+    "Ba": [
+      {
+        "nm": 554.187,
+        "residual": 0.5607
+      },
+      {
+        "nm": 537.645,
+        "residual": 0.3937
+      },
+      {
+        "nm": 820.039,
+        "residual": 0.392
+      },
+      {
+        "nm": 817.902,
+        "residual": 0.3803
+      },
+      {
+        "nm": 821.563,
+        "residual": 0.3753
+      },
+      {
+        "nm": 822.172,
+        "residual": 0.3741
+      },
+      {
+        "nm": 736.539,
+        "residual": 0.3738
+      },
+      {
+        "nm": 816.069,
+        "residual": 0.3659
+      },
+      {
+        "nm": 604.203,
+        "residual": 0.3595
+      },
+      {
+        "nm": 814.846,
+        "residual": 0.3454
+      },
+      {
+        "nm": 737.811,
+        "residual": 0.3443
+      },
+      {
+        "nm": 604.877,
+        "residual": 0.3411
+      }
+    ]
+  },
+  "limitations": [
+    "Le intensita atomiche descrivono emissione otticamente sottile in LTE; autoassorbimento e frazioni di ionizzazione sono assorbiti solo nei fit tra componenti.",
+    "Le bande molecolari senza intensita numeriche nella fonte non sono convertite arbitrariamente in picchi quantitativi.",
+    "FeO resta un inviluppo sperimentale semplificato: la fonte dichiara non praticabile una simulazione rovibronica quantitativa completa.",
+    "I residui sperimentali sono diagnostici e non vengono trasformati automaticamente in nuove emissioni."
+  ]
+}

@@ -16,19 +16,15 @@
   color-scheme: dark;
   --void: #03030a;
   --void-deep: #02020e;
-  --void-raised: #07071a;
   --vitrine: #06060e;
   --stroke: #2a2a44;
   --ink: #e8e8f0;
   --ink-secondary: #b9b9c8;
-  --lamp-ivory: #e8e4d8;
   --lamp-cool: #a8ceff;
   --focus-ring: #82b4ff;
   --hairline: rgba(255, 255, 255, .16);
-  --bg: var(--void);
-  --panel: var(--vitrine);
-  --line: var(--stroke);
-  --text: var(--ink);
+  --spectrum-glow-inner: transparent;
+  --spectrum-glow-outer: transparent;
   font-family: Syne, system-ui, sans-serif;
   font-size: clamp(14px, calc(.6vmin + 11.5px), 26px);
 }
@@ -138,12 +134,16 @@ button:focus-visible { outline: none; }
 
 .viewer-loader-bar {
   display: block;
-  width: 0;
+  width: 100%;
   height: 100%;
   border-radius: inherit;
   background: linear-gradient(90deg, rgba(168, 206, 255, .58), rgba(232, 228, 216, .88));
   box-shadow: 0 0 14px rgba(168, 206, 255, .24);
-  transition: width .16s ease-out;
+  transform: scaleX(0);
+  transform-origin: left center;
+  /* Driven by viewer.js together with the digits: a CSS transition would
+     make the fill lag behind the number. */
+  will-change: transform;
 }
 
 .viewer-loader-value {
@@ -155,14 +155,37 @@ button:focus-visible { outline: none; }
   letter-spacing: .15px;
   text-align: right;
   font-variant-numeric: tabular-nums;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* One pre-drawn strip per digit, moved by transform: the percentage updates
+   without a repaint, in step with the bar, even while the page is busy. */
+.viewer-loader-digit {
+  display: block;
+  height: 1em;
+  overflow: hidden;
+}
+
+.viewer-loader-digit-strip {
+  display: block;
+  will-change: transform;
+}
+
+.viewer-loader-digit-strip > span {
+  display: block;
+  height: 1em;
 }
 
 .app {
   position: relative;
   z-index: 1;
   display: grid;
-  grid-template-columns: minmax(190px, 1fr) minmax(0, var(--stage-width, 1fr)) auto;
+  /* --elements-width is measured in JS so the elements panel ends midway
+     between the two spectrum mode buttons. */
+  grid-template-columns: var(--elements-width, minmax(190px, 1fr)) minmax(0, var(--stage-width, 1fr)) auto;
   grid-template-rows: minmax(0, 1fr) 210px;
+  --reagent-side: min(44vw, calc(100dvh - 16px - 9px - 210px));
   gap: 9px;
   width: 100%;
   height: 100dvh;
@@ -174,9 +197,6 @@ button:focus-visible { outline: none; }
 
 .app.is-ready { opacity: 1; }
 
-.app:not(.is-ready) .rod-glow-image,
-.app:not(.is-ready) .rod-fill-image,
-.app:not(.is-ready) .jar-glow-layer,
 .app:not(.is-ready) .element { animation-play-state: paused; }
 
 .panel {
@@ -188,15 +208,28 @@ button:focus-visible { outline: none; }
 }
 
 .elements {
+  position: relative;
+  isolation: isolate;
   display: grid;
   grid-template-rows: repeat(var(--element-count, 1), minmax(0, 1fr));
   gap: 4px;
   padding: 7px;
   background: rgba(7, 7, 26, .92);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, .80);
+}
+
+.elements::after {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  background: linear-gradient(to left, var(--spectrum-glow-inner), var(--spectrum-glow-outer) 22px, transparent 70px);
+  content: '';
+  pointer-events: none;
 }
 
 .element {
   position: relative;
+  z-index: 1;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   align-items: center;
@@ -228,6 +261,20 @@ button:focus-visible { outline: none; }
   height: 1px;
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .25), transparent);
   content: '';
+}
+
+.element[aria-pressed='true']::after {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  background: linear-gradient(to left, var(--spectrum-glow-inner), var(--spectrum-glow-outer) 20px, transparent 58px);
+  content: '';
+  pointer-events: none;
+}
+
+.element > * {
+  position: relative;
+  z-index: 1;
 }
 
 .element:hover {
@@ -281,10 +328,10 @@ button:focus-visible { outline: none; }
 .element-symbol {
   color: var(--ink);
   font-family: Syne, system-ui, sans-serif;
-  font-size: 1.375rem;
+  font-size: 1.75rem;
   font-weight: 800;
   line-height: 1;
-  letter-spacing: -.6px;
+  letter-spacing: -.02em;
   text-shadow: 0 1px 4px #000;
   transition: transform .16s ease;
 }
@@ -299,11 +346,11 @@ button:focus-visible { outline: none; }
   min-width: 0;
   overflow: hidden;
   color: var(--ink);
-  font-family: 'Fira Code', monospace;
-  font-size: .875rem;
-  font-weight: 500;
+  font-family: Syne, system-ui, sans-serif;
+  font-size: .9375rem;
+  font-weight: 700;
   line-height: 1.2;
-  letter-spacing: 0;
+  letter-spacing: -.01em;
   text-overflow: ellipsis;
   white-space: nowrap;
   justify-self: start;
@@ -320,15 +367,23 @@ button:focus-visible { outline: none; }
 
 .stage-content { position: absolute; inset: 0; }
 
-.quick-mode-toggle {
+.stage-controls {
   position: absolute;
   z-index: 6;
   top: 12px;
   left: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-width: calc(100% - 24px);
+}
+
+.quick-mode-toggle {
+  position: relative;
   display: inline-flex;
   align-items: center;
   width: max-content;
-  max-width: calc(100% - 24px);
+  max-width: 100%;
   min-height: 27px;
   padding: 5px 12px;
   border: 1px solid rgba(255, 255, 255, .22);
@@ -371,12 +426,38 @@ button:focus-visible { outline: none; }
 
 .quick-mode-toggle:has(input:disabled) { cursor: default; opacity: .66; }
 
+.reset-scene[hidden] { display: none; }
+.reset-scene:disabled { cursor: default; opacity: .66; }
+.reset-scene:focus-visible { outline: 3px solid rgba(130,180,255,.9); outline-offset: 2px; }
+.bunsen-scene[hidden], .bunsen-3d-status[hidden] { display: none; }
+.bunsen-scene { position: absolute; z-index: 4; inset: 0; width: 100%; height: 100%; touch-action: none; cursor: grab; }
+.bunsen-scene:focus { outline: none; }
+.bunsen-scene:focus-visible:not(.pointer-focused) { outline: 2px solid var(--focus-ring, #82b4ff); outline-offset: -4px; }
+/* Vitrine falloff: the lamp pool stays clear around the burner, the corners
+   of the room sink into the stage void. Composited, no GPU scene cost. */
+.stage::after {
+  content: '';
+  position: absolute; z-index: 5; inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 62% 70% at 50% 44%, transparent 52%, rgba(2, 2, 14, .38) 80%, rgba(2, 2, 14, .78) 100%),
+    linear-gradient(to bottom, transparent 72%, rgba(2, 2, 14, .45) 100%);
+}
+.bunsen-3d-status {
+  position: absolute; z-index: 7; top: 50px; right: 12px; max-width: calc(100% - 24px);
+  padding: 8px 12px; border: 1px solid rgba(255,255,255,.2); border-radius: 8px;
+  background: var(--void-deep); color: var(--ink); font: .7rem/1.4 'Fira Code', monospace;
+}
+
 .reagent-panel {
   display: grid;
   place-items: center;
-  width: auto;
-  height: 100%;
+  /* An explicit side: a percentage height inside an auto track let the
+     square overflow onto the stage on 4:3 screens. */
+  width: var(--reagent-side);
+  height: auto;
   aspect-ratio: 1;
+  align-self: start;
   justify-self: end;
   min-width: 0;
   min-height: 0;
@@ -385,16 +466,6 @@ button:focus-visible { outline: none; }
     radial-gradient(circle at 50% 46%, rgba(168, 206, 255, .07), transparent 48%),
     var(--void-deep);
   text-align: center;
-}
-
-.reagent-formula {
-  color: var(--ink);
-  font-family: 'Fira Code', monospace;
-  font-size: clamp(2.75rem, 7vw, 5.5rem);
-  font-weight: 500;
-  line-height: 1;
-  letter-spacing: .1px;
-  text-shadow: 0 0 28px rgba(168, 206, 255, .16);
 }
 
 .reagent-placeholder {
@@ -410,9 +481,7 @@ button:focus-visible { outline: none; }
 }
 
 .reagent-video-shell,
-.reagent-video-unavailable,
-.reagent-image,
-.reagent-unavailable {
+.reagent-video-unavailable {
   grid-area: 1 / 1;
   opacity: 0;
   visibility: hidden;
@@ -515,76 +584,14 @@ button:focus-visible { outline: none; }
   transition: opacity .36s ease-in-out, visibility 0s linear .36s;
 }
 
-.reagent-image {
-  z-index: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transform: none;
-  transition: opacity .36s ease-in-out, visibility 0s linear .36s;
-  will-change: opacity;
-}
-
-.reagent-image.is-incoming { z-index: 1; }
-
-.reagent-unavailable {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 18px;
-  padding: 24px;
-  transform: translateY(8px) scale(.97);
-  transition: opacity .36s ease-in-out, transform .36s cubic-bezier(.34, 1.38, .64, 1), visibility .36s ease;
-  will-change: opacity, transform;
-}
-
-.reagent-unavailable-label {
-  color: rgba(232, 232, 240, .72);
-  font-family: 'Fira Code', monospace;
-  font-size: .8125rem;
-  font-weight: 400;
-  line-height: 1.4;
-  letter-spacing: .15px;
-}
-
 .reagent-panel.has-video .reagent-placeholder,
-.reagent-panel.has-video-unavailable .reagent-placeholder,
-.reagent-panel.has-image .reagent-placeholder,
-.reagent-panel.has-unavailable .reagent-placeholder { opacity: 0; visibility: hidden; }
+.reagent-panel.has-video-unavailable .reagent-placeholder { opacity: 0; visibility: hidden; }
 .reagent-panel.has-video .reagent-video-shell,
 .reagent-panel.has-video-unavailable .reagent-video-unavailable {
   opacity: 1;
   visibility: visible;
   transition: opacity .36s ease-in-out, visibility 0s linear 0s;
 }
-.reagent-image.is-active {
-  opacity: 1;
-  visibility: visible;
-  transition: opacity .36s ease-in-out, visibility 0s linear 0s;
-}
-.reagent-panel.has-unavailable .reagent-unavailable { opacity: 1; visibility: visible; transform: none; }
-.reagent-formula sub { font-size: .55em; vertical-align: -.25em; }
-
-.lab-background {
-  position: absolute;
-  z-index: 0;
-  top: var(--background-offset-y, 0px);
-  left: var(--background-offset-x, 0px);
-  width: var(--background-width, 100%);
-  height: var(--background-height, 100%);
-  object-fit: fill;
-  user-select: none;
-  pointer-events: none;
-}
-
-.lab-background-next {
-  visibility: hidden;
-  opacity: 0;
-  transition: opacity .36s ease-in-out;
-  will-change: opacity;
-}
-
-.lab-background-next.is-visible { visibility: visible; opacity: 1; }
 
 #flame {
   position: absolute;
@@ -593,110 +600,8 @@ button:focus-visible { outline: none; }
   display: block;
   width: 100%;
   height: 100%;
+  opacity: 0;
   pointer-events: none;
-}
-
-.jar-hotspot {
-  position: absolute;
-  z-index: 1;
-  top: var(--jar-y);
-  left: var(--jar-x);
-  width: var(--jar-width);
-  height: var(--jar-height);
-  padding: 0;
-  border: 0;
-  background: transparent;
-  opacity: 1;
-  transition: opacity .36s ease-in-out;
-  touch-action: manipulation;
-}
-
-.jar-hotspot.is-fading-out { opacity: 0; pointer-events: none; }
-.jar-hotspot svg { display: block; width: 100%; height: 100%; overflow: visible; }
-.jar-glow-layer { animation: jar-interaction-glow 1.55s ease-in-out infinite; will-change: opacity; }
-.jar-glow-fill { fill: rgba(255, 255, 255, .14); }
-.jar-glow-blur { fill: none; stroke: rgba(255, 255, 255, .56); stroke-width: 7; stroke-linejoin: round; }
-.jar-hotspot.is-revealed .jar-glow-layer,
-.jar-hotspot.is-pulse-paused .jar-glow-layer { opacity: 0; animation: none; }
-
-.jar-hotspot:focus-visible {
-  border-radius: 45% 45% 18% 18%;
-  box-shadow: 0 0 0 3px rgba(130, 180, 255, .9), 0 0 0 1px rgba(8, 10, 20, .85) inset;
-}
-
-.sample-fixture { position: absolute; z-index: 3; inset: 0; pointer-events: none; }
-.sample-fixture.is-hidden { visibility: hidden; }
-
-.sample-image,
-.rod-glow-image,
-.rod-fill-image {
-  position: absolute;
-  top: calc(var(--sample-y) - var(--rod-salt-y));
-  left: calc(var(--sample-x) - var(--rod-salt-x));
-  width: var(--rod-width);
-  height: var(--rod-height);
-  object-fit: contain;
-  transform: translate3d(var(--rod-offset-x, 0), var(--rod-offset-y, 0), 0) rotate(var(--rod-angle, 0deg));
-  transform-origin: var(--rod-pivot-x, var(--rod-salt-x)) var(--rod-pivot-y, var(--rod-salt-y));
-  user-select: none;
-  pointer-events: none;
-  will-change: transform, opacity;
-}
-
-.rod-glow-image {
-  filter: brightness(0) invert(1) drop-shadow(0 0 5px rgba(255, 255, 255, .95)) drop-shadow(0 0 14px rgba(255, 255, 255, .75));
-  animation: interaction-glow 1.55s ease-in-out infinite;
-}
-
-.rod-fill-image {
-  filter: brightness(0) invert(1);
-  mix-blend-mode: screen;
-  animation: rod-fill-glow 1.55s ease-in-out infinite;
-}
-
-.sample-fixture.rod-moved .rod-glow-image,
-.sample-fixture.rod-moved .rod-fill-image { opacity: 0; animation: none; }
-
-.rod-drag-handle {
-  position: absolute;
-  top: calc(var(--sample-y) - var(--rod-salt-y) + var(--rod-handle-y));
-  left: calc(var(--sample-x) - var(--rod-salt-x) + var(--rod-handle-x));
-  width: var(--rod-handle-width);
-  height: var(--rod-handle-height);
-  transform: translate3d(var(--rod-offset-x, 0), var(--rod-offset-y, 0), 0) rotate(var(--rod-angle, 0deg));
-  transform-origin: calc(var(--rod-pivot-x, var(--rod-salt-x)) - var(--rod-handle-x)) calc(var(--rod-pivot-y, var(--rod-salt-y)) - var(--rod-handle-y));
-  user-select: none;
-  pointer-events: auto;
-  touch-action: none;
-  cursor: grab;
-  will-change: transform;
-}
-
-.rod-drag-handle.is-dragging { cursor: grabbing; }
-
-.salt-marker {
-  position: absolute;
-  top: calc(var(--sample-y) - var(--salt-radius));
-  left: calc(var(--sample-x) - var(--salt-radius));
-  width: var(--salt-size);
-  height: var(--salt-size);
-  overflow: hidden;
-  background:
-    radial-gradient(circle at 22% 28%, color-mix(in srgb, var(--salt-color) 42%, white) 0 4%, transparent 7%),
-    radial-gradient(circle at 48% 18%, color-mix(in srgb, var(--salt-color) 70%, white) 0 3%, transparent 6%),
-    radial-gradient(circle at 72% 31%, var(--salt-color) 0 4%, transparent 7%),
-    radial-gradient(circle at 84% 57%, color-mix(in srgb, var(--salt-color) 54%, white) 0 3%, transparent 6%),
-    radial-gradient(circle at 61% 74%, var(--salt-color) 0 4%, transparent 7%),
-    radial-gradient(circle at 34% 82%, color-mix(in srgb, var(--salt-color) 66%, white) 0 3%, transparent 6%),
-    radial-gradient(circle at 18% 60%, var(--salt-color) 0 3%, transparent 6%),
-    radial-gradient(ellipse at 50% 52%, color-mix(in srgb, var(--salt-color) 22%, transparent) 0 46%, transparent 72%);
-  opacity: .78;
-  filter: saturate(.84);
-  clip-path: polygon(19% 13%, 43% 5%, 68% 12%, 91% 36%, 86% 68%, 65% 91%, 34% 94%, 9% 70%, 6% 39%);
-  transform: translate3d(var(--rod-offset-x, 0), var(--rod-offset-y, 0), 0) rotate(var(--rod-angle, 0deg));
-  transform-origin: calc(var(--rod-pivot-x, var(--rod-salt-x)) - var(--rod-salt-x) + var(--salt-radius)) calc(var(--rod-pivot-y, var(--rod-salt-y)) - var(--rod-salt-y) + var(--salt-radius));
-  pointer-events: none;
-  will-change: transform;
 }
 
 .spectrum {
@@ -712,6 +617,8 @@ button:focus-visible { outline: none; }
 }
 
 .spectrum-plot {
+  position: relative;
+  isolation: isolate;
   display: grid;
   grid-column: 1;
   grid-template-rows: auto minmax(0, 1fr);
@@ -720,9 +627,62 @@ button:focus-visible { outline: none; }
   min-height: 0;
   padding: 12px 18px 10px;
   background: rgba(2, 2, 14, .97);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, .80);
 }
 
-.spectrum-heading { display: flex; align-items: center; min-width: 0; }
+.spectrum-note {
+  isolation: isolate;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, .80);
+}
+
+.spectrum-plot::before,
+.spectrum-note::before {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  border-radius: inherit;
+  content: '';
+  pointer-events: none;
+}
+
+.spectrum-plot::before {
+  background: linear-gradient(
+    to bottom,
+    var(--spectrum-glow-inner),
+    var(--spectrum-glow-outer) 16%,
+    transparent 46%
+  );
+  -webkit-mask-image: linear-gradient(
+    105deg,
+    transparent calc(var(--stage-shadow-start, 34%) - 96px),
+    rgba(0, 0, 0, .35) calc(var(--stage-shadow-start, 34%) - 44px),
+    #000 var(--stage-shadow-start, 34%)
+  );
+  mask-image: linear-gradient(
+    105deg,
+    transparent calc(var(--stage-shadow-start, 34%) - 96px),
+    rgba(0, 0, 0, .35) calc(var(--stage-shadow-start, 34%) - 44px),
+    #000 var(--stage-shadow-start, 34%)
+  );
+}
+
+.spectrum-note::before {
+  background: linear-gradient(to bottom, var(--spectrum-glow-inner), var(--spectrum-glow-outer) 16%, transparent 46%);
+}
+
+.spectrum-plot > *,
+.spectrum-note > * {
+  position: relative;
+  z-index: 1;
+}
+
+.spectrum-heading {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
 
 .spectrum-mode {
   display: inline-grid;
@@ -731,7 +691,7 @@ button:focus-visible { outline: none; }
   padding: 3px;
   border: 1px solid var(--stroke);
   border-radius: 999px;
-  background: rgba(255, 255, 255, .028);
+  background: var(--vitrine);
 }
 
 .spectrum-mode-button {
@@ -739,7 +699,7 @@ button:focus-visible { outline: none; }
   padding: 5px 12px;
   border: 1px solid transparent;
   border-radius: 999px;
-  background: transparent;
+  background: var(--vitrine);
   color: var(--ink);
   font-family: 'Fira Code', monospace;
   font-size: .8125rem;
@@ -765,6 +725,8 @@ button:focus-visible { outline: none; }
 }
 
 #spectrum {
+  position: relative;
+  z-index: 1;
   display: block;
   width: 100%;
   height: 100%;
@@ -838,10 +800,6 @@ button:focus-visible { outline: none; }
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-@keyframes interaction-glow { 0%, 100% { opacity: .04; } 50% { opacity: .48; } }
-@keyframes rod-fill-glow { 0%, 100% { opacity: .01; } 50% { opacity: .14; } }
-@keyframes jar-interaction-glow { 0%, 100% { opacity: .07; } 50% { opacity: .7; } }
-
 @media (max-width: 680px) {
   .app {
     grid-template-columns: minmax(0, 1fr) auto;
@@ -858,6 +816,14 @@ button:focus-visible { outline: none; }
     padding: 5px;
   }
 
+  .elements::after {
+    background: linear-gradient(to top, var(--spectrum-glow-inner), var(--spectrum-glow-outer) 18px, transparent 58px);
+  }
+
+  .element[aria-pressed='true']::after {
+    background: linear-gradient(to top, var(--spectrum-glow-inner), var(--spectrum-glow-outer) 16px, transparent 46px);
+  }
+
   .element { display: flex; justify-content: center; min-height: 44px; padding: 0; }
   .tile { flex: 0 0 30px; width: 30px; }
   .element-name { display: none; }
@@ -868,13 +834,14 @@ button:focus-visible { outline: none; }
   .spectrum-note { grid-column: 2; padding: 10px 12px 12px; }
   .spectrum-note-title { margin-bottom: 4px; font-size: 1rem; }
   .spectrum-description { font-size: .8125rem; line-height: 1.5; }
-  .quick-mode-toggle { top: 8px; left: 8px; }
+  .stage-controls { top: 8px; left: 8px; }
 }
 
 @media (max-height: 620px) {
   .app {
-    grid-template-columns: minmax(176px, 1fr) minmax(0, var(--stage-width, 1fr)) auto;
+    grid-template-columns: var(--elements-width, minmax(176px, 1fr)) minmax(0, var(--stage-width, 1fr)) auto;
     grid-template-rows: minmax(0, 1fr) 172px;
+    --reagent-side: min(44vw, calc(100dvh - 12px - 9px - 172px));
     padding: 6px 18px;
   }
 

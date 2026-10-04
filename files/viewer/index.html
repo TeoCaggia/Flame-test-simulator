@@ -24,42 +24,17 @@ __FONT_LICENSE__
   <main class="app" inert aria-busy="true">
     <nav id="elements" class="elements panel" aria-label="Elementi disponibili"></nav>
     <section class="stage panel" aria-label="Visualizzazione della fiamma">
-      <label class="quick-mode-toggle">
-        <input id="quick-mode" type="checkbox">
-        <span>Modalità rapida</span>
-      </label>
-      <div id="stage-content" class="stage-content">
-      <img id="lab-background" class="lab-background" alt="">
-      <img id="lab-background-next" class="lab-background lab-background-next" alt="">
-      <button id="jar-hotspot" class="jar-hotspot" type="button" aria-label="Mostra la formula del reagente">
-        <svg viewBox="0 0 180 450" aria-hidden="true">
-          <defs>
-            <path id="jar-body-shape" d="M52 83Q45 84 45 90v8q0 7 10 9l1 34q0 6 5 8l1 15c-23 7-40 20-50 37Q4 216 4 247v157q0 27 12 34 12 7 32 8h84q21-1 32-8 12-8 12-34V247q0-31-9-46-10-17-27-25-10-5-22-12l1-15q5-2 5-8l1-34q10-2 10-9v-8q0-6-7-7z"/>
-            <mask id="jar-silhouette">
-              <rect width="180" height="450" fill="black"/>
-              <circle cx="92" cy="44" r="39" fill="white"/>
-              <use href="#jar-body-shape" fill="white"/>
-            </mask>
-            <filter id="jar-soft-glow" x="-30" y="-30" width="240" height="510" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-              <feGaussianBlur stdDeviation="5"/>
-            </filter>
-          </defs>
-          <g class="jar-glow-layer">
-            <rect class="jar-glow-fill" width="180" height="450" mask="url(#jar-silhouette)"/>
-            <g filter="url(#jar-soft-glow)">
-              <circle class="jar-glow-blur" cx="92" cy="44" r="39"/>
-              <use class="jar-glow-blur" href="#jar-body-shape"/>
-            </g>
-          </g>
-        </svg>
-      </button>
-      <div class="sample-fixture">
-        <img class="rod-glow-image" alt="">
-        <img class="sample-image" src="data:image/png;base64,__SAMPLE_ROD_IMAGE__" alt="Bacchetta con filo di platino e sale" draggable="false">
-        <img class="rod-fill-image" alt="">
-        <span class="rod-drag-handle" aria-hidden="true"></span>
-        <span class="salt-marker"></span>
+      <div class="stage-controls">
+        <label class="quick-mode-toggle">
+          <input id="quick-mode" type="checkbox" autocomplete="off">
+          <span>Modalità rapida</span>
+        </label>
+        <button id="reset-scene" class="quick-mode-toggle reset-scene" type="button" hidden>Ritorna alla posizione iniziale</button>
       </div>
+      <span id="bunsen-3d-status" class="bunsen-3d-status" role="status" hidden></span>
+
+      <div class="stage-content">
+      <canvas id="bunsen-scene" class="bunsen-scene" tabindex="0" aria-label="Laboratorio 3D. Frecce per ruotare, più e meno per zoom, Home per ripristinare la vista." hidden></canvas>
       <canvas id="flame" role="img" aria-label="Fiamma animata del sodio"></canvas>
       </div>
     </section>
@@ -77,12 +52,6 @@ __FONT_LICENSE__
         </button>
       </div>
       <span class="reagent-video-unavailable">Video non ancora disponibile</span>
-      <img id="reagent-image" class="reagent-image" alt="">
-      <img id="reagent-image-next" class="reagent-image reagent-image-next" alt="">
-      <div class="reagent-unavailable">
-        <strong id="reagent-formula" class="reagent-formula"></strong>
-        <span class="reagent-unavailable-label">Foto non ancora disponibile</span>
-      </div>
     </section>
     <section class="spectrum" aria-label="Spettro di emissione">
       <div class="spectrum-plot panel">
@@ -102,6 +71,8 @@ __FONT_LICENSE__
   </main>
   <noscript>JavaScript required.</noscript>
   <script id="flame-data" type="application/json">__DATA__</script>
+  <script type="importmap">__3D_IMPORTS__</script>
+  <script id="bunsen-3d-module" type="text/plain">__3D_MODULE__</script>
   <script>__SCRIPT__</script>
 </body>
 </html>

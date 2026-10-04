@@ -11,7 +11,6 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 ASSETS = ROOT / "files" / "viewer"
 DATA = ROOT / "files" / "elements.json"
-REAGENT_PICTURES = ROOT / "files" / "pictures"
 VIDEOS = ROOT / "files" / "videos"
 VIDEO_THUMBNAILS = ROOT / "files" / "video_thumbnails"
 EXPERIMENTAL_SPECTRA = ROOT / "files" / "spectral_sources" / "definitivo"
@@ -26,6 +25,30 @@ EXPERIMENTAL_FILES = {
     "Ba": "Ba_bario.csv",
 }
 VIEWER_EXCLUDED_ELEMENTS = {"Fe"}
+# Provenance fields kept in elements.json for scripts/rebuild_spectra.cjs; the viewer never reads them.
+VIEWER_COMPONENT_FIELDS = ("id", "kind", "peaks", "scale")
+# Longest side of each embedded raster, sized to its largest on-screen use.
+# Scene textures are sampled with mipmaps, so 1024 px keeps all visible detail.
+IMAGE_LIMITS = {"texture": 1024, "thumbnail": 720}
+
+try:
+    from PIL import Image
+except ImportError:  # Pillow is optional: without it the PNGs are embedded as-is.
+    Image = None
+
+
+def image_data_uri(path: Path, kind: str) -> str:
+    """Embed a raster as WebP when Pillow is available, else as the source PNG."""
+    if Image is None:
+        return "data:image/png;base64," + base64.b64encode(path.read_bytes()).decode("ascii")
+    with Image.open(path) as source:
+        image = source.convert("RGBA" if "A" in source.getbands() else "RGB")
+        image.thumbnail((IMAGE_LIMITS[kind],) * 2, Image.LANCZOS)
+        if image.mode == "RGBA" and image.getextrema()[3][0] == 255:
+            image = image.convert("RGB")
+        buffer = io.BytesIO()
+        image.save(buffer, "WEBP", quality=84, method=6)
+    return "data:image/webp;base64," + base64.b64encode(buffer.getvalue()).decode("ascii")
 
 
 def load_experimental_spectrum(path: Path) -> list[list[float]]:
@@ -54,13 +77,6 @@ def build(output: Path, element: str = "Na") -> Path:
         for item in data["elements"]
         if item["symbol"] not in VIEWER_EXCLUDED_ELEMENTS
     ]
-    neutral_background = ASSETS / "reagent_backgrounds" / "neutral.png"
-    if not neutral_background.is_file():
-        raise ValueError(f"Missing neutral background: {neutral_background}")
-    data["neutralBackgroundImage"] = (
-        "data:image/png;base64,"
-        + base64.b64encode(neutral_background.read_bytes()).decode("ascii")
-    )
     symbols = {item["symbol"] for item in data["elements"]}
     if element not in symbols:
         raise ValueError(f"Unknown element: {element}. Choose from {', '.join(sorted(symbols))}.")
@@ -69,29 +85,13 @@ def build(output: Path, element: str = "Na") -> Path:
             raise ValueError(f"Missing reagent label data for {item['symbol']}")
         if not item.get("spectrumDescription"):
             raise ValueError(f"Missing spectrum description for {item['symbol']}")
-        background_path = ASSETS / "reagent_backgrounds" / f"{item['symbol']}.png"
-        if not background_path.is_file():
-            raise ValueError(f"Missing reagent background for {item['symbol']}: {background_path}")
-        item["backgroundImage"] = (
-            "data:image/png;base64,"
-            + base64.b64encode(background_path.read_bytes()).decode("ascii")
-        )
-        reagent_picture = REAGENT_PICTURES / f"{item['symbol']}.png"
-        if reagent_picture.is_file():
-            item["reagentImage"] = (
-                "data:image/png;base64,"
-                + base64.b64encode(reagent_picture.read_bytes()).decode("ascii")
-            )
         video_path = VIDEOS / f"{item['symbol']}.mp4"
         if video_path.is_file():
             thumbnail_path = VIDEO_THUMBNAILS / f"{item['symbol']}.png"
             if not thumbnail_path.is_file():
                 raise ValueError(f"Missing video thumbnail for {item['symbol']}: {thumbnail_path}")
             item["videoSource"] = os.path.relpath(video_path, output.parent).replace(os.sep, "/")
-            item["videoThumbnail"] = (
-                "data:image/png;base64,"
-                + base64.b64encode(thumbnail_path.read_bytes()).decode("ascii")
-            )
+            item["videoThumbnail"] = image_data_uri(thumbnail_path, "thumbnail")
         experimental_file = EXPERIMENTAL_FILES.get(item["symbol"])
         if experimental_file:
             item["experimentalSpectrum"] = load_experimental_spectrum(
@@ -105,26 +105,47 @@ def build(output: Path, element: str = "Na") -> Path:
             wavelengths = [peak['nm'] for peak in peaks]
             if (wavelengths != sorted(set(wavelengths))
                     or not all(380 <= nm <= 850 for nm in wavelengths)
-                    or not all(0 < peak['strength'] <= 1 and peak['sigma_nm'] > 0 for peak in peaks)
-                    or not all(380 <= marker['nm'] <= 850 for marker in component['markers'])
-                    or not 0 < component.get('scale', 0) <= 1
-                    or not component.get('source') or not component.get('method')):
+                    or not all(0 < peak['strength'] <= 1
+                               and (component.get('kind') == 'atomic' or peak.get('sigma_nm', 0) > 0)
+                               for peak in peaks)
+                    or not 0 <= component.get('scale', -1) <= 1):
                 raise ValueError(f"Invalid spectral component: {item['symbol']} / {component['id']}")
+        item["spectral_components"] = [
+            {field: component[field] for field in VIEWER_COMPONENT_FIELDS} for component in components
+        ]
     palette = data.get('spectralPalette', [])
     if [row[0] for row in palette] != list(range(380, 771)):
         raise ValueError('Missing wavelength-calibrated reference palette')
     data["defaultElement"] = element
+    texture_files = {"wood": "dark-walnut-albedo.png", **{
+        name: f"{name}.png" for name in ("metal", "ceramic", "rubber", "cork", "paper", "salt")
+    }}
+    data["sceneTextures"] = {
+        name: image_data_uri(ASSETS / "textures" / filename, "texture")
+        for name, filename in texture_files.items()
+    }
     css = (ASSETS / "style.css").read_text(encoding="utf-8")
     syne_font = base64.b64encode((ASSETS / "fonts" / "Syne.ttf").read_bytes()).decode("ascii")
     fira_code_font = base64.b64encode((ASSETS / "fonts" / "FiraCode.ttf").read_bytes()).decode("ascii")
     css = css.replace("__SYNE_FONT__", syne_font).replace("__FIRA_CODE_FONT__", fira_code_font)
-    sample_rod = base64.b64encode((ASSETS / "sample_rod.png").read_bytes()).decode("ascii")
+    def module_uri(source: str) -> str:
+        return "data:text/javascript;base64," + base64.b64encode(source.encode("utf-8")).decode("ascii")
+
+    three = ASSETS / "vendor" / "three"
+    imports_3d = json.dumps({"imports": {
+        "three/core": module_uri((three / "three.core.js").read_text(encoding="utf-8")),
+        "three": module_uri((three / "three.module.js").read_text(encoding="utf-8").replace("'./three.core.js'", "'three/core'")),
+        "three/RoomEnvironment": module_uri((three / "RoomEnvironment.js").read_text(encoding="utf-8")),
+        "bunsen/flame": module_uri((ASSETS / "bunsen_flame.js").read_text(encoding="utf-8")),
+    }})
     payload = json.dumps(data, ensure_ascii=False).replace("<", "\\u003c")
     html = (ASSETS / "index.html").read_text(encoding="utf-8")
     replacements = {
         "__STYLE__": css,
         "__DATA__": payload,
         "__SCRIPT__": (ASSETS / "viewer.js").read_text(encoding="utf-8"),
+        "__3D_IMPORTS__": imports_3d,
+        "__3D_MODULE__": module_uri((ASSETS / "bunsen_scene.js").read_text(encoding="utf-8")),
         "__FONT_LICENSE__": "\n\n".join(
             "\n".join(
                 line.rstrip()
@@ -132,9 +153,8 @@ def build(output: Path, element: str = "Na") -> Path:
             )
             for name in ("OFL.txt", "OFL-FiraCode.txt")
         ),
-        "__SAMPLE_ROD_IMAGE__": sample_rod,
     }
-    html = re.sub(r"__(?:STYLE|DATA|SCRIPT|FONT_LICENSE|SAMPLE_ROD_IMAGE)__", lambda m: replacements[m[0]], html)
+    html = re.sub(r"__(?:STYLE|DATA|SCRIPT|3D_IMPORTS|3D_MODULE|FONT_LICENSE)__", lambda m: replacements[m[0]], html)
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(html, encoding="utf-8")
     return output

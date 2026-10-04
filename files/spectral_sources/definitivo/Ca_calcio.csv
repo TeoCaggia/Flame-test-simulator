@@ -3,6 +3,8 @@
 # selezione: media delle 2 righe piu intense in 615-630 nm (su 14)
 # integrazione: 800 ms · rumore: 0.93 conteggi
 # fondo strumentale sottratto; punte di 1-2 pixel rimosse
+# anomalie monopixel a 503,554 e 707,722 nm, confermate dal confronto incrociato dei CSV, interpolate dai pixel adiacenti
+# anomalia multipixel del rivelatore a 699,001-700,295 nm, confermata sul CSV Li, interpolata tra i bordi adiacenti
 # cancellato Na a 589 nm +-5 nm (c'era un picco da 1202 conteggi)
 # cancellato K a 768 nm +-7 nm (c'era un picco da 47 conteggi)
 wavelength_nm,intensity_counts
@@ -893,7 +895,7 @@ wavelength_nm,intensity_counts
 502.504,6.82400
 502.854,8.90900
 503.204,8.90900
-503.554,16.25800
+503.554,6.70900
 503.904,4.50900
 504.254,2.04900
 504.604,4.50900
@@ -1473,11 +1475,11 @@ wavelength_nm,intensity_counts
 698.030,0.58400
 698.354,1.51900
 698.678,1.71900
-699.001,11.15750
-699.325,12.15000
-699.648,11.77900
-699.972,11.27700
-700.295,13.18000
+699.001,1.44276
+699.325,1.16567
+699.648,0.88943
+699.972,0.61233
+700.295,0.33609
 700.619,0.05900
 700.942,0.05900
 701.265,0.05900
@@ -1500,7 +1502,7 @@ wavelength_nm,intensity_counts
 706.754,2.51400
 707.077,0.08900
 707.399,2.51400
-707.722,11.78400
+707.722,2.42386
 708.044,2.33400
 708.366,-1.76600
 708.688,2.33400
