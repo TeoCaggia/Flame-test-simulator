@@ -109,6 +109,7 @@ export function createBunsenScene({canvas, textureImages={}, elements=[], onRodS
   let rodShadowDirty=false;
   let jarShadowDirty=false,jarShadowTime=-Infinity,jarMovedAt=-Infinity;
   const lightLift=new THREE.Vector3(0,.35,0);
+  const flameLightBase=new THREE.Vector3(0,4,0),flameLightSway=new THREE.Vector3();
   const reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
   const motion=new RodMotion();
   const pickables=[];
@@ -149,7 +150,7 @@ export function createBunsenScene({canvas, textureImages={}, elements=[], onRodS
   key.target.position.set(0,1,0);scene.add(key,key.target);
   const rim=new THREE.DirectionalLight(0xd5dfff,.08);rim.position.set(5,7,-5);scene.add(rim);
   // Order matters: the patched lighting treats point light 1 as the coloured one.
-  const flameLight=new THREE.PointLight(0x5599ff,.65,6,2);flameLight.position.set(0,4,0);scene.add(flameLight);
+  const flameLight=new THREE.PointLight(0x5599ff,.65,6,2);flameLight.position.copy(flameLightBase);scene.add(flameLight);
   const coloredFlameLight=new THREE.PointLight(0xffbf40,0,12,2);
   coloredFlameLight.name='colored-flame-light';scene.add(coloredFlameLight);
   // Analytic translucent shadows avoid extra shadow-map passes on integrated GPUs.
@@ -754,6 +755,12 @@ export function createBunsenScene({canvas, textureImages={}, elements=[], onRodS
   const jarCorkGeometry=profile([[0,1.74],[.27,1.74],[.28,1.76],[.31,1.88],[.345,2.1],[.34,2.12],[0,2.12]]);
   const jarLabelGeometry=track(new THREE.CylinderGeometry(.505,.505,.6,48,1,true,-.95,1.9));
   const subscript=text=>text.replace(/\d/g,digit=>'₀₁₂₃₄₅₆₇₈₉'[Number(digit)]);
+  // "Cloruro di sodio" reads SODIO / CLORURO on the label, as on the hover popup.
+  function labelLines(element){
+    const name=element.reagentName.toLocaleUpperCase('it'),parts=name.split(/ DI /);
+    const lines=parts.length===2?[parts[1],parts[0]]:name.split(/\s+/,2);
+    return [lines[0]||element.name.toLocaleUpperCase('it'),lines[1]||''];
+  }
   function paintLabel(context,element){
     const width=context.canvas.width,height=context.canvas.height;
     context.fillStyle='#e5d8bd';context.fillRect(0,0,width,height);
@@ -765,16 +772,15 @@ export function createBunsenScene({canvas, textureImages={}, elements=[], onRodS
     context.strokeStyle='#8d887a';context.lineWidth=3;context.strokeRect(14,14,width-28,height-28);
     context.lineWidth=1;context.strokeRect(21,21,width-42,height-42);
     context.fillStyle='#24272a';context.textAlign='center';
-    const name=element.reagentName.toLocaleUpperCase('it'),parts=name.split(/ DI /);
-    const lines=parts.length===2?[parts[1],parts[0]]:name.split(/\s+/,2);
+    const lines=labelLines(element);
     const write=(text,size,y)=>{
       context.font=`${size}px Georgia, serif`;
       const textWidth=context.measureText(text).width;
       if(textWidth>width-72)context.font=`${Math.floor(size*(width-72)/textWidth)}px Georgia, serif`;
       context.fillText(text,width/2,y);
     };
-    write(lines[0]||element.name.toLocaleUpperCase('it'),56,88);
-    write(lines[1]||'',56,156);
+    write(lines[0],56,88);
+    write(lines[1],56,156);
     write(subscript(element.reagentFormula),84,262);
   }
   function canvasMaterial(width,height,paint){
@@ -808,7 +814,8 @@ export function createBunsenScene({canvas, textureImages={}, elements=[], onRodS
       above.clone().setY(above.y+.7),above.clone()));
     path.add(new THREE.LineCurve3(above,TABLE_SPOT.clone()));
     // The powder's centre vertex: where the rod's loop dips into the salt.
-    jars.set(element.symbol,{symbol:element.symbol,group,glass,cork,slot,path,u:0,moving:false,
+    jars.set(element.symbol,{symbol:element.symbol,lines:labelLines(element),formula:subscript(element.reagentFormula),
+      group,glass,cork,slot,path,u:0,moving:false,
       surface:powder.geometry.attributes.position.getY(0)});
   });
   let reagentKey=null,currentReagent=null,tableJar=null,outgoingJar=null,jarTransitions=0,beadHeld=false;
@@ -1213,6 +1220,30 @@ export function createBunsenScene({canvas, textureImages={}, elements=[], onRodS
     return raycaster.intersectObjects(visiblePickables,false,pickHits)[0];
   }
   const visiblePickables=[],pickHits=[];
+  // The hovered jar's label, repeated next to the cursor.
+  const jarTip=document.createElement('div');jarTip.className='jar-tip';jarTip.hidden=true;
+  jarTip.setAttribute('aria-hidden','true');
+  canvas.parentElement?.append(jarTip);
+  let tipJar=null;
+  function updateJarTip(){
+    const jar=active&&hoveredJar&&jarPickable(hoveredJar)&&!pointers.size?hoveredJar:null;
+    if(jar!==tipJar){
+      tipJar=jar;jarTip.hidden=!jar;
+      if(jar)jarTip.replaceChildren(...[...jar.lines,jar.formula].filter(Boolean).map((text,index,all)=>{
+        const line=document.createElement('span');line.textContent=text;
+        if(index===all.length-1)line.className='jar-tip-formula';
+        return line;
+      }));
+    }
+    if(jar&&hoverEvent){
+      const bounds=canvas.getBoundingClientRect(),parent=canvas.parentElement.getBoundingClientRect();
+      const x=hoverEvent.clientX-parent.left,y=hoverEvent.clientY-parent.top;
+      // Above-right of the cursor; flipped near the right and top edges.
+      const flipX=hoverEvent.clientX-bounds.left>bounds.width-jarTip.offsetWidth-28;
+      const flipY=hoverEvent.clientY-bounds.top<jarTip.offsetHeight+24;
+      jarTip.style.transform=`translate(${flipX?x-jarTip.offsetWidth-14:x+14}px,${flipY?y+18:y-jarTip.offsetHeight-12}px)`;
+    }
+  }
   // Hover only changes the cursor: one raycast per frame is enough.
   let hoverEvent=null,hoverFrame=0;
   function scheduleHover(event){
@@ -1224,6 +1255,7 @@ export function createBunsenScene({canvas, textureImages={}, elements=[], onRodS
       const hit=pick(hoverEvent);
       hoveredJar=hit?.object.userData.pick==='jar'?jars.get(hit.object.userData.symbol):null;
       canvas.style.cursor=hoveredJar?'pointer':'grab';
+      updateJarTip();
     });
   }
   function listen(type,handler,options) {canvas.addEventListener(type,handler,options);}
@@ -1425,7 +1457,7 @@ export function createBunsenScene({canvas, textureImages={}, elements=[], onRodS
         bead.visible=savedBead;beadSalt.color.copy(savedSalt);
       }
     },
-    setActive(value){active=value;if(!value){cancelRodAnimation();finishGesture();pointers.clear();}},
+    setActive(value){active=value;if(!value){cancelRodAnimation();finishGesture();pointers.clear();hoveredJar=null;updateJarTip();}},
     resetView,
     configureRod(x,y){motion.configure(x,y);},
     resetRod(inFlame=false){cancelRodAnimation();motion.reset(inFlame);alignRod();},
@@ -1473,17 +1505,22 @@ export function createBunsenScene({canvas, textureImages={}, elements=[], onRodS
         jar.glowUniforms.glowStrength.value=jar.glowLevel*.85;
         for(const outline of jar.glow)outline.visible=jar.glowLevel>.002;
       }
+      if(tipJar!==(hoveredJar&&jarPickable(hoveredJar)&&!pointers.size?hoveredJar:null))updateJarTip();
       if(visible!==lastRodVisible){depthDirty=true;shadowDirty=true;lastRodVisible=visible;}
       coloredFlameLight.color.setRGB(...color,THREE.SRGBColorSpace);
       const linearColor=coloredFlameLight.color.toArray();
       flame.update({height:flameHeight,mouthRadius:geometry.radius/unit,tip:motion.getPose().position,
         color:linearColor,intensity,time,plume,viewport,depthTexture:depthTarget.depthTexture,
         glassDepthTexture:glassDepthTarget.depthTexture,camera});
-      const calm=reducedMotion.matches?.25:1;
-      // The cast light follows the flame's own puffing instead of fixed sines.
-      const lightPulse=1+calm*.04*THREE.MathUtils.clamp(flame.flicker,-2,2);
-      coloredFlameLight.intensity=plume.active?14*intensity*lightPulse:0;
-      coloredFlameLight.position.copy(flame.source).add(lightLift);
+      // The cast light follows the flame's own puffing and swaying instead of
+      // fixed sines: power with the emitting volume, position with its centroid.
+      // The blue envelope, anchored on the cone, takes a smaller share of both.
+      const cast=flame.light;
+      flameLightSway.set(cast.x,cast.lift*.5,cast.z).multiplyScalar(flameHeight);
+      flameLight.intensity=.65*(1+.6*cast.pulse);
+      flameLight.position.copy(flameLightBase).addScaledVector(flameLightSway,.6);
+      coloredFlameLight.intensity=plume.active?14*intensity*(1+cast.pulse):0;
+      coloredFlameLight.position.copy(flame.source).add(lightLift).add(flameLightSway);
       scene.updateMatrixWorld();
       glassShadowUniforms.glassRodStart.value.set(2.18,0,0).applyMatrix4(rod.matrixWorld);
       glassShadowUniforms.glassRodEnd.value.set(6.03,0,0).applyMatrix4(rod.matrixWorld);

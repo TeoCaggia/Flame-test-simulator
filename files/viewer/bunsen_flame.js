@@ -67,7 +67,11 @@ export function createVolumetricFlame(track){
   const smooth=(a,b,x)=>{const t=Math.min(1,Math.max(0,(x-a)/(b-a)));return t*t*(3-2*t);};
   const toHalf=THREE.DataUtils.toHalfFloat;
   const wake={x:0,z:0,inside:0,tip:new THREE.Vector3(),known:false};
-  let tipScale=1,flicker=0;
+  let tipScale=1;
+  // Light the flame casts, in flame heights: offset of its centroid and
+  // relative change of its power.
+  const castLight={x:0,z:0,lift:0,pulse:0};
+  const LIGHT_TEXEL=Math.round(.6/MOTION_TOP*(MOTION_TEXELS-1));
   const coneWobble=new THREE.Vector3(0,0,1);
   function advanceMotion(time,tip,height,inside,calm){
     const dt=lastTime===null?0:Math.min(.25,Math.max(0,time-lastTime));lastTime=time;
@@ -87,14 +91,22 @@ export function createVolumetricFlame(track){
     for(let i=0;i<MOTION_TEXELS;i++){
       const h=i/(MOTION_TEXELS-1)*MOTION_TOP,age=ageAt(h),above=smooth(rodH,rodH+.2,h);
       const stirred=calm*(1+.5*wake.inside*above),grow=smooth(.12,1.05,h)*stirred,lean=.032*h*h*calm;
-      motionData[i*4]=toHalf(.018*grow*rimAt(rimX,age)+lean*rim.draftX+above*calm*wake.x);
-      motionData[i*4+1]=toHalf(.018*grow*rimAt(rimZ,age)+lean*rim.draftZ+above*calm*wake.z);
+      const swayX=.018*grow*rimAt(rimX,age)+lean*rim.draftX+above*calm*wake.x;
+      const swayZ=.018*grow*rimAt(rimZ,age)+lean*rim.draftZ+above*calm*wake.z;
+      if(i===LIGHT_TEXEL){castLight.x=swayX;castLight.z=swayZ;}
+      motionData[i*4]=toHalf(swayX);motionData[i*4+1]=toHalf(swayZ);
       motionData[i*4+2]=toHalf(.05*smooth(.25,1,h)*stirred*rimAt(rimPuff,age));
     }
     motionTexture.needsUpdate=true;
     // A swelling reaching the top stretches the tip before it pinches back.
     tipScale=1+calm*(.022*rim.tip+.03*rimAt(rimPuff,ageAt(.75)));
-    flicker=calm*rimAt(rimPuff,ageAt(.5));
+    const flicker=calm*rimAt(rimPuff,ageAt(.5));
+    // The emitting volume swells with each puff and as the tip stretches, so
+    // the light it casts breathes with it (about ±8 %, more when the rod stirs
+    // the gas); its centroid follows the mantle at mid-height and rises with
+    // the tip. The cone below barely moves and is left out.
+    castLight.lift=tipScale-1;
+    castLight.pulse=(1+.5*wake.inside)*(.06*THREE.MathUtils.clamp(flicker,-2.5,2.5)+.03*calm*THREE.MathUtils.clamp(rim.tip,-2.5,2.5));
     // Tip offset (flame heights) and height scale of the inner cone.
     coneWobble.set(.006*calm*rim.coneX2,.006*calm*rim.coneZ2,
       1+calm*(.022*rim.coneH+.012*rimAt(rimPuff,ageAt(.15))));
@@ -238,9 +250,22 @@ export function createVolumetricFlame(track){
         float evaporation=exp(-ch*7.0)*(1.0-smoothstep(0.0,1.0,cd))*colouredVertical;
         float lateralBlend=smoothstep(.16,1.02,cd);
         // Tint is the viewer element colour, converted from sRGB by the scene.
-        // Keep its hue intact instead of whitening it or mixing in blue.
-        vec3 warm=tint;
-        float colouredDensity=(colouredBody*(1.65+.45*heat)+colouredVeil*.16+evaporation*.9)
+        // The hue stays the element's, but the emitter concentration does not
+        // stay flat. Salt vapour is densest just above the bead: the strongest
+        // emission there is the brightest, almost saturating, form of the same
+        // hue with a trace of white. Vapour thins out with height and towards
+        // the edges, where the colour is dimmer. Filaments carried up by the gas
+        // are alternately richer and poorer. Near the tip the cooling gas emits
+        // less, and the deeper, darker colour fades into the mantle.
+        float streak=noise(vec2(((q.x-centre.x)*.83+(q.z-centre.y)*.56)*34.0,parcel*4.5))-.5;
+        float core=1.0-smoothstep(0.0,.8,cd);
+        float rich=exp(-ch*2.4)*core;
+        vec3 peak=tint/max(.001,max(tint.r,max(tint.g,tint.b)));
+        float cooling=smoothstep(.40,1.0,ch);
+        vec3 warm=pow(mix(tint,peak,clamp(rich+streak*.4*core,0.0,1.0)),vec3(1.0+.65*cooling+.30*lateralBlend));
+        warm=mix(warm,vec3(1.0),clamp((rich*.30+evaporation*.25)*(1.0+.8*streak),0.0,.40));
+        warm*=(.95+.55*streak*smoothstep(.04,.3,ch)+.20*(heat-.5))*mix(1.0,.55,cooling)*mix(1.0,.80,lateralBlend);
+        float colouredDensity=(colouredBody*(1.65+.45*heat+.40*streak)+colouredVeil*.16+evaporation*.9)
           *(1.0-lateralBlend*.62)*opacity*1.80/max(.12,mouthRadius*2.0);
         // In the coloured plume, sodium emission replaces most of the blue
         // contribution instead of adding complementary colours into a pale mix.
@@ -326,10 +351,11 @@ export function createVolumetricFlame(track){
       // The halo follows the coloured plume when there is one, else the cone.
       const glow=plume.active?Math.min(1,intensity):0;
       const centreY=plume.active?Math.max(3.26+height*.32,tip.y+(3.26+height*.9-tip.y)*.45):3.26+height*.22;
-      halo.position.set(0,centreY,0);
+      halo.position.set(castLight.x*height,centreY+castLight.lift*height*.5,castLight.z*height);
       halo.scale.set(height*(.55+.45*glow),height*(.6+.75*glow)*tipScale,1);
-      haloMaterial.color.copy(envelopeGlow).multiplyScalar(.10*(1-glow))
-        .add({r:color[0]*.30*glow,g:color[1]*.30*glow,b:color[2]*.30*glow});
+      const haloPower=1+castLight.pulse;
+      haloMaterial.color.copy(envelopeGlow).multiplyScalar(.10*(1-glow)*haloPower)
+        .add({r:color[0]*.30*glow*haloPower,g:color[1]*.30*glow*haloPower,b:color[2]*.30*glow*haloPower});
       uniforms.boundsMin.value.set(-radius,bottom,-radius);uniforms.boundsMax.value.set(radius,top,radius);
       uniforms.flameHeight.value=height;uniforms.mouthRadius.value=mouthRadius;
       // Only a detached, withdrawing remnant retains its last contact point.
@@ -346,8 +372,8 @@ export function createVolumetricFlame(track){
       uniforms.cameraWorld.value.copy(camera.matrixWorld);
     },
     source:uniforms.sampleTip.value,
-    // Current puffing of the flame, about unit variance, for the light it casts.
-    get flicker(){return flicker;},
+    // Centroid offset and power change of the light the flame casts.
+    light:castLight,
     volume
   };
 }
