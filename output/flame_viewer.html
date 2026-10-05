@@ -398,7 +398,11 @@ button:focus-visible { outline: none; }
 
 .panel {
   overflow: hidden;
-  border: 2px solid var(--hairline);
+  /* The frame is an outline drawn over the panel's own content: a border
+     sits under children (canvas, video, glows) that clip it at the corners,
+     and it shrinks the inner radius so the glows no longer match. */
+  outline: 2px solid var(--hairline);
+  outline-offset: -2px;
   border-radius: 12px;
   background: rgba(6, 6, 14, .96);
   box-shadow: 0 8px 32px rgba(0, 0, 0, .80);
