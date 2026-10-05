@@ -489,6 +489,11 @@ button:focus-visible { outline: none; }
   position: relative;
 }
 
+/* These two panels draw their frame only with ::after: the outline as well
+   would double the translucent hairline and look lighter. */
+.stage.panel,
+.reagent-panel.panel { outline: none; }
+
 /* A playing video is its own GPU layer and covers the panel outline, so the
    panel draws its frame again on top, like the stage. */
 .reagent-panel::after {
