@@ -486,6 +486,17 @@ button:focus-visible { outline: none; }
     radial-gradient(circle at 50% 46%, rgba(168, 206, 255, .07), transparent 48%),
     var(--void-deep);
   text-align: center;
+  position: relative;
+}
+
+/* A playing video is its own GPU layer and covers the panel outline, so the
+   panel draws its frame again on top, like the stage. */
+.reagent-panel::after {
+  content: '';
+  position: absolute; z-index: 10; inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 2px var(--hairline);
+  pointer-events: none;
 }
 
 .reagent-placeholder {
