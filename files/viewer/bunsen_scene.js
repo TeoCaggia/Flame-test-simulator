@@ -101,7 +101,7 @@ export function createBunsenScene({canvas, textureImages={}, elements=[], onRodS
   // Home framing: three-quarter view from the front right and above, showing
   // the whole cabinet, the bench jar, the burner with its hose and the flame.
   // Fitted to the reference screenshot of 4 October 2026 (920x709 canvas).
-  const HOME_AZIMUTH=.307,HOME_ELEVATION=.351,HOME_DISTANCE=21.45;
+  const HOME_AZIMUTH=.307,HOME_ELEVATION=.351,HOME_DISTANCE=18;
   const homeTarget=new THREE.Vector3(0,2.57,0),target=homeTarget.clone();
   let azimuth=HOME_AZIMUTH,elevation=HOME_ELEVATION,distance=HOME_DISTANCE,active=false,gesture=null;
   let lastSize='',rodAnimation=null;

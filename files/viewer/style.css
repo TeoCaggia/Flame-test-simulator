@@ -183,7 +183,7 @@ button:focus-visible { outline: none; }
   display: grid;
   /* --elements-width is measured in JS so the elements panel ends midway
      between the two spectrum mode buttons. */
-  grid-template-columns: var(--elements-width, minmax(190px, 1fr)) minmax(0, var(--stage-width, 1fr)) auto;
+  grid-template-columns: var(--elements-width, minmax(190px, 1fr)) minmax(0, 1fr) auto;
   grid-template-rows: minmax(0, 1fr) 210px;
   --reagent-side: min(44vw, calc(100dvh - 16px - 9px - 210px));
   gap: 9px;
@@ -201,7 +201,7 @@ button:focus-visible { outline: none; }
 
 .panel {
   overflow: hidden;
-  border: 1px solid var(--hairline);
+  border: 2px solid var(--hairline);
   border-radius: 12px;
   background: rgba(6, 6, 14, .96);
   box-shadow: 0 8px 32px rgba(0, 0, 0, .80);
@@ -353,7 +353,7 @@ button:focus-visible { outline: none; }
   letter-spacing: -.01em;
   text-overflow: ellipsis;
   white-space: nowrap;
-  justify-self: start;
+  justify-self: stretch;
 }
 
 .stage {
@@ -851,7 +851,7 @@ button:focus-visible { outline: none; }
 
 @media (max-height: 620px) {
   .app {
-    grid-template-columns: var(--elements-width, minmax(176px, 1fr)) minmax(0, var(--stage-width, 1fr)) auto;
+    grid-template-columns: var(--elements-width, minmax(176px, 1fr)) minmax(0, 1fr) auto;
     grid-template-rows: minmax(0, 1fr) 172px;
     --reagent-side: min(44vw, calc(100dvh - 12px - 9px - 172px));
     padding: 6px 18px;
