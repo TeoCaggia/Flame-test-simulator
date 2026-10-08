@@ -60,6 +60,9 @@ __FONT_LICENSE__
             <button class="spectrum-mode-button" type="button" data-spectrum-mode="theoretical" aria-pressed="true">Spettro teorico</button>
             <button class="spectrum-mode-button" type="button" data-spectrum-mode="experimental" aria-pressed="false">Spettro sperimentale</button>
           </div>
+          <button id="method-open" class="round-button" type="button" aria-label="Come è costruito lo spettro teorico" aria-haspopup="dialog" aria-controls="method-dialog">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="6.5" r="1.6" stroke="none"/><path d="M12 10.5v8"/></svg>
+          </button>
         </div>
         <svg id="spectrum" viewBox="0 0 1000 148" role="img" aria-label="Righe atomiche e bande molecolari dello spettro di emissione"></svg>
       </div>
@@ -69,6 +72,14 @@ __FONT_LICENSE__
       </aside>
     </section>
   </main>
+  <dialog id="method-dialog" class="method-dialog panel" aria-labelledby="method-title">
+    <div class="method-body">
+      <button id="method-close" class="round-button method-close" type="button" aria-label="Chiudi">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.5 7.5l9 9M16.5 7.5l-9 9"/></svg>
+      </button>
+      __METHOD_TEXT__
+    </div>
+  </dialog>
   <noscript>JavaScript required.</noscript>
   <script id="flame-data" type="application/json">__DATA__</script>
   <script type="importmap">__3D_IMPORTS__</script>

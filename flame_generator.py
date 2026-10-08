@@ -13,6 +13,7 @@ ASSETS = ROOT / "files" / "viewer"
 DATA = ROOT / "files" / "elements.json"
 VIDEOS = ROOT / "files" / "videos"
 VIDEO_THUMBNAILS = ROOT / "files" / "video_thumbnails"
+DESCRIPTIONS = ROOT / "files" / "descrizioni"
 EXPERIMENTAL_SPECTRA = ROOT / "files" / "spectral_sources" / "definitivo"
 EXPERIMENTAL_FILES = {
     "Li": "Li_litio.csv",
@@ -22,7 +23,9 @@ EXPERIMENTAL_FILES = {
     "Ca": "Ca_calcio.csv",
     "Cu": "Cu_rame.csv",
     "Sr": "Sr_stronzio.csv",
+    "Rb": "Rb_rubidio.csv",
     "Ba": "Ba_bario.csv",
+    "Cs": "Cs_cesio.csv",
 }
 VIEWER_EXCLUDED_ELEMENTS = {"Fe"}
 # Provenance fields kept in elements.json for scripts/rebuild_spectra.cjs; the viewer never reads them.
@@ -83,8 +86,12 @@ def build(output: Path, element: str = "Na") -> Path:
     for item in data["elements"]:
         if not item.get("reagentName") or not item.get("reagentFormula"):
             raise ValueError(f"Missing reagent label data for {item['symbol']}")
-        if not item.get("spectrumDescription"):
-            raise ValueError(f"Missing spectrum description for {item['symbol']}")
+        description_path = DESCRIPTIONS / f"{item['symbol']}_{item['name'].lower()}.txt"
+        # utf-8-sig tolerates the BOM Notepad may add when saving.
+        description = description_path.read_text(encoding="utf-8-sig").strip() if description_path.is_file() else ""
+        if not description:
+            raise ValueError(f"Missing spectrum description for {item['symbol']}: {description_path}")
+        item["spectrumDescription"] = description
         video_path = VIDEOS / f"{item['symbol']}.mp4"
         if video_path.is_file():
             thumbnail_path = VIDEO_THUMBNAILS / f"{item['symbol']}.png"
@@ -145,6 +152,8 @@ def build(output: Path, element: str = "Na") -> Path:
         "__DATA__": payload,
         "__SCRIPT__": (ASSETS / "viewer.js").read_text(encoding="utf-8"),
         "__3D_IMPORTS__": imports_3d,
+        # utf-8-sig tolerates the BOM Notepad may add when saving.
+        "__METHOD_TEXT__": (DESCRIPTIONS / "spettro_teorico.txt").read_text(encoding="utf-8-sig").strip(),
         "__3D_MODULE__": module_uri((ASSETS / "bunsen_scene.js").read_text(encoding="utf-8")),
         "__FONT_LICENSE__": "\n\n".join(
             "\n".join(
@@ -154,7 +163,7 @@ def build(output: Path, element: str = "Na") -> Path:
             for name in ("OFL.txt", "OFL-FiraCode.txt")
         ),
     }
-    html = re.sub(r"__(?:STYLE|DATA|SCRIPT|3D_IMPORTS|3D_MODULE|FONT_LICENSE)__", lambda m: replacements[m[0]], html)
+    html = re.sub(r"__(?:STYLE|DATA|SCRIPT|METHOD_TEXT|3D_IMPORTS|3D_MODULE|FONT_LICENSE)__", lambda m: replacements[m[0]], html)
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(html, encoding="utf-8")
     return output

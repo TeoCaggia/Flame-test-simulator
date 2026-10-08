@@ -9,7 +9,6 @@
       "colorName": "Fucsia carminio",
       "reagentName": "Cloruro di litio",
       "reagentFormula": "LiCl",
-      "spectrumDescription": "Lo spettro presenta poche righe, di cui la più intensa si trova intorno a 671 nm ed è accompagnata da emissioni arancioni molto più deboli. Il colore intenso rende i sali di litio utili per ottenere effetti rosso cremisi nei fuochi d'artificio e nei razzi di segnalazione.",
       "spectral_components": [
         {
           "id": "Li I",
@@ -59,7 +58,6 @@
       "colorName": "Verde giallastro",
       "reagentName": "Acido borico",
       "reagentFormula": "H3BO3",
-      "spectrumDescription": "A differenza di quanto accade per molti metalli, il colore verde non deriva da singole righe atomiche, ma da ampie bande di emissione delle molecole di BO2 che si formano nella fiamma. Questa caratteristica fiamma verde dei composti borati viene spesso usata nelle dimostrazioni didattiche e come prova qualitativa per riconoscere la presenza di boro.",
       "spectral_components": [
         {
           "id": "BO2",
@@ -140,7 +138,6 @@
       "colorName": "Giallo ambra",
       "reagentName": "Cloruro di sodio",
       "reagentFormula": "NaCl",
-      "spectrumDescription": "Quasi tutta l'emissione è concentrata in un doppietto giallo-arancio con segnali a 589,0 e 589,6 nm, talmente intensi da essere in grado di nascondere le emissioni di altri elementi presenti in una fiamma. Questa stessa luce gialla si può osservare comunemente in cucina quando l'acqua salata raggiunge la fiamma dei fornelli e il sale disciolto produce rapidi lampi gialli molto intensi. L'emissione del sodio è stata inoltre sfruttata in molte lampade per l'illuminazione stradale, oggi progressivamente sostituite da luci a LED.",
       "spectral_components": [
         {
           "id": "Na I",
@@ -194,7 +191,6 @@
       "colorName": "Lilla rosato",
       "reagentName": "Cloruro di potassio",
       "reagentFormula": "KCl",
-      "spectrumDescription": "Lo spettro presenta emissioni particolarmente intense nel violetto e nel rosso profondo. Siccome l'occhio umano è poco sensibile alle estremità dello spettro visibile, la fiamma lilla del potassio può apparire debole e può facilmente essere coperta da altre emissioni più intense. I sali di potassio contribuiscono alle emissioni viola in ambito pirotecnico.",
       "spectral_components": [
         {
           "id": "K I",
@@ -244,7 +240,6 @@
       "colorName": "Giallo-arancio",
       "reagentName": "Cloruro di calcio",
       "reagentFormula": "CaCl2",
-      "spectrumDescription": "Le righe atomiche si sovrappongono alle bande prodotte da CaCl e CaOH, formando uno spettro più complesso che risulta in un'emissione rosso-arancio. Questa combinazione di lunghezze d'onda permette di distinguere la fiamma del calcio da quella rossa di litio e stronzio. I sali di calcio sono usati spesso nei fuochi d'artificio e nei razzi di segnalazione; la loro emissione viene anche utilizzata nella caratterizzazione della composizione delle acque minerali.",
       "spectral_components": [
         {
           "id": "Ca I",
@@ -624,7 +619,6 @@
       "colorName": "Oro",
       "reagentName": "Cloruro di ferro(III)",
       "reagentFormula": "FeCl3",
-      "spectrumDescription": "Il ferro presenta una vera e propria foresta di emissioni a bassa intensità distribuite lungo gran parte dello spettro visibile, alle quali si aggiungono le bande molto intense di FeO. Questa ricchezza di segnali rende possibile utilizzare l'emissione del ferro per identificare materiali e determinarne la composizione. Molte linee spettrali del ferro sono inoltre usate a livello astronomico per misurare la temperatura e studiare il movimento delle stelle.",
       "spectral_components": [
         {
           "id": "Fe I",
@@ -1898,7 +1892,6 @@
       "colorName": "Verde brillante",
       "reagentName": "Solfato di rame(II)",
       "reagentFormula": "CuSO4",
-      "spectrumDescription": "Nella fiamma prodotta dal solfato di rame gran parte della tonalità verde-azzurra deriva da emissioni molecolari di CuO e CuOH formatisi nella fiamma. Il colore cambia sensibilmente in base alla temperatura, all'umidità e alla presenza di cloro; per questo ottenere un colore blu puro e stabile è una delle principali difficoltà in ambito pirotecnico.",
       "spectral_components": [
         {
           "id": "Cu I",
@@ -2237,12 +2230,11 @@
       "symbol": "Rb",
       "name": "Rubidio",
       "number": 37,
-      "color": "#d84778",
+      "color": "#e66553",
       "saltColor": "#e8e1d2",
-      "colorName": "Rosso-porpora",
+      "colorName": "Rosso corallo",
       "reagentName": "Cloruro di rubidio",
       "reagentFormula": "RbCl",
-      "spectrumDescription": "Le righe rosse e violette producono complessivamente una tenue colorazione porpora; le emissioni più intense si trovano invece nel vicino infrarosso e non sono pertanto visibili all'occhio umano. Le linee spettrali del rubidio vengono sfruttate, a partire da celle a vapori atomici, per il funzionamento degli orologi atomici.",
       "spectral_components": [
         {
           "id": "Rb I",
@@ -2292,7 +2284,6 @@
       "colorName": "Rosso rosato",
       "reagentName": "Nitrato di stronzio",
       "reagentFormula": "Sr(NO3)2",
-      "spectrumDescription": "Lo spettro combina righe atomiche poco intense e forti bande molecolari di SrOH, che complessivamente generano un rosso saturo e facilmente visibile. Questa emissione risulta più netta e resistente alle contaminazioni rispetto a quella, di colore simile, del litio; pertanto i sali di stronzio sono tra i più usati in ambito pirotecnico e all'interno dei razzi di segnalazione.",
       "spectral_components": [
         {
           "id": "Sr I",
@@ -2642,12 +2633,11 @@
       "symbol": "Cs",
       "name": "Cesio",
       "number": 55,
-      "color": "#667dff",
+      "color": "#af88e6",
       "saltColor": "#e8e1d2",
-      "colorName": "Blu-violetto",
+      "colorName": "Viola lavanda",
       "reagentName": "Cloruro di cesio",
       "reagentFormula": "CsCl",
-      "spectrumDescription": "Le due caratteristiche righe di emissione blu a 455 e 459 nm che portarono alla scoperta di questo elemento spiegano anche il suo nome, derivante dal latino caesius, cielo. Nel saggio alla fiamma, a queste righe si affiancano emissioni più intense nel rosso che conferiscono complessivamente un delicato colore violetto.",
       "spectral_components": [
         {
           "id": "Cs I",
@@ -2693,7 +2683,6 @@
       "colorName": "Giallo-verde",
       "reagentName": "Nitrato di bario",
       "reagentFormula": "Ba(NO3)2",
-      "spectrumDescription": "La luce verde pallida è prodotta dalla sovrapposizione di molte emissioni atomiche e molecolari provenienti da BaO e BaOH formatisi nella fiamma. La larga banda nel vicino infrarosso intorno a 832 nm è attribuita a BaOH e non contribuisce direttamente al colore visibile. Il colore risultante tende maggiormente al giallo rispetto all'emissione del boro e viene spesso impiegato nella produzione di segnali luminosi.",
       "spectral_components": [
         {
           "id": "Ba I",

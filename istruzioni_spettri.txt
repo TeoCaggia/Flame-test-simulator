@@ -1,0 +1,399 @@
+ISTRUZIONI E CRITERI PER GLI SPETTRI TEORICI
+Progetto interactive_flame_test
+Ultimo controllo dei dati locali: 8 ottobre 2026
+
+1. SCOPO E SIGNIFICATO DEL MODELLO
+
+Questo documento descrive come sono costruite le componenti teoriche degli
+spettri degli elementi nel viewer, quali dati sono usati per definirne forma e
+posizione, come si confrontano con le misure sperimentali e quali limiti
+devono essere dichiarati.
+
+Lo spettro teorico è una somma di componenti attribuite a specie chimiche
+specifiche: righe atomiche e bande molecolari. Non è una simulazione completa
+della fiamma e non predice da solo la composizione chimica, la temperatura
+locale, l'autoassorbimento o l'intensità assoluta osservabile in una fiamma
+reale. Le ampiezze fra specie dello stesso elemento sono in parte calibrate
+con dati sperimentali locali, quando disponibili.
+
+I dati spettroscopici di base sono considerati nell'intervallo 380–850 nm,
+con lunghezze d'onda in aria. Una configurazione dell'interfaccia può mostrare
+un intervallo più corto (per esempio fino a 820 nm): il ritaglio del grafico
+non equivale a una modifica dei dati teorici sottostanti.
+
+2. PRINCIPI GENERALI
+
+2.1 Attribuzione prima della forma
+
+Ogni componente deve essere associata a una specie e a una fonte che sostenga
+la sua presenza o le sue caratteristiche spettrali. La formula del sale
+introdotto nella fiamma non basta da sola per attribuire una nuova banda: la
+specie emittente è quella che effettivamente produce le righe o bande
+osservate. Non aggiungere segnali basandosi soltanto su ipotesi chimiche,
+somiglianze visive o picchi residui non assegnati.
+
+2.2 Dati relativi, non intensità assolute
+
+Le intensità sono normalizzate e descrivono rapporti relativi. Per le righe
+atomiche si normalizza ciascuna specie al suo massimo. Per le bande molecolari
+si mantengono i rapporti interni rilevati nella sorgente isolata disponibile.
+La normalizzazione interna non rende confrontabili in assoluto due specie
+diverse: le loro scale complessive sono determinate separatamente tramite fit
+sperimentale quando un CSV idoneo è disponibile.
+
+2.3 Separare lo spettro teorico dalla risposta strumentale
+
+Le righe atomiche teoriche sono linee ideali e strette; la larghezza
+strumentale non va incorporata nella forma teorica visualizzata. La risposta
+gaussiana con sigma 0,84 nm, usata come approssimazione dell'Ocean Optics
+USB2000, serve soltanto a calcolare fit e confronti con misure sperimentali.
+Per le bande molecolari si usano invece i profili estesi ricavati dai dati
+della sorgente; non si devono trasformare classificazioni qualitative in
+intensità numeriche inventate.
+
+3. COMPONENTI ATOMICHE
+
+3.1 Fonte e specie coperte
+
+Per le righe atomiche si usa un solo database omogeneo: NIST Atomic Spectra
+Database (ASD), Lines Form. Si conservano nei file locali le risposte TSV
+scaricate e, nella prima riga di ciascun file, la query esatta. Sono state
+interrogate le specie Li I, Na I, K I, Ca I, Fe I, Cu I, Rb I, Sr I, Cs I,
+Ba I e Ba II nell'intervallo 380–850 nm.
+
+3.2 Selezione delle transizioni
+
+Per ogni riga si legge la lunghezza d'onda osservata in aria
+(obs_wl_air(nm)); se manca o non è utilizzabile, si usa la lunghezza d'onda
+Ritz in aria (ritz_wl_air(nm)). Si richiedono valori numerici validi di:
+
+- lunghezza d'onda;
+- probabilità di transizione A_ki in s^-1;
+- energia del livello superiore E_k in eV;
+- momento angolare totale J_k del livello superiore.
+
+Si scartano le righe fuori intervallo, con A_ki non positivo o con uno dei
+parametri richiesti mancante/non numerico. I duplicati con uguali lunghezza
+d'onda, A_ki, E_k e J_k sono conteggiati una sola volta. Le unità e i valori
+sono interpretati come forniti da NIST ASD.
+
+3.3 Peso relativo LTE
+
+La forza emissiva relativa della transizione è calcolata assumendo equilibrio
+termodinamico locale (LTE), emissione otticamente sottile e temperatura unica
+di 2200 K:
+
+    epsilon_i = (2 J_k + 1) * A_ki * exp[-E_k / (k_B T)] / lambda_i
+
+dove k_B = 8,617333262 × 10^-5 eV/K, T = 2200 K e lambda è espressa nella
+stessa unità spettrale per tutte le righe. Il fattore 2J_k+1 è la degenerazione
+del livello superiore. L'intensità viene divisa per il massimo della stessa
+componente atomica. Si conservano le righe con intensità relativa almeno
+10^-6; non si applica una soglia arbitraria di visibilità basata sul colore
+del grafico.
+
+3.4 Rappresentazione
+
+Ogni transizione conservata è una riga verticale ideale alla lunghezza d'onda
+NIST, con altezza proporzionale al peso relativo appena calcolato. La
+convoluzione strumentale non altera questa rappresentazione teorica. Può
+essere applicata alla linea atomica soltanto durante il fit sperimentale.
+
+3.5 Ioni e cambio di sale
+
+È inclusa Ba II oltre alle specie neutre elencate, perché il dataset del
+progetto la tratta come componente separata. Non si deduce automaticamente la
+presenza o la forza di uno ione dalla sola formula del reagente.
+
+Per il cesio è presente Cs I atomico. Cambiare il controione del sale (per
+esempio CsCl in Cs2SO4) non sposta le lunghezze d'onda intrinseche delle
+transizioni Cs I. Può cambiare volatilizzazione, atomizzazione, popolazioni e
+intensità misurate, ma il modello normalizzato non prevede questi effetti
+senza dati sperimentali e condizioni definite. Nelle fonti molecolari
+utilizzate non è documentata una componente CsCl o Cs2SO4 quantitativa da
+aggiungere: non va inventata né presentata come già calcolata.
+
+4. COMPONENTI MOLECOLARI
+
+4.1 Regola per costruire le bande
+
+Si usano le distribuzioni relative degli spettri di specie isolate nelle
+pubblicazioni, digitalizzando/trascrivendo i massimi e i relativi valori nel
+campo raw_values dei componenti. Le intensità dei raw_values vengono
+normalizzate al massimo interno della specie. Le singole bande sono mantenute
+come profili estesi (picchi con centro, altezza e larghezza definiti dai dati
+locali), non ridotte a righe atomiche. Se la fonte dà soltanto
+l'identificazione qualitativa o una descrizione senza rapporti numerici, non
+si assegnano ampiezze arbitrarie.
+
+4.2 Specie attualmente modellate e fonti associate
+
+- B: BO2. La forma e i rapporti relativi sono stimati dalla curva sperimentale
+  della fiamma verde con acido borico riportata da Itoh, Ding e Yoshida. Le
+  bande sono molecolari. Il boro atomico non è inserito nel visibile sulla
+  base dei dati del progetto, perché le righe principali richiamate dal metodo
+  cadono nell'ultravioletto.
+- Ca: CaCl e CaOH. Rapporti interni dalle curve isolate del CaCl e del CaOH
+  nella fonte Meyerriecks e Kosanke.
+- Fe: FeO. È un inviluppo/quasi-continuo semplificato tra 530 e 660 nm, non
+  una ricostruzione rovibronica completa. È normalizzato intorno al massimo
+  presso 591 nm, seguendo la distribuzione sperimentale descritta nella fonte
+  Popov et al. La scala relativa fra FeO e Fe I non è calibrata, perché non è
+  disponibile il CSV sperimentale USB2000 del ferro usato dagli altri fit.
+- Cu: CuOH, CuH e CuO. Rapporti interni delle bande dalle curve isolate
+  riportate da Meyerriecks e Kosanke.
+- Sr: SrOH e SrO/Sr2O2. Rapporti interni dalle curve della fonte
+  Meyerriecks e Kosanke. L'assegnazione SrO/Sr2O2 resta esplicitamente
+  incerta, come nella sorgente.
+- Ba: BaO condensato, BaOH e BaO gassoso. BaO condensato usa un inviluppo
+  approssimato dalla figura 15b della fonte; BaOH usa i rapporti interni delle
+  bande visibili; BaO gassoso usa i dati della colonna H dell'appendice.
+  Per BaOH la banda centrata a 832 nm segue anche il riferimento a Mestdagh et
+  al. (1990), con sigma 8 nm per riprodurre la FWHM di 18,5 nm misurata nel
+  CSV sperimentale locale.
+
+Se una specie non compare in questa lista e nel file files/elements.json, non
+aggiungerla senza una fonte specifica e dati coerenti con il metodo. La
+presenza di una banda in una miscela non prova da sola che essa appartenga al
+reagente desiderato: vanno valutati sovrapposizioni e contaminanti.
+
+4.3 Casi che richiedono cautela
+
+- CaO non viene aggiunto dalla fonte Meyerriecks e Kosanke: l'articolo dice
+  che non fu rilevato in quella misura.
+- La distribuzione BaO condensato è un continuo approssimato dai minimi della
+  curva, non un insieme di righe discrete misurate come valori indipendenti.
+- SrO/Sr2O2 ha assegnazione incerta e deve restare etichettato come tale.
+- FeO è un surrogato sperimentale semplificato del quasi-continuo: la fonte
+  afferma che una simulazione quantitativa rovibronica completa non è
+  praticabile con i parametri disponibili. Non interpretare i pochi punti del
+  profilo locale come spettro fondamentale completo.
+- Le bande molecolari senza rapporti numerici pubblicati non ricevono
+  intensità inventate.
+
+5. FIT CON GLI SPETTRI SPERIMENTALI
+
+5.1 Dati di confronto
+
+Quando disponibili, i CSV locali in
+files/spectral_sources/definitivo/ sono confronti sperimentali di fiamme di
+metanolo acquisiti con USB2000, come dichiarato nel metodo del progetto. I
+CSV non definiscono da soli la posizione delle righe atomiche né sostituiscono
+le fonti di specie: servono soprattutto a stimare la scala complessiva
+relativa delle componenti già documentate.
+
+File utilizzati dal fit:
+
+    Li: Li_litio.csv       B: B_boro.csv
+    Na: Na.csv             K: K_potassio.csv
+    Ca: Ca_calcio.csv      Cu: Cu_rame.csv
+    Sr: Sr_stronzio.csv    Ba: Ba_bario.csv
+
+Non è configurato un fit per Fe o Rb o Cs. L'assenza del fit non equivale a
+intensità fisica nulla. Il CSV B_boro.csv è stato ripulito nell'area di
+contaminazione C2/Swan, conservando la banda BO2 con massimo attorno a 579 nm
+e un fondo locale irregolare a bassa intensità; questa correzione riguarda il
+CSV sperimentale, non i dati teorici BO2.
+
+5.2 Intervalli del fit e maschere
+
+Gli intervalli inclusi sono:
+
+    Li 430–720 nm       B 430–610 nm
+    Na 540–630 nm       K 390–810 nm
+    Ca 400–710 nm       Cu 390–650 nm
+    Sr 440–735 nm       Ba 440–840 nm
+
+Per ridurre contributi contaminanti o regioni non adatte, si escludono dai
+fit questi intervalli (estremi inclusi):
+
+    Li: 584–594; 760–775 nm
+    B: 584–651,6; 760–775 nm
+    Ca: 584–594; 698,9–700,4; 760–775 nm
+    Cu: 584–594; 668,9–674,1; 760–775 nm
+    Sr: 584–594; 755–781 nm
+    Ba: 584–594; 760–775 nm
+
+Le maschere si applicano solo dove cadono nell'intervallo di fit; non
+cancellano i dati teorici. Na e K non hanno maschera esplicita nel codice.
+
+5.3 Procedura numerica
+
+Per ciascun fit:
+
+1. Si conservano i campioni CSV nell'intervallo definito e fuori dalle
+   maschere; i valori sperimentali negativi vengono portati a zero.
+2. Si normalizza il segnale sperimentale al suo massimo positivo nell'area
+   usata.
+3. Ogni componente teorica produce una colonna di valori calcolata sui
+   campioni. Le linee atomiche sono convolute con una gaussiana di sigma
+   0,84 nm; per le bande molecolari si usano le sigma definite dai singoli
+   picchi.
+4. Si cerca uno spostamento globale comune alle componenti da -2,00 a +2,00
+   nm, in passi di 0,02 nm.
+5. Per ogni spostamento si stima una scala non negativa per ogni componente
+   con minimi quadrati coordinati, fino a 4000 iterazioni o a convergenza
+   (massima variazione inferiore a 10^-12).
+6. Si sceglie il fit con RMSE più basso. Le scale vengono divise per la
+   scala massima fra le componenti dello stesso elemento. Se c'è una sola
+   componente, la sua scala è 1.
+
+Le scale ottenute sono coefficienti relativi del modello adattato a quel
+campione e a quel particolare intervallo. Non sono concentrazioni, rese
+quantiche, probabilità di formazione o intensità assolute trasferibili a
+qualsiasi fiamma. Lo spostamento globale è un parametro di allineamento del
+fit, non una correzione da applicare automaticamente ai valori tabulati NIST
+o alle lunghezze d'onda teoriche visualizzate.
+
+5.4 Picchi residui
+
+Il codice può registrare fino a 12 massimi positivi del residuo per elemento,
+come diagnostica. Un candidato deve avere residuo almeno 0,05, essere un
+massimo locale e superare di almeno 0,015 la media dei valori tre campioni a
+sinistra e a destra. La lista viene ordinata per residuo decrescente.
+Questi massimi NON diventano automaticamente nuove righe o bande: richiedono
+un'assegnazione indipendente a una fonte e una verifica delle contaminazioni.
+
+6. FONTI UTILIZZATE
+
+Le fonti qui elencate sono quelle richiamate dai campi source/method dei dati
+locali e dal metodo di ricostruzione. Sono riportati gli indirizzi persistenti
+presenti nel progetto; le copie NIST effettivamente usate sono nei TSV locali.
+
+6.1 Database delle righe atomiche
+
+NIST Atomic Spectra Database (ASD), Lines Form, query per singola specie
+atomica, 380–850 nm, lunghezze d'onda osservate e Ritz, A_ki, energie, J e
+riferimenti bibliografici:
+
+    Li I:  https://physics.nist.gov/cgi-bin/ASD/lines1.pl?spectra=Li+I&limits_type=0&low_w=380&upp_w=850&unit=1&format=3&line_out=3&en_unit=1&output=0&page_size=5000&show_obs_wl=1&show_calc_wl=1&intens_out=on&enrg_out=on&bibrefs=1&order_out=0&show_av=2&tsb_value=0&allowed_out=1&forbid_out=1&A_out=0&J_out=on
+    Na I:  https://physics.nist.gov/cgi-bin/ASD/lines1.pl?spectra=Na+I&limits_type=0&low_w=380&upp_w=850&unit=1&format=3&line_out=3&en_unit=1&output=0&page_size=5000&show_obs_wl=1&show_calc_wl=1&intens_out=on&enrg_out=on&bibrefs=1&order_out=0&show_av=2&tsb_value=0&allowed_out=1&forbid_out=1&A_out=0&J_out=on
+    K I:   https://physics.nist.gov/cgi-bin/ASD/lines1.pl?spectra=K+I&limits_type=0&low_w=380&upp_w=850&unit=1&format=3&line_out=3&en_unit=1&output=0&page_size=5000&show_obs_wl=1&show_calc_wl=1&intens_out=on&enrg_out=on&bibrefs=1&order_out=0&show_av=2&tsb_value=0&allowed_out=1&forbid_out=1&A_out=0&J_out=on
+    Ca I:  https://physics.nist.gov/cgi-bin/ASD/lines1.pl?spectra=Ca+I&limits_type=0&low_w=380&upp_w=850&unit=1&format=3&line_out=3&en_unit=1&output=0&page_size=5000&show_obs_wl=1&show_calc_wl=1&intens_out=on&enrg_out=on&bibrefs=1&order_out=0&show_av=2&tsb_value=0&allowed_out=1&forbid_out=1&A_out=0&J_out=on
+    Fe I:  https://physics.nist.gov/cgi-bin/ASD/lines1.pl?spectra=Fe+I&limits_type=0&low_w=380&upp_w=850&unit=1&format=3&line_out=3&en_unit=1&output=0&page_size=5000&show_obs_wl=1&show_calc_wl=1&intens_out=on&enrg_out=on&bibrefs=1&order_out=0&show_av=2&tsb_value=0&allowed_out=1&forbid_out=1&A_out=0&J_out=on
+    Cu I:  https://physics.nist.gov/cgi-bin/ASD/lines1.pl?spectra=Cu+I&limits_type=0&low_w=380&upp_w=850&unit=1&format=3&line_out=3&en_unit=1&output=0&page_size=5000&show_obs_wl=1&show_calc_wl=1&intens_out=on&enrg_out=on&bibrefs=1&order_out=0&show_av=2&tsb_value=0&allowed_out=1&forbid_out=1&A_out=0&J_out=on
+    Rb I:  https://physics.nist.gov/cgi-bin/ASD/lines1.pl?spectra=Rb+I&limits_type=0&low_w=380&upp_w=850&unit=1&format=3&line_out=3&en_unit=1&output=0&page_size=5000&show_obs_wl=1&show_calc_wl=1&intens_out=on&enrg_out=on&bibrefs=1&order_out=0&show_av=2&tsb_value=0&allowed_out=1&forbid_out=1&A_out=0&J_out=on
+    Sr I:  https://physics.nist.gov/cgi-bin/ASD/lines1.pl?spectra=Sr+I&limits_type=0&low_w=380&upp_w=850&unit=1&format=3&line_out=3&en_unit=1&output=0&page_size=5000&show_obs_wl=1&show_calc_wl=1&intens_out=on&enrg_out=on&bibrefs=1&order_out=0&show_av=2&tsb_value=0&allowed_out=1&forbid_out=1&A_out=0&J_out=on
+    Cs I:  https://physics.nist.gov/cgi-bin/ASD/lines1.pl?spectra=Cs+I&limits_type=0&low_w=380&upp_w=850&unit=1&format=3&line_out=3&en_unit=1&output=0&page_size=5000&show_obs_wl=1&show_calc_wl=1&intens_out=on&enrg_out=on&bibrefs=1&order_out=0&show_av=2&tsb_value=0&allowed_out=1&forbid_out=1&A_out=0&J_out=on
+    Ba I:  https://physics.nist.gov/cgi-bin/ASD/lines1.pl?spectra=Ba+I&limits_type=0&low_w=380&upp_w=850&unit=1&format=3&line_out=3&en_unit=1&output=0&page_size=5000&show_obs_wl=1&show_calc_wl=1&intens_out=on&enrg_out=on&bibrefs=1&order_out=0&show_av=2&tsb_value=0&allowed_out=1&forbid_out=1&A_out=0&J_out=on
+    Ba II: https://physics.nist.gov/cgi-bin/ASD/lines1.pl?spectra=Ba+II&limits_type=0&low_w=380&upp_w=850&unit=1&format=3&line_out=3&en_unit=1&output=0&page_size=5000&show_obs_wl=1&show_calc_wl=1&intens_out=on&enrg_out=on&bibrefs=1&order_out=0&show_av=2&tsb_value=0&allowed_out=1&forbid_out=1&A_out=0&J_out=on
+
+Cache usata in modalità offline:
+
+    files/spectral_sources/nist_asd/Li_I.tsv
+    files/spectral_sources/nist_asd/Na_I.tsv
+    files/spectral_sources/nist_asd/K_I.tsv
+    files/spectral_sources/nist_asd/Ca_I.tsv
+    files/spectral_sources/nist_asd/Fe_I.tsv
+    files/spectral_sources/nist_asd/Cu_I.tsv
+    files/spectral_sources/nist_asd/Rb_I.tsv
+    files/spectral_sources/nist_asd/Sr_I.tsv
+    files/spectral_sources/nist_asd/Cs_I.tsv
+    files/spectral_sources/nist_asd/Ba_I.tsv
+    files/spectral_sources/nist_asd/Ba_II.tsv
+
+6.2 Spettri isolati di emettitori di fiamma
+
+W. Meyerriecks e K. L. Kosanke, “Color Values and Spectra of the Principal
+Emitters in Colored Flames”, Journal of Pyrotechnics, Issue 18, Winter 2003.
+Usato per gli spettri isolati e le tabelle di intensità normalizzate.
+Usato nel progetto per CaCl, CaOH, CuOH, CuH, CuO, SrOH, SrO/Sr2O2,
+BaO condensato, BaOH e BaO gassoso.
+
+    PDF: https://www.jpyro.co.uk/wp-content/uploads/j18_1_fglk1.pdf
+
+Kazuomi Itoh, Dayu Ding e Tadao Yoshida, “Spectroscopic Measurement of Light
+and Flame of LEDs and Liquid Colors”, Journal of Pyrotechnics, Issue 24,
+Winter 2006, pp. 17–27. Usato per lo spettro e i rapporti delle bande BO2
+nella fiamma verde a base di acido borico; l'articolo discute anche la
+distinzione fra picchi atomici e bande BO2.
+
+    PDF: https://www.jpyro.co.uk/wp-content/uploads/j24_17_hwp9c.pdf
+
+A. M. Popov, A. A. Berezhnoy, J. Borovička, T. A. Labutin e S. M. Zaytsev,
+“Tackling the FeO orange band puzzle in meteor and airglow spectra through
+combined astronomical and laboratory studies”, Monthly Notices of the Royal
+Astronomical Society, 500(4), 4296–4306 (2021), DOI
+10.1093/mnras/staa3487. Usato per giustificare l'inviluppo sperimentale
+FeO/quasi-continuo e il limite alla simulazione rovibronica quantitativa.
+
+    Articolo: https://academic.oup.com/mnras/article/500/4/4296/5974545
+
+J. M. Mestdagh et al., “Reaction Dynamics of Electronically Excited Barium
+Atoms With Free Molecules and Molecular Clusters”, Laser Chemistry, 10(5–6),
+389–403 (1990), DOI 10.1155/1990/36585. Nel metodo del componente BaOH la
+posizione della banda a 832 nm è attribuita a questo lavoro. Il campo source
+del componente in elements.json punta però alla fonte Meyerriecks e Kosanke,
+non a Mestdagh: questa citazione è quindi esplicita nel metodo ma non
+registrata come fonte separata nel metadato strutturato.
+
+    Articolo: https://doi.org/10.1155/1990/36585
+
+6.3 Dati sperimentali locali utilizzati nei fit
+
+I seguenti file sono dati di confronto locali e non pubblicazioni esterne:
+
+    files/spectral_sources/definitivo/Li_litio.csv
+    files/spectral_sources/definitivo/B_boro.csv
+    files/spectral_sources/definitivo/Na.csv
+    files/spectral_sources/definitivo/K_potassio.csv
+    files/spectral_sources/definitivo/Ca_calcio.csv
+    files/spectral_sources/definitivo/Cu_rame.csv
+    files/spectral_sources/definitivo/Sr_stronzio.csv
+    files/spectral_sources/definitivo/Ba_bario.csv
+
+Il codice li descrive come spettri USB2000 della fiamma di metanolo. Nei
+metadati locali non è registrata una scheda completa di acquisizione per
+ciascun CSV (data, settaggi, campione, calibrazione e file grezzo originario).
+Perciò il documento non attribuisce loro informazioni di provenienza più
+precise di quelle effettivamente registrate.
+
+7. FILE DEL PROGETTO DA CONSULTARE PER RIPRODURRE IL METODO
+
+    scripts/rebuild_spectra.cjs
+        Intervalli, soglie, query NIST, formule, maschere, fit, profili,
+        diagnostica dei residui e generazione dell'audit.
+
+    files/elements.json
+        Componenti per elemento, picchi e valori grezzi, fonti, metodi,
+        scale di fit e descrizione globale spectralMethod.
+
+    files/spectral_sources/theoretical_audit.json
+        Parametri della generazione, numero di righe recuperate/conservate,
+        risultati RMSE e scale dei fit, residui diagnostici e limiti.
+
+    files/spectral_sources/nist_asd/*.tsv
+        Risposte NIST memorizzate e URL della query nella prima riga.
+
+8. LIMITI DA DICHIARARE QUANDO SI PRESENTA IL RISULTATO
+
+- Le righe atomiche modellano emissione otticamente sottile in LTE a 2200 K;
+  autoassorbimento e frazioni di ionizzazione non sono calcolati in modo
+  autonomo. Gli effetti possono essere assorbiti solo indirettamente nei fit
+  delle scale delle componenti.
+- Le scale dei fit dipendono dai CSV, dai range e dalle maschere scelti.
+  Non sono valori universali né misure di concentrazione.
+- Le ampiezze normalizzate dei dati atomici e molecolari hanno origini
+  differenti; non confrontarle come intensità assolute prima del fit.
+- La sigma USB2000 di 0,84 nm è una approssimazione del confronto
+  strumentale, non una larghezza intrinseca universale delle righe.
+- Le assegnazioni molecolari sono limitate alle specie e ai profili
+  documentati. Una specie non supportata dalla fonte rimane fuori dal modello.
+- FeO è rappresentato con un inviluppo semplificato senza scala FeO/Fe I
+  calibrata.
+- I massimi residui sono indizi per un'indagine successiva e non emissioni
+  confermate.
+- Il confronto fra sali con lo stesso elemento non giustifica uno
+  spostamento delle righe atomiche. Eventuali cambiamenti di volatilizzazione,
+  chimica o intensità richiedono dati sperimentali specifici.
+
+9. NOTA DI ALLINEAMENTO FRA CHAT E PROGETTO
+
+Nelle istruzioni date nelle chat per il confronto del cesio è stato richiesto
+di usare le stesse fonti del progetto sia per l'emissione atomica sia per
+quella molecolare. La regola è rispettata qui elencando separatamente fonti
+atomiche e molecolari e non aggiungendo una componente molecolare del cesio
+senza supporto nelle fonti di riferimento. Il metodo implementato e la
+documentazione locale sono la base per i parametri numerici riportati sopra;
+le chat servono a chiarire il criterio di interpretazione, non a sostituire
+le fonti spettroscopiche.

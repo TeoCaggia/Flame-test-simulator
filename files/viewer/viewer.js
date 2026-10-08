@@ -458,8 +458,39 @@
     byId('elements').append(button);
   }
 
+  const methodDialog=byId('method-dialog');
+  const methodBody=methodDialog.querySelector('.method-body');
+  // Unclamped height measured in fractional pixels: scrollHeight is rounded, and a sub-pixel overflow still shows the scrollbar.
+  function overflows(){
+    methodBody.style.maxHeight='none';
+    const height=methodBody.getBoundingClientRect().height;
+    methodBody.style.maxHeight='';
+    return height>parseFloat(getComputedStyle(methodDialog).maxHeight)-(methodDialog.offsetHeight-methodDialog.clientHeight);
+  }
+  // Narrowest width at which the whole text fits without scrolling; on screens too short for that, full width and a smaller text.
+  function fitMethodDialog(){
+    let low=640,high=Math.max(low,innerWidth-32);
+    methodBody.style.fontSize='';
+    methodDialog.style.width=`${high}px`;
+    if(overflows()){
+      for(let size=parseFloat(getComputedStyle(methodBody).fontSize)-.5;size>=9&&overflows();size-=.5)methodBody.style.fontSize=`${size}px`;
+      return;
+    }
+    while(high-low>8){
+      const mid=(low+high)/2;
+      methodDialog.style.width=`${mid}px`;
+      if(overflows())low=mid;else high=mid;
+    }
+    methodDialog.style.width=`${high}px`;
+  }
+  byId('method-open').addEventListener('click',()=>{methodDialog.showModal();fitMethodDialog();});
+  addEventListener('resize',()=>{if(methodDialog.open)fitMethodDialog();});
+  byId('method-close').addEventListener('click',()=>methodDialog.close());
+  // The dialog has no padding of its own, so a click whose target is the dialog itself landed on the backdrop.
+  methodDialog.addEventListener('click',event=>{if(event.target===methodDialog)methodDialog.close();});
+
   document.addEventListener('keydown',event=>{
-    if(event.repeat||event.altKey||event.ctrlKey||event.metaKey||event.shiftKey)return;
+    if(event.repeat||event.altKey||event.ctrlKey||event.metaKey||event.shiftKey||methodDialog.open)return;
     const direction=event.key==='ArrowUp'?-1:event.key==='ArrowDown'?1:0;
     if(!direction||selectionBusy)return;
     const symbol=adjacentElementSymbol(direction);

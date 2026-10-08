@@ -760,6 +760,104 @@ button:focus-visible { outline: none; }
   outline-offset: 2px;
 }
 
+/* Same height as the .spectrum-mode pill: 27px button + 2 × 3px padding + 2 × 1px border. */
+.round-button {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 35px;
+  height: 35px;
+  margin-left: 8px;
+  padding: 0;
+  border: 1px solid var(--stroke);
+  border-radius: 50%;
+  background: var(--vitrine);
+  color: var(--ink);
+  cursor: url("/cursori/manina-nitrile.svg?v=2") 10 2, url("/cursori/manina-nitrile.png?v=2") 10 2, pointer;
+  transition: color .14s ease, background .14s ease, border-color .14s ease;
+}
+
+.round-button svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+}
+
+.round-button:hover { border-color: rgba(255, 255, 255, .5); }
+
+.round-button:focus-visible {
+  outline: 3px solid rgba(130, 180, 255, .9);
+  outline-offset: 2px;
+}
+
+.method-dialog {
+  width: min(640px, calc(100vw - 32px));
+  max-width: calc(100vw - 32px);
+  border: 0;
+  max-height: calc(100vh - 96px);
+  padding: 0;
+  color: var(--ink-secondary);
+}
+
+.method-dialog::backdrop {
+  background: rgba(2, 2, 10, .7);
+  backdrop-filter: blur(3px);
+}
+
+.method-body {
+  max-height: inherit;
+  overflow: auto;
+  padding: 22px 26px 24px;
+  font-size: .90625rem;
+  line-height: 1.6;
+  scrollbar-color: rgba(168, 206, 255, .38) transparent;
+  scrollbar-width: thin;
+}
+
+.method-close {
+  float: right;
+  margin: -6px -10px 8px 16px;
+}
+
+.method-title {
+  margin: 0 0 12px;
+  color: var(--ink);
+  font-size: 1.517em;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -.5px;
+}
+
+.method-body h3 {
+  margin: 18px 0 6px;
+  color: var(--ink);
+  font-size: 1.103em;
+  font-weight: 700;
+}
+
+.method-body p,
+.method-body ul { margin: 0; }
+.method-body p + p { margin-top: 8px; }
+.method-body .method-formula { margin: 10px 0; text-align: center; }
+.method-body math {
+  font-family: 'Cambria Math', 'STIX Two Math', 'Latin Modern Math', math;
+  font-size: 1.25em;
+  color: var(--ink);
+}
+.method-body math[display="block"] { font-size: 1.379em; }
+.method-body ul { padding-left: 1.2em; }
+.method-body li + li { margin-top: 5px; }
+
+.method-body code {
+  font-family: 'Fira Code', monospace;
+  font-size: .897em;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
 #spectrum {
   position: relative;
   z-index: 1;
