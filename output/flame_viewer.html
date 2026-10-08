@@ -593,7 +593,7 @@ button:focus-visible { outline: none; }
   color: var(--ink);
   font-family: 'Fira Code', monospace;
   font-size: .8125rem;
-  font-weight: 400;
+  font-weight: 700;
   line-height: 1.2;
   letter-spacing: .15px;
   white-space: nowrap;
@@ -936,7 +936,7 @@ button:focus-visible { outline: none; }
   color: var(--ink);
   font-family: 'Fira Code', monospace;
   font-size: .8125rem;
-  font-weight: 400;
+  font-weight: 700;
   line-height: 1.2;
   letter-spacing: .15px;
   white-space: nowrap;
@@ -982,6 +982,8 @@ button:focus-visible { outline: none; }
   stroke-width: 2.2;
   stroke-linecap: round;
 }
+
+.info-button { font: 700 1.25rem/1 'Fira Code', monospace; }
 
 .round-button:hover { border-color: rgba(255, 255, 255, .5); }
 
@@ -1099,13 +1101,14 @@ button:focus-visible { outline: none; }
 }
 
 .spectrum-note-title {
-  margin: 0 0 7px;
-  color: var(--ink);
-  font-family: Syne, system-ui, sans-serif;
-  font-size: 1.1875rem;
-  font-weight: 700;
-  line-height: 1.25;
-  letter-spacing: -.5px;
+  margin: 0 0 10px;
+  color: rgba(255, 255, 255, .5);
+  font-family: 'Fira Code', monospace;
+  font-size: .875rem;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: .4px;
+  text-transform: uppercase;
 }
 
 .spectrum-description {
@@ -1163,7 +1166,7 @@ button:focus-visible { outline: none; }
   .spectrum { grid-row: 3; grid-column: 1 / -1; gap: 6px; }
   .spectrum-plot { grid-column: 1; padding: 9px 7px 7px; }
   .spectrum-note { grid-column: 2; padding: 10px 12px 12px; }
-  .spectrum-note-title { margin-bottom: 4px; font-size: 1rem; }
+  .spectrum-note-title { margin-bottom: 6px; font-size: .8125rem; }
   .spectrum-description { font-size: .8125rem; line-height: 1.5; }
   .stage-controls { top: 8px; left: 8px; }
 }
@@ -1275,8 +1278,8 @@ button:focus-visible { outline: none; }
             <button class="spectrum-mode-button" type="button" data-spectrum-mode="theoretical" aria-pressed="true">Spettro teorico</button>
             <button class="spectrum-mode-button" type="button" data-spectrum-mode="experimental" aria-pressed="false">Spettro sperimentale</button>
           </div>
-          <button id="method-open" class="round-button" type="button" aria-label="Come è costruito lo spettro teorico" aria-haspopup="dialog" aria-controls="method-dialog">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.6 7.8a4.55 4.55 0 1 1 6.6 4c-1.3.65-2.2 1.7-2.2 3.1v.8" fill="none" stroke-linejoin="round"/><circle cx="12" cy="20.4" r="1.75" stroke="none"/></svg>
+          <button id="method-open" class="round-button info-button" type="button" aria-label="Come è costruito lo spettro teorico" aria-haspopup="dialog" aria-controls="method-dialog">
+            ?
           </button>
         </div>
         <svg id="spectrum" viewBox="0 0 1000 148" role="img" aria-label="Righe atomiche e bande molecolari dello spettro di emissione"></svg>
